@@ -1,0 +1,30 @@
+name: CI / Publish db
+
+on:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 22.x
+
+jobs:
+  db:
+    name: 🚀 Publish database
+    runs-on: ubuntu-latest
+    environment: Production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: ✅ Checkout code
+        uses: actions/checkout@v5
+
+      - name: 🔨 Setup
+        uses: ./tooling/github/setup
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔍 Check database
+        run: pnpm --filter @workspace/db db:check
+
+      - name: 💨 Migrate!
+        run: pnpm --filter @workspace/db db:migrate
