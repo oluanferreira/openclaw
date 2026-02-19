@@ -1,1 +1,47 @@
-{}
+{
+  "useCases": {
+    "title": "What can OpenClaw do for you?",
+    "subtitle": "One assistant, thousands of use cases",
+    "note": "PS. You can add as many use cases as you want via natural language",
+    "case": {
+      "readSummarizeEmail": "Read & summarize email",
+      "draftReplies": "Draft replies and follow-ups",
+      "translateMessagesRealtime": "Translate messages in real time",
+      "organizeInbox": "Organize your inbox",
+      "answerSupportTickets": "Answer support tickets",
+      "summarizeLongDocuments": "Summarize long documents",
+      "notifyBeforeMeeting": "Notify before a meeting",
+      "scheduleMeetingsFromChat": "Schedule meetings from chat",
+      "remindDeadlines": "Remind you of deadlines",
+      "planYourWeek": "Plan your week",
+      "takeMeetingNotes": "Take meeting notes",
+      "syncAcrossTimeZones": "Sync across time zones",
+      "doYourTaxes": "Do your taxes",
+      "trackExpensesReceipts": "Track expenses and receipts",
+      "compareInsuranceQuotes": "Compare insurance quotes",
+      "manageSubscriptions": "Manage subscriptions",
+      "runPayrollCalculations": "Run payroll calculations",
+      "negotiateRefunds": "Negotiate refunds",
+      "findCoupons": "Find coupons",
+      "findBestPricesOnline": "Find best prices online",
+      "findDiscountCodes": "Find discount codes",
+      "priceDropAlerts": "Price-drop alerts",
+      "compareProductSpecs": "Compare product specs",
+      "negotiateDeals": "Negotiate deals",
+      "writeContractsNdas": "Write contracts and NDAs",
+      "researchCompetitors": "Research competitors",
+      "screenPrioritizeLeads": "Screen and prioritize leads",
+      "generateInvoices": "Generate invoices",
+      "createPresentationsFromBullets": "Create presentations from bullet points",
+      "bookTravelHotels": "Book travel and hotels",
+      "findRecipesFromIngredients": "Find recipes from ingredients",
+      "draftSocialPosts": "Draft social posts",
+      "monitorNewsAlerts": "Monitor news and alerts",
+      "setTrackGoals": "Set and track goals",
+      "screenColdOutreach": "Screen cold outreach",
+      "draftJobDescriptions": "Draft job descriptions",
+      "runStandupSummaries": "Run standup summaries",
+      "trackOkrsKpis": "Track OKRs and KPIs"
+    }
+  }
+}

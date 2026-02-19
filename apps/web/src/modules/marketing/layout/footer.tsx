@@ -1,6 +1,9 @@
-import { getTranslation } from "@workspace/i18n/server";
+import { BuiltWith } from "@workspace/ui-web/built-with";
 
-export const Footer = async () => {
-  const { t } = await getTranslation({ ns: "common" });
-  return <div>{t("builtWith")}</div>;
+export const Footer = () => {
+  return (
+    <div>
+      <BuiltWith />
+    </div>
+  );
 };

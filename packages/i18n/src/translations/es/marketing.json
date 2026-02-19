@@ -1,1 +1,47 @@
-{}
+{
+  "useCases": {
+    "title": "¿Qué puede hacer OpenClaw por ti?",
+    "subtitle": "Un asistente, miles de casos de uso",
+    "note": "PS. Puedes añadir tantos casos de uso como quieras via lenguaje natural",
+    "case": {
+      "readSummarizeEmail": "Leer y resumir correos",
+      "draftReplies": "Redactar respuestas y seguimientos",
+      "translateMessagesRealtime": "Traducir mensajes en tiempo real",
+      "organizeInbox": "Organizar tu bandeja de entrada",
+      "answerSupportTickets": "Responder tickets de soporte",
+      "summarizeLongDocuments": "Resumir documentos largos",
+      "notifyBeforeMeeting": "Avisar antes de una reunión",
+      "scheduleMeetingsFromChat": "Programar reuniones desde el chat",
+      "remindDeadlines": "Recordarte fechas límite",
+      "planYourWeek": "Planificar tu semana",
+      "takeMeetingNotes": "Tomar notas de reuniones",
+      "syncAcrossTimeZones": "Sincronizar entre zonas horarias",
+      "doYourTaxes": "Hacer tus impuestos",
+      "trackExpensesReceipts": "Registrar gastos y recibos",
+      "compareInsuranceQuotes": "Comparar cotizaciones de seguros",
+      "manageSubscriptions": "Gestionar suscripciones",
+      "runPayrollCalculations": "Calcular nóminas",
+      "negotiateRefunds": "Negociar reembolsos",
+      "findCoupons": "Encontrar cupones",
+      "findBestPricesOnline": "Encontrar los mejores precios online",
+      "findDiscountCodes": "Encontrar códigos de descuento",
+      "priceDropAlerts": "Alertas de bajada de precio",
+      "compareProductSpecs": "Comparar características de productos",
+      "negotiateDeals": "Negociar acuerdos",
+      "writeContractsNdas": "Redactar contratos y NDAs",
+      "researchCompetitors": "Investigar a la competencia",
+      "screenPrioritizeLeads": "Filtrar y priorizar leads",
+      "generateInvoices": "Generar facturas",
+      "createPresentationsFromBullets": "Crear presentaciones desde viñetas",
+      "bookTravelHotels": "Reservar viajes y hoteles",
+      "findRecipesFromIngredients": "Encontrar recetas según ingredientes",
+      "draftSocialPosts": "Redactar publicaciones en redes sociales",
+      "monitorNewsAlerts": "Monitorizar noticias y alertas",
+      "setTrackGoals": "Definir y seguir objetivos",
+      "screenColdOutreach": "Filtrar mensajes de prospección en frío",
+      "draftJobDescriptions": "Redactar descripciones de trabajo",
+      "runStandupSummaries": "Generar resúmenes de dailies",
+      "trackOkrsKpis": "Seguir OKRs y KPIs"
+    }
+  }
+}

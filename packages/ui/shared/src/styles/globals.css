@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "./theme.css";
 
-@custom-variant light (&:is(.light *));
-@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:where(.light, .light *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --radius: 0.65rem;

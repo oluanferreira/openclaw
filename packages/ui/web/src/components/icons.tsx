@@ -69,6 +69,7 @@ import {
   Building,
   HandCoins,
   Code,
+  Mail,
   VenetianMask,
   Ban,
   Eye,
@@ -78,6 +79,8 @@ import {
   Circle,
   Minus,
   PanelLeft,
+  Bell,
+  Calculator,
 } from "lucide-react";
 
 import { Icons as GlobalIcons } from "@workspace/ui/assets";
@@ -86,9 +89,12 @@ export const Icons = {
   ...GlobalIcons,
   Minus,
   PanelLeft,
+  Bell,
+  Calculator,
   Eye,
   Slash,
   Code,
+  Mail,
   VenetianMask,
   Lock,
   MailPlus,

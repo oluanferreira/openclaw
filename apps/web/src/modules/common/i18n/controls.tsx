@@ -31,5 +31,5 @@ export const I18nControls = () => {
     [path, router],
   );
 
-  return <LocaleCustomizer onChange={onChange} />;
+  return <LocaleCustomizer onChange={onChange} variant="icon" />;
 };

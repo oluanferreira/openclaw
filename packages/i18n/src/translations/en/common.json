@@ -175,6 +175,7 @@
   },
   "theme": {
     "title": "Theme",
+    "toggle": "Toggle theme",
     "mode": {
       "label": "Mode",
       "system": "System",

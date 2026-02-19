@@ -1,11 +1,11 @@
 import { withI18n } from "@workspace/i18n/with-i18n";
 
-import { Banner } from "~/modules/marketing/home/banner";
+import { UseCases } from "~/modules/marketing/home/use-cases";
 
 const HomePage = () => {
   return (
     <>
-      <Banner />
+      <UseCases />
     </>
   );
 };

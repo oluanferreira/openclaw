@@ -5,6 +5,7 @@ import { cn } from "@workspace/ui";
 
 import type { Icon } from "#components/icons";
 
+import { buttonVariants } from "#components/button";
 import { Icons } from "#components/icons";
 import {
   Select,
@@ -58,18 +59,26 @@ export const LocaleCustomizer = ({
   return (
     <Select value={locale} onValueChange={handleLocaleChange} items={items}>
       <SelectTrigger
-        className={cn({
-          "w-full": variant === "default",
-          "hover:bg-accent hover:text-accent-foreground flex size-10 items-center justify-center rounded-full border-none p-0 text-lg transition-colors [&>*:nth-child(2)]:hidden":
-            variant === "icon",
-        })}
+        className={cn(
+          {
+            "w-full": variant === "default",
+          },
+          variant === "icon" &&
+            cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "border-none p-0 shadow-none [&>*:nth-child(2)]:hidden",
+            ),
+        )}
         aria-label={t("language.change")}
       >
         {variant === "default" ? (
           <SelectValue aria-label={LocaleLabel[locale]} />
         ) : (
-          <SelectValue aria-label={LocaleLabel[locale]}>
-            <Icon className="size-10" />
+          <SelectValue
+            aria-label={LocaleLabel[locale]}
+            className="justify-center"
+          >
+            <Icon className="size-5" />
           </SelectValue>
         )}
       </SelectTrigger>
