@@ -25,6 +25,7 @@ import { Sidebar } from "@workspace/ui-web/sidebar";
 
 import { pathsConfig } from "~/config/paths";
 import { TurboLink } from "~/modules/common/turbo-link";
+import { UserNavigation } from "~/modules/user/user-navigation";
 
 import { ROOT_MENU_HREF } from "./types";
 import { useMenu } from "./use-menu";
@@ -33,179 +34,192 @@ import type { Menu } from "./types";
 import type { User } from "@workspace/auth";
 
 interface DashboardSidebarProps {
-  readonly header?: React.ReactNode;
   readonly user: User;
   readonly menu: Menu;
 }
 
-export const DashboardSidebar = memo<DashboardSidebarProps>(({ menu }) => {
-  const { t, i18n } = useTranslation("common");
-  const { setOpenMobile } = useSidebar();
-  const {
-    history,
-    onBack,
-    onForward,
-    currentHref,
-    findItemByHref,
-    findParentByHref,
-    isActive,
-  } = useMenu(menu);
+export const DashboardSidebar = memo<DashboardSidebarProps>(
+  ({ user, menu }) => {
+    const { t, i18n } = useTranslation("common");
+    const { setOpenMobile } = useSidebar();
+    const {
+      history,
+      onBack,
+      onForward,
+      currentHref,
+      findItemByHref,
+      findParentByHref,
+      isActive,
+    } = useMenu(menu);
 
-  return (
-    <Sidebar
-      collapsible="icon"
-      className="top-(--banner-height,0px) h-[calc(100svh-var(--banner-height,0px))]"
-    >
-      <SidebarHeader>
-        {/* {header ?? <AccountSwitcher user={user} />} */}
-      </SidebarHeader>
+    return (
+      <Sidebar
+        collapsible="icon"
+        className="top-(--banner-height,0px) h-[calc(100svh-var(--banner-height,0px))]"
+      >
+        <SidebarHeader>
+          <TurboLink
+            href={pathsConfig.index}
+            className="flex items-center gap-3 p-2 transition-[padding] group-data-[collapsible=icon]:p-0.5"
+          >
+            <Icons.Logo className="text-primary h-8 transition-[width,height]" />
+            <Icons.LogoText className="text-foreground h-4 group-data-[collapsible=icon]:hidden" />
+          </TurboLink>
+        </SidebarHeader>
 
-      <div className="relative h-full overflow-clip">
-        {Object.values(history)
-          .filter(Boolean)
-          .map((href, index) => {
-            const item = findItemByHref(href);
-            const parentHref = findParentByHref(href);
+        <div className="relative h-full overflow-clip">
+          {Object.values(history)
+            .filter(Boolean)
+            .map((href, index) => {
+              const item = findItemByHref(href);
+              const parentHref = findParentByHref(href);
 
-            const parentItem = parentHref ? findItemByHref(parentHref) : null;
-            const currentMenu = item?.menu ?? parentItem?.menu ?? menu;
+              const parentItem = parentHref ? findItemByHref(parentHref) : null;
+              const currentMenu = item?.menu ?? parentItem?.menu ?? menu;
 
-            return (
-              <SidebarContent
-                key={href}
-                className={cn("h-full", {
-                  "pointer-events-none absolute inset-x-0 top-0 opacity-0 blur-xs":
-                    href !== currentHref,
-                  "translate-x-4":
-                    href !== currentHref && href === history.next,
-                  "-translate-x-4":
-                    href !== currentHref && href === history.previous,
-                })}
-                style={{
-                  transition:
-                    index === 0
-                      ? "translate 0.2s ease, opacity 0.2s ease, filter 0.2s ease"
-                      : "translate 0.2s, opacity 0.2s, filter 0.2s",
-                }}
-                inert={href !== currentHref}
-              >
-                {parentHref &&
-                  (() => {
-                    const title =
-                      item?.title && isKey(item.title, i18n, "common")
-                        ? t(item.title)
-                        : item?.title;
-
-                    return (
-                      <div className="px-2">
-                        <SidebarMenuButton
-                          onClick={onBack}
-                          className="-mb-3 justify-between"
-                          tooltip={title}
-                        >
-                          <Icons.ChevronLeft />
-                          {title}
-                          <div className="size-4 flex-none"></div>
-                        </SidebarMenuButton>
-                      </div>
-                    );
-                  })()}
-                {currentMenu.map((group, index) => (
-                  <SidebarGroup key={index}>
-                    {group.label && (
-                      <SidebarGroupLabel className="uppercase">
-                        {isKey(group.label, i18n, "common")
-                          ? t(group.label)
-                          : group.label}
-                      </SidebarGroupLabel>
-                    )}
-                    <SidebarMenu>
-                      {group.items.map((item) => {
-                        const title = isKey(item.title, i18n, "common")
+              return (
+                <SidebarContent
+                  key={href}
+                  className={cn("h-full", {
+                    "pointer-events-none absolute inset-x-0 top-0 opacity-0 blur-xs":
+                      href !== currentHref,
+                    "translate-x-4":
+                      href !== currentHref && href === history.next,
+                    "-translate-x-4":
+                      href !== currentHref && href === history.previous,
+                  })}
+                  style={{
+                    transition:
+                      index === 0
+                        ? "translate 0.2s ease, opacity 0.2s ease, filter 0.2s ease"
+                        : "translate 0.2s, opacity 0.2s, filter 0.2s",
+                  }}
+                  inert={href !== currentHref}
+                >
+                  {parentHref &&
+                    (() => {
+                      const title =
+                        item?.title && isKey(item.title, i18n, "common")
                           ? t(item.title)
-                          : item.title;
+                          : item?.title;
 
-                        const active = isActive(item);
+                      return (
+                        <div className="px-2">
+                          <SidebarMenuButton
+                            onClick={onBack}
+                            className="-mb-3 justify-between"
+                            tooltip={title}
+                          >
+                            <Icons.ChevronLeft />
+                            {title}
+                            <div className="size-4 flex-none"></div>
+                          </SidebarMenuButton>
+                        </div>
+                      );
+                    })()}
+                  {currentMenu.map((group, index) => (
+                    <SidebarGroup key={index}>
+                      {group.label && (
+                        <SidebarGroupLabel className="uppercase">
+                          {isKey(group.label, i18n, "common")
+                            ? t(group.label)
+                            : group.label}
+                        </SidebarGroupLabel>
+                      )}
+                      <SidebarMenu>
+                        {group.items.map((item) => {
+                          const title = isKey(item.title, i18n, "common")
+                            ? t(item.title)
+                            : item.title;
 
-                        const props = {
-                          tooltip: title,
-                          onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-                            if (active) {
-                              e.preventDefault();
-                            } else {
-                              setOpenMobile(false);
-                            }
+                          const active = isActive(item);
 
-                            if (item.menu) {
-                              onForward(item.href);
-                            }
-                          },
-                          isActive: active,
-                        };
+                          const props = {
+                            tooltip: title,
+                            onClick: (
+                              e: React.MouseEvent<HTMLButtonElement>,
+                            ) => {
+                              if (active) {
+                                e.preventDefault();
+                              } else {
+                                setOpenMobile(false);
+                              }
 
-                        return (
-                          <SidebarMenuItem key={item.href}>
+                              if (item.menu) {
+                                onForward(item.href);
+                              }
+                            },
+                            isActive: active,
+                          };
+
+                          return (
+                            <SidebarMenuItem key={item.href}>
+                              <SidebarMenuButton
+                                {...props}
+                                render={<TurboLink href={item.href} />}
+                              >
+                                {item.icon}
+                                <span>{title}</span>
+                                {item.menu && (
+                                  <SidebarMenuAction>
+                                    <Icons.ChevronRight />
+                                  </SidebarMenuAction>
+                                )}
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </SidebarGroup>
+                  ))}
+
+                  {href === ROOT_MENU_HREF && (
+                    <SidebarGroup className="mt-auto">
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          <SidebarMenuItem>
                             <SidebarMenuButton
-                              {...props}
-                              render={<TurboLink href={item.href} />}
+                              tooltip={t("support")}
+                              onClick={() => setOpenMobile(false)}
+                              render={
+                                <TurboLink href="mailto:hello@turbostarter.dev" />
+                              }
                             >
-                              {item.icon}
-                              <span>{title}</span>
-                              {item.menu && (
-                                <SidebarMenuAction>
-                                  <Icons.ChevronRight />
-                                </SidebarMenuAction>
-                              )}
+                              <Icons.LifeBuoy />
+                              <span>{t("support")}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
-                        );
-                      })}
-                    </SidebarMenu>
-                  </SidebarGroup>
-                ))}
 
-                {href === ROOT_MENU_HREF && (
-                  <SidebarGroup className="mt-auto">
-                    <SidebarGroupContent>
-                      <SidebarMenu>
-                        <SidebarMenuItem>
-                          <SidebarMenuButton
-                            tooltip={t("support")}
-                            onClick={() => setOpenMobile(false)}
-                            render={<TurboLink href={pathsConfig.index} />}
-                          >
-                            <Icons.LifeBuoy />
-                            <span>{t("support")}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
+                          <SidebarMenuItem>
+                            <SidebarMenuButton
+                              tooltip={t("feedback")}
+                              onClick={() => setOpenMobile(false)}
+                              render={
+                                <TurboLink href="mailto:hello@turbostarter.dev" />
+                              }
+                            >
+                              <Icons.MessageCircle />
+                              <span>{t("feedback")}</span>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+                  )}
+                </SidebarContent>
+              );
+            })}
+        </div>
 
-                        <SidebarMenuItem>
-                          <SidebarMenuButton
-                            tooltip={t("feedback")}
-                            onClick={() => setOpenMobile(false)}
-                            render={<TurboLink href={pathsConfig.index} />}
-                          >
-                            <Icons.MessageCircle />
-                            <span>{t("feedback")}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      </SidebarMenu>
-                    </SidebarGroupContent>
-                  </SidebarGroup>
-                )}
-              </SidebarContent>
-            );
-          })}
-      </div>
-
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            {/* <UserNavigation user={user} /> */}
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
-  );
-});
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <UserNavigation user={user} />
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+    );
+  },
+);

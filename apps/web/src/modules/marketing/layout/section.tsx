@@ -26,15 +26,23 @@ export const SectionHeader = (props: ComponentProps<"div">) => {
   );
 };
 
-export const SectionBadge = (props: ComponentProps<"div">) => {
+export const SectionBadge = ({
+  className,
+  children,
+  ...props
+}: ComponentProps<"div">) => {
   return (
     <div
-      {...props}
       className={cn(
-        "group text-foreground hover:bg-accent/50 focus:ring-ring inline-flex h-8 items-center rounded-full border px-3 py-0.5 text-xs font-medium shadow-xs transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none sm:text-sm",
-        props.className,
+        "group text-primary flex h-8 min-h-[40px] w-full items-center justify-center gap-4 px-2 py-0.5 text-sm font-medium sm:min-h-[46px] sm:gap-8",
+        className,
       )}
-    />
+      {...props}
+    >
+      <div className="to-primary via-background h-0.5 w-full grow rounded-full bg-linear-to-r from-transparent"></div>
+      {children}
+      <div className="via-background to-primary h-0.5 w-full grow rounded-full bg-linear-to-l from-transparent"></div>
+    </div>
   );
 };
 

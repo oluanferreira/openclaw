@@ -211,7 +211,7 @@ export const UseCases = () => {
                     "border-dashed": index % 5 === 1,
                     "from-accent/10 to-accent/20 bg-linear-to-r":
                       index % 5 === 2,
-                    "border-2": index % 5 === 3,
+                    "border-dotted": index % 5 === 3,
                   })}
                 >
                   <item.icon className="text-muted-foreground size-4" />

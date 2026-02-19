@@ -1,4 +1,29 @@
 {
+  "hero": {
+    "title": "Implementa 🦞 OpenClaw en 30 segundos",
+    "subtitle": "Evita toda la complejidad técnica y uno-click implementa tu propia instancia de OpenClaw 24/7 activa en 30 segundos."
+  },
+  "comparison": {
+    "title": "Método tradicional vs {{productName}}",
+    "traditional": {
+      "steps": {
+        "provisionCloudServer": "Aprovisionar un servidor en la nube",
+        "generateSshKeys": "Generar y proteger claves SSH",
+        "establishServerConnection": "Establecer la conexión con el servidor",
+        "installNodeAndPackageManager": "Instalar Node.js y el gestor de paquetes",
+        "installOpenClaw": "Descargar e instalar OpenClaw",
+        "configureOpenClawEnvironment": "Configurar el entorno de OpenClaw",
+        "linkAiProvider": "Vincular proveedor de IA",
+        "integrateTelegram": "Integrar con Telegram"
+      },
+      "note": "Si eres <highlight>no técnico</highlight>, multiplica estos <highlight>tiempos por 10</highlight> - tienes que aprender cada paso antes de hacerlo."
+    },
+    "product": {
+      "timeUnderSeconds": "< {{seconds}} segundos",
+      "subtitle": "Elige un modelo, conecta Telegram, despliega - listo en menos de 30 segundos.",
+      "description": "Los servidores, SSH y el entorno de OpenClaw ya están configurados, esperando ser asignados. Conexión simple, segura y rápida con tu bot."
+    }
+  },
   "useCases": {
     "title": "¿Qué puede hacer OpenClaw por ti?",
     "subtitle": "Un asistente, miles de casos de uso",

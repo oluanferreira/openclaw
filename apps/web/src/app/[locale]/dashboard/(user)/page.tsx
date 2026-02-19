@@ -1,7 +1,7 @@
 import { getMetadata } from "~/lib/metadata";
 
 export const generateMetadata = getMetadata({
-  title: "common:home",
+  title: "createNewAssistant",
   description: "dashboard:user.home.description",
 });
 

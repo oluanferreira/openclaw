@@ -15,10 +15,6 @@
     @apply bg-primary text-background;
   }
 
-  ::-webkit-scrollbar {
-    @apply h-2 w-2;
-  }
-
   ::-webkit-scrollbar-track {
     @apply bg-muted/30;
   }

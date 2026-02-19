@@ -11,9 +11,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui-web/breadcrumb";
-import { buttonVariants } from "@workspace/ui-web/button";
 import { SidebarTrigger } from "@workspace/ui-web/sidebar";
 
+import { I18nControls } from "~/modules/common/i18n/controls";
+import { ThemeSwitcher } from "~/modules/common/theme";
 import { TurboLink } from "~/modules/common/turbo-link";
 
 import { useMenu } from "./sidebar/use-menu";
@@ -101,18 +102,10 @@ export const DashboardActionBar = ({ menu }: { menu: Menu }) => {
         ) : null}
       </div>
 
-      <a
-        href="https://discord.gg/KjpK2uk3JP"
-        rel="noopener noreferrer"
-        target="_blank"
-        className={buttonVariants({
-          variant: "ghost",
-          size: "icon",
-          className: "text-muted-foreground",
-        })}
-      >
-        {/* <Icons.Discord className="size-4.5" /> */}
-      </a>
+      <div>
+        <ThemeSwitcher />
+        <I18nControls />
+      </div>
     </header>
   );
 };

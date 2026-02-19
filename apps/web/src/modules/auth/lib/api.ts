@@ -14,6 +14,10 @@ const mutations = {
         authClient.signIn.social(params),
     }),
   },
+  signOut: mutationOptions({
+    mutationKey: [KEY, "signOut"],
+    mutationFn: () => authClient.signOut(),
+  }),
 } as const;
 
 export const auth = {

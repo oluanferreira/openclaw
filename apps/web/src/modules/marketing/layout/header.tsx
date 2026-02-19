@@ -10,7 +10,7 @@ import { TurboLink } from "~/modules/common/turbo-link";
 export const Header = async () => {
   const { t } = await getTranslation({ ns: "common" });
   return (
-    <header className="bg-background/80 sticky inset-0 top-(--banner-height,0px) z-40 w-full py-3 backdrop-blur-sm">
+    <header className="w-full py-3">
       <div className="flex items-center justify-between px-6 pr-4 sm:container">
         <TurboLink
           href={pathsConfig.index}
@@ -22,8 +22,8 @@ export const Header = async () => {
         </TurboLink>
 
         <div className="flex items-center justify-center">
-          <I18nControls />
           <ThemeSwitcher />
+          <I18nControls />
           <TurboLink
             href="mailto:hello@turbostarter.dev"
             className={buttonVariants({ variant: "ghost", size: "icon" })}

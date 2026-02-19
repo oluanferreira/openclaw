@@ -1,4 +1,29 @@
 {
+  "hero": {
+    "title": "Deploy 🦞 OpenClaw in 30 seconds",
+    "subtitle": "Avoid all technical complexity and one-click deploy your own 24/7 active OpenClaw instance in 30 seconds."
+  },
+  "comparison": {
+    "title": "Traditional Method vs {{productName}}",
+    "traditional": {
+      "steps": {
+        "provisionCloudServer": "Provisioning a cloud server",
+        "generateSshKeys": "Generating and protecting SSH keys",
+        "establishServerConnection": "Establishing the server connection",
+        "installNodeAndPackageManager": "Installing Node.js and package manager",
+        "installOpenClaw": "Downloading and installing OpenClaw",
+        "configureOpenClawEnvironment": "Configuring OpenClaw environment",
+        "linkAiProvider": "Linking to AI provider",
+        "integrateTelegram": "Integrating with Telegram"
+      },
+      "note": "If you're <highlight>non-technical</highlight>, multiply these <highlight>times by 10</highlight> - you have to learn each step before doing."
+    },
+    "product": {
+      "timeUnderSeconds": "< {{seconds}} seconds",
+      "subtitle": "Pick a model, connect Telegram, deploy - done under 30 seconds.",
+      "description": "Servers, SSH and OpenClaw Environment are already set up, waiting to get assigned. Simple, secure and fast connection to your bot."
+    }
+  },
   "useCases": {
     "title": "What can OpenClaw do for you?",
     "subtitle": "One assistant, thousands of use cases",
