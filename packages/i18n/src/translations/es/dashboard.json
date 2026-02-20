@@ -3,6 +3,22 @@
     "home": {
       "title": "Panel",
       "description": "Una vista general de la actividad de tu cuenta personal en todos tus proyectos."
+    },
+    "assistant": {
+      "new": {
+        "model": {
+          "label": "¿Qué modelo quieres usar?"
+        },
+        "chat": {
+          "label": "¿Qué quieres hablar?"
+        },
+        "note": {
+          "pricing": "<strong>$49 por mes.</strong> Incluye $15 en créditos de IA renovados mensualmente.",
+          "signIn": "Inicia sesión para desplegar tu asistente de IA y conectar tus canales.",
+          "connectChannel": "Conectar canal para continuar.",
+          "limited": "Servidores en la nube limitados — solo 8 restantes"
+        }
+      }
     }
   }
 }

@@ -3,6 +3,22 @@
     "home": {
       "title": "Dashboard",
       "description": "Overview of your personal account's activity across all your projects."
+    },
+    "assistant": {
+      "new": {
+        "model": {
+          "label": "What model do you want to use?"
+        },
+        "chat": {
+          "label": "What do you want to chat about?"
+        },
+        "note": {
+          "pricing": "<strong>$49 per month.</strong> Includes $15 in AI credits refreshed monthly.",
+          "signIn": "Sign in to deploy your AI assistant and connect your channels.",
+          "connectChannel": "Connect channel to continue.",
+          "limited": "Limited cloud servers — only 8 left"
+        }
+      }
     }
   }
 }
