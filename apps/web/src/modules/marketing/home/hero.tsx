@@ -1,12 +1,8 @@
 "use client";
 
-import { SocialProvider } from "@workspace/auth";
 import { useTranslation } from "@workspace/i18n";
-import { Button } from "@workspace/ui-web/button";
-import { Card, CardContent } from "@workspace/ui-web/card";
+import { Card } from "@workspace/ui-web/card";
 
-import { pathsConfig } from "~/config/paths";
-import { authClient } from "~/lib/auth/client";
 import { Section } from "~/modules/marketing/layout/section";
 
 export const Hero = () => {
@@ -22,21 +18,7 @@ export const Hero = () => {
         </p>
       </div>
 
-      <Card className="flex min-h-120 w-full min-w-0 flex-col gap-6 p-4 sm:gap-8 sm:p-6 md:w-[80%] md:gap-10 md:p-8">
-        <CardContent>
-          <Button
-            variant="outline"
-            onClick={() =>
-              authClient.signIn.social({
-                provider: SocialProvider.GITHUB,
-                callbackURL: pathsConfig.dashboard.user.index,
-              })
-            }
-          >
-            {SocialProvider.GITHUB}
-          </Button>
-        </CardContent>
-      </Card>
+      <Card></Card>
     </Section>
   );
 };

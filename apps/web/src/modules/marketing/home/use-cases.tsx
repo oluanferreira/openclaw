@@ -197,6 +197,7 @@ export const UseCases = () => {
         <div className="flex w-full flex-col gap-2">
           {groups.map((group, index) => (
             <Marquee
+              key={index}
               reverse={index % 2 === 0}
               pauseOnHover
               className="[--duration:45s] [--gap:0.5rem] sm:[--gap:0.75rem]"

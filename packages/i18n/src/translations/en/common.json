@@ -1,5 +1,8 @@
 {
-  "product": "Product",
+  "product": {
+    "title": "TurboClaw - deploy OpenClaw in 30 seconds",
+    "description": "Avoid all technical complexity and one-click deploy your own 24/7 active OpenClaw instance in 30 seconds."
+  },
   "success": "Success!",
   "auth": "Auth",
   "menu": "Menu",
