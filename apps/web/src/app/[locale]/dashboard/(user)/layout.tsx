@@ -38,7 +38,7 @@ const menu = [
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${assistant}`}
-            className="-ml-px size-4.5 rounded-full"
+            className="-ml-px size-4.5 rounded-md"
             alt={assistant}
             width={16}
             height={16}

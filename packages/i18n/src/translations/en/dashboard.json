@@ -6,6 +6,8 @@
     },
     "assistant": {
       "create": {
+        "title": "Deploy OpenClaw assistant",
+        "description": "Fill out the configuration and deploy your OpenClaw assistant in seconds.",
         "model": {
           "label": "What model do you want to use?"
         },

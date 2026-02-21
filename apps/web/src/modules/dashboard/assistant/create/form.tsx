@@ -1,11 +1,16 @@
 "use client";
 
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 
-import { useTranslation } from "@workspace/i18n";
+import { Trans, useTranslation } from "@workspace/i18n";
 import { createAssistantSchema } from "@workspace/openclaw";
-import { Model, MODELS } from "@workspace/openclaw/ai";
+import { MODELS } from "@workspace/openclaw/ai";
 import {
   COMMUNICATION_CHANNELS,
   CommunicatonChannel,
@@ -15,14 +20,12 @@ import { Button } from "@workspace/ui-web/button";
 import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
 
+import { ModelIcon } from "../icons";
+import { CommunicationChannelIcon } from "../icons";
+
 import { TelegramConfiguration } from "./communication/telegram";
 
 import type { CreateAssistantSchemaInput } from "@workspace/openclaw";
-const ChannelIcon = {
-  [CommunicatonChannel.TELEGRAM]: Icons.Telegram,
-  [CommunicatonChannel.DISCORD]: Icons.Discord,
-  [CommunicatonChannel.WHATSAPP]: Icons.Whatsapp,
-} as const;
 
 const ChannelConfiguration = {
   [CommunicatonChannel.TELEGRAM]: TelegramConfiguration,
@@ -30,15 +33,9 @@ const ChannelConfiguration = {
   [CommunicatonChannel.WHATSAPP]: null,
 } as const;
 
-const ModelIcon = {
-  [Model.CLAUDE_OPUS_4_6]: Icons.Claude,
-  [Model.OPENAI_5_2]: Icons.OpenAI,
-  [Model.GEMINI_3_0_FLASH]: Icons.Gemini,
-} as const;
-
 interface CreateAssistantFormProps
   extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
-  onSubmit: (data: CreateAssistantSchemaInput) => void;
+  onSubmit?: (data: CreateAssistantSchemaInput) => void;
 }
 
 export const CreateAssistantForm = ({
@@ -56,6 +53,11 @@ export const CreateAssistantForm = ({
     },
   });
 
+  const handleSubmit = (data: CreateAssistantSchemaInput) => {
+    onSubmit?.(data);
+    console.log(data);
+  };
+
   return (
     <FormProvider {...form}>
       <form
@@ -63,7 +65,7 @@ export const CreateAssistantForm = ({
           "flex min-h-[200px] w-full min-w-[280px] flex-col gap-6 overflow-hidden rounded-2xl border p-4 sm:gap-8 sm:p-6 md:gap-10 md:p-8",
           className,
         )}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         {...props}
       >
         <Controller
@@ -116,7 +118,7 @@ export const CreateAssistantForm = ({
 
               <div className="flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
                 {COMMUNICATION_CHANNELS.map((channel) => {
-                  const Icon = ChannelIcon[channel.id];
+                  const Icon = CommunicationChannelIcon[channel.id];
                   const Configuration = ChannelConfiguration[channel.id];
 
                   const trigger = (
@@ -163,5 +165,83 @@ export const CreateAssistantForm = ({
         {children}
       </form>
     </FormProvider>
+  );
+};
+
+export const CreateAssistantFormFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div
+      className={cn("flex w-full min-w-0 flex-col gap-3", className)}
+      {...props}
+    />
+  );
+};
+
+export const CreateAssistantSubmitButton = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) => {
+  const { t } = useTranslation("dashboard");
+  const form = useFormContext<CreateAssistantSchemaInput>();
+
+  return (
+    <Button
+      variant="foreground"
+      size="lg"
+      className={cn("h-auto px-4 py-2.5 text-base sm:px-5", className)}
+      type="submit"
+      disabled={!form.formState.isValid}
+      {...props}
+    >
+      <Icons.Zap className="size-5 shrink-0 fill-current" />
+      {t("user.assistant.create.cta")}
+    </Button>
+  );
+};
+
+interface CreateAssistantFormNoteProps
+  extends React.HTMLAttributes<HTMLSpanElement> {
+  note?: React.ReactNode;
+}
+
+export const CreateAssistantFormNote = ({
+  note,
+  className,
+  ...props
+}: CreateAssistantFormNoteProps) => {
+  const { t } = useTranslation("dashboard");
+  const form = useFormContext<CreateAssistantSchemaInput>();
+
+  const renderNote = () => {
+    if (note) {
+      return note;
+    }
+
+    if (!form.formState.isValid) {
+      return t("user.assistant.create.note.invalid");
+    }
+
+    return (
+      <Trans
+        i18nKey="user.assistant.create.note.pricing"
+        t={t}
+        components={{ strong: <span className="text-foreground" /> }}
+      />
+    );
+  };
+
+  return (
+    <span
+      className={cn("text-muted-foreground text-sm font-medium", className)}
+      {...props}
+    >
+      {renderNote()}{" "}
+      <span className="text-primary">
+        {t("user.assistant.create.note.limited")}
+      </span>
+    </span>
   );
 };

@@ -65,6 +65,7 @@ import {
   MailPlus,
   PlusCircle,
   Calendar,
+  ExternalLink,
   ShieldUser,
   Zap,
   Building,
@@ -79,9 +80,11 @@ import {
   MoreHorizontal,
   Circle,
   Minus,
+  Square,
   PanelLeft,
   Bell,
   Calculator,
+  RotateCcw,
 } from "lucide-react";
 
 import { Icons as GlobalIcons } from "@workspace/ui/assets";
@@ -94,6 +97,8 @@ export const Icons = {
   Bell,
   Calculator,
   Eye,
+  Square,
+  RotateCcw,
   Slash,
   Code,
   Mail,
@@ -104,6 +109,7 @@ export const Icons = {
   Calendar,
   ArrowRight,
   LogIn,
+  ExternalLink,
   UserRound,
   Key,
   SunMoon,

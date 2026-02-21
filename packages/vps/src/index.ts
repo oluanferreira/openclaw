@@ -1,1 +1,1 @@
-export const name = 'vps';
+export const name = "vps";

@@ -1,0 +1,15 @@
+import { Model } from "@workspace/openclaw/ai";
+import { CommunicatonChannel } from "@workspace/openclaw/communication";
+import { Icons } from "@workspace/ui-web/icons";
+
+export const CommunicationChannelIcon = {
+  [CommunicatonChannel.TELEGRAM]: Icons.Telegram,
+  [CommunicatonChannel.DISCORD]: Icons.Discord,
+  [CommunicatonChannel.WHATSAPP]: Icons.Whatsapp,
+} as const;
+
+export const ModelIcon = {
+  [Model.CLAUDE_OPUS_4_6]: Icons.Claude,
+  [Model.OPENAI_5_2]: Icons.OpenAI,
+  [Model.GEMINI_3_0_FLASH]: Icons.Gemini,
+} as const;

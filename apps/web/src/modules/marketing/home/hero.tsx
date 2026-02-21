@@ -1,11 +1,9 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
-
-import { Trans, useTranslation } from "@workspace/i18n";
+import { useTranslation } from "@workspace/i18n";
 import { cn } from "@workspace/ui";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
-import { Button, buttonVariants } from "@workspace/ui-web/button";
+import { buttonVariants } from "@workspace/ui-web/button";
 import { Card } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 
@@ -13,19 +11,18 @@ import { pathsConfig } from "~/config/paths";
 import { authClient } from "~/lib/auth/client";
 import { SocialProviders } from "~/modules/auth/social-providers";
 import { TurboLink } from "~/modules/common/turbo-link";
-import { CreateAssistantForm } from "~/modules/dashboard/assistant/create/form";
+import {
+  CreateAssistantForm,
+  CreateAssistantFormNote,
+  CreateAssistantFormFooter,
+  CreateAssistantSubmitButton,
+} from "~/modules/dashboard/assistant/create/form";
 import { Section } from "~/modules/marketing/layout/section";
 
-import type { CreateAssistantSchemaInput } from "@workspace/openclaw/";
-
 export const Hero = () => {
-  const { t } = useTranslation(["marketing", "dashboard"]);
+  const { t } = useTranslation(["common", "marketing", "dashboard"]);
   const session = authClient.useSession();
   const user = session.data?.user;
-
-  const onSubmit = (data: unknown) => {
-    console.log(data);
-  };
 
   return (
     <Section id="hero">
@@ -39,8 +36,8 @@ export const Hero = () => {
       </div>
 
       <Card className="relative w-full max-w-3xl rounded-[24px] border p-2 shadow-xs">
-        <CreateAssistantForm onSubmit={onSubmit}>
-          <div className="flex w-full min-w-0 flex-col gap-3">
+        <CreateAssistantForm>
+          <CreateAssistantFormFooter>
             {user && (
               <div className="mb-4 flex min-w-0 items-center gap-2">
                 <Avatar className="size-9">
@@ -69,69 +66,31 @@ export const Hero = () => {
               </div>
             )}
 
-            <CreateAssistantFormFooter />
-          </div>
+            {user ? (
+              <div className="flex flex-col items-stretch gap-2 sm:flex-row">
+                <CreateAssistantSubmitButton />
+                <TurboLink
+                  href={pathsConfig.dashboard.user.index}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "h-auto px-4 py-2.5 text-base sm:px-5",
+                  )}
+                >
+                  <Icons.Home className="size-4.5 shrink-0" />
+                  {t("goToDashboard")}
+                </TurboLink>
+              </div>
+            ) : (
+              <SocialProviders className="flex-col items-stretch sm:flex-row" />
+            )}
+            <CreateAssistantFormNote
+              {...(!session.data?.user
+                ? { note: t("user.assistant.create.note.signIn") }
+                : {})}
+            />
+          </CreateAssistantFormFooter>
         </CreateAssistantForm>
       </Card>
     </Section>
-  );
-};
-
-const CreateAssistantFormFooter = () => {
-  const { t } = useTranslation(["common", "dashboard"]);
-
-  const session = authClient.useSession();
-  const form = useFormContext<CreateAssistantSchemaInput>();
-
-  const renderActions = () =>
-    session.data?.user ? (
-      <div className="flex flex-col items-center items-stretch gap-2 sm:flex-row">
-        <Button
-          variant="foreground"
-          size="lg"
-          disabled={!form.formState.isValid}
-          className="h-auto px-4 py-2.5 text-base sm:px-5"
-          type="submit"
-        >
-          <Icons.Zap className="size-5 shrink-0 fill-current" />
-          {t("user.assistant.create.cta")}
-        </Button>
-        <TurboLink
-          href={pathsConfig.dashboard.user.index}
-          className={cn(
-            buttonVariants({ variant: "outline", size: "lg" }),
-            "h-auto px-4 py-2.5 text-base sm:px-5",
-          )}
-        >
-          <Icons.Home className="size-4.5 shrink-0" />
-          {t("goToDashboard")}
-        </TurboLink>
-      </div>
-    ) : (
-      <SocialProviders className="flex-col items-stretch sm:flex-row" />
-    );
-  const renderNote = () =>
-    !session.data?.user ? (
-      t("user.assistant.create.note.signIn")
-    ) : !form.formState.isValid ? (
-      t("user.assistant.create.note.invalid")
-    ) : (
-      <Trans
-        i18nKey="user.assistant.create.note.pricing"
-        t={t}
-        components={{ strong: <span className="text-foreground" /> }}
-      />
-    );
-
-  return (
-    <>
-      {renderActions()}
-      <span className="text-muted-foreground text-sm font-medium">
-        {renderNote()}{" "}
-        <span className="text-primary">
-          {t("user.assistant.create.note.limited")}
-        </span>
-      </span>
-    </>
   );
 };
