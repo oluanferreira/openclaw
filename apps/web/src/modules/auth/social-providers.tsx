@@ -37,7 +37,8 @@ export const SocialProviders = ({
           <Button
             key={provider}
             variant={index === 0 ? "foreground" : "outline"}
-            className="h-auto px-4 py-2.5 sm:px-5"
+            type="button"
+            className="h-auto px-4 py-2.5 text-base sm:px-5"
             onClick={() => signIn.mutate({ provider, callbackURL: redirectTo })}
             disabled={
               signIn.isPending && signIn.variables.provider === provider
@@ -48,14 +49,12 @@ export const SocialProviders = ({
             ) : (
               <Icon className="size-5" />
             )}
-            <span className="text-base">
-              <Trans
-                i18nKey="login.social"
-                t={t}
-                values={{ provider }}
-                components={{ capitalize: <span className="capitalize" /> }}
-              />
-            </span>
+            <Trans
+              i18nKey="login.social"
+              t={t}
+              values={{ provider }}
+              components={{ capitalize: <span className="capitalize" /> }}
+            />
           </Button>
         );
       })}

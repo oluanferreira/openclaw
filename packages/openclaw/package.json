@@ -1,9 +1,10 @@
 {
-  "name": "@workspace/{{ name }}",
+  "name": "@workspace/openclaw",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
+    "./*": "./src/*/index.ts",
     ".": "./src/index.ts"
   },
   "scripts": {

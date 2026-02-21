@@ -124,6 +124,9 @@ importers:
       '@workspace/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@workspace/openclaw':
+        specifier: workspace:*
+        version: link:../../packages/openclaw
       '@workspace/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -403,6 +406,27 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/openclaw:
+    devDependencies:
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@workspace/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@workspace/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.0(jiti@2.6.1)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/shared:
     dependencies:
       lodash:
@@ -552,6 +576,27 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.1.13
+
+  packages/vps:
+    devDependencies:
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@workspace/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@workspace/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.0(jiti@2.6.1)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   tooling/eslint:
     dependencies:

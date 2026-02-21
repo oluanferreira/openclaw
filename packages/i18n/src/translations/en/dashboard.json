@@ -5,19 +5,39 @@
       "description": "Overview of your personal account's activity across all your projects."
     },
     "assistant": {
-      "new": {
+      "create": {
         "model": {
           "label": "What model do you want to use?"
         },
-        "chat": {
-          "label": "What do you want to chat about?"
+        "communication": {
+          "label": "Which channel do you want to use for chatting?",
+          "telegram": {
+            "title": "Connect Telegram",
+            "steps": {
+              "title": "How to get your bot token?",
+              "step": {
+                "1": "Open Telegram and go to <bot>@BotFather</bot>.",
+                "2": "Start a chat and type <code>/newbot</code>.",
+                "3": "Follow the prompts to name your bot and choose a username.",
+                "4": "BotFather will send you a message with your bot token. Copy the entire token (it looks like a long string of numbers and letters).",
+                "5": "Paste the token in the field below and click Save & Connect."
+              }
+            },
+            "form": {
+              "token": {
+                "label": "Enter bot token"
+              },
+              "cta": "Save & Connect"
+            }
+          }
         },
         "note": {
           "pricing": "<strong>$49 per month.</strong> Includes $15 in AI credits refreshed monthly.",
           "signIn": "Sign in to deploy your AI assistant and connect your channels.",
-          "connectChannel": "Connect channel to continue.",
+          "invalid": "Ensure all fields are filled correctly.",
           "limited": "Limited cloud servers — only 8 left"
-        }
+        },
+        "cta": "Deploy OpenClaw"
       }
     }
   }

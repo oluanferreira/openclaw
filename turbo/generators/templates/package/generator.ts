@@ -44,11 +44,6 @@ export function createPackageGenerator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "packages/{{ name }}/vitest.config.ts",
-        templateFile: "templates/package/vitest.config.ts.hbs",
-      },
-      {
-        type: "add",
         path: "packages/{{ name }}/src/index.ts",
         template: "export const name = '{{ name }}';",
       },

@@ -21,6 +21,7 @@
     "@workspace/api": "workspace:*",
     "@workspace/auth": "workspace:*",
     "@workspace/i18n": "workspace:*",
+    "@workspace/openclaw": "workspace:*",
     "@workspace/shared": "workspace:*",
     "@workspace/ui": "workspace:*",
     "@workspace/ui-web": "workspace:*",

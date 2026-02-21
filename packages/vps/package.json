@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/{{ name }}",
+  "name": "@workspace/vps",
   "version": "0.1.0",
   "private": true,
   "type": "module",
