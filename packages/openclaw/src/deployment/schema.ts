@@ -1,7 +1,7 @@
 import * as z from "zod";
 
-import { Model } from "./ai";
-import { communicationChannelConfigSchema } from "./communication";
+import { Model } from "../ai";
+import { communicationChannelConfigSchema } from "../communication";
 
 export const deployInstanceSchema = z.object({
   model: z.enum(Model),

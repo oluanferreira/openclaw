@@ -1,23 +1,28 @@
-import { index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "../lib/zod";
 
 import { user } from "./auth";
 
-export const openclawInstance = pgTable(
-  "openclaw_instance",
-  {
-    userId: text("user_id")
-      .primaryKey()
-      .references(() => user.id, { onDelete: "cascade" }),
-    containerId: text("container_id").notNull(),
-    gatewayPort: integer("gateway_port").notNull(),
-    gatewayUrl: text("gateway_url").notNull(),
-    logPath: text("log_path").notNull(),
-    status: text("status").notNull().default("deploying"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
-  },
-  (table) => [index("openclaw_instance_container_idx").on(table.containerId)],
-);
+import type * as z from "zod";
+
+export const instance = pgTable("instance", {
+  id: text().primaryKey(),
+  userId: text()
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertInstanceSchema = createInsertSchema(instance);
+export const selectInstanceSchema = createSelectSchema(instance);
+export const updateInstanceSchema = createUpdateSchema(instance);
+
+export type SelectInstance = z.infer<typeof selectInstanceSchema>;
+export type InsertInstance = z.infer<typeof insertInstanceSchema>;
+export type UpdateInstance = z.infer<typeof updateInstanceSchema>;

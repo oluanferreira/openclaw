@@ -39,7 +39,8 @@
           "invalid": "Asegúrate de que todos los campos estén llenos correctamente.",
           "limited": "Servidores en la nube limitados — solo 8 restantes"
         },
-        "cta": "Desplegar OpenClaw"
+        "cta": "Desplegar OpenClaw",
+        "success": "Despliegue iniciado. Esto puede tomar unos minutos para completarse."
       }
     }
   }

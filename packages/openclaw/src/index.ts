@@ -1,1 +1,1 @@
-export * from "./schema";
+export * from "./deployment/schema";

@@ -17,6 +17,7 @@
   },
   "prettier": "@workspace/prettier-config",
   "dependencies": {
+    "@workspace/db": "workspace:*",
     "@workspace/shared": "workspace:*",
     "envin": "catalog:",
     "ssh2": "1.17.0",

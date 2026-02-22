@@ -1,3 +1,11 @@
+export const Provider = {
+  OPENAI: "openai",
+  ANTHROPIC: "anthropic",
+  GOOGLE: "google",
+} as const;
+
+export type Provider = (typeof Provider)[keyof typeof Provider];
+
 export const Model = {
   CLAUDE_OPUS_4_6: "claude-opus-4.6",
   OPENAI_5_2: "openai-5.2",
@@ -9,14 +17,17 @@ export type Model = (typeof Model)[keyof typeof Model];
 export const MODELS = [
   {
     id: Model.CLAUDE_OPUS_4_6,
+    provider: Provider.ANTHROPIC,
     name: "Claude Opus 4.6",
   },
   {
     id: Model.OPENAI_5_2,
+    provider: Provider.OPENAI,
     name: "GPT 5.2",
   },
   {
     id: Model.GEMINI_3_0_FLASH,
+    provider: Provider.GOOGLE,
     name: "Gemini 3.0 Flash",
   },
 ] as const;

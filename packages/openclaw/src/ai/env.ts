@@ -1,15 +1,17 @@
 import { defineEnv } from "envin";
+import * as z from "zod";
 
 import { envConfig } from "@workspace/shared/constants";
-
-import { preset as aiPreset } from "./ai/env";
-import { preset as providerPreset } from "./deployment/providers/env";
 
 import type { Preset } from "envin/types";
 
 export const preset = {
-  id: "openclaw",
-  extends: [providerPreset, aiPreset],
+  id: "ai",
+  server: {
+    OPENAI_API_KEY: z.string().min(1),
+    ANTHROPIC_API_KEY: z.string().min(1),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+  },
 } as const satisfies Preset;
 
 export const env = defineEnv({

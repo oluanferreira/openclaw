@@ -38,17 +38,11 @@ const ChannelConfiguration = {
   [CommunicatonChannel.WHATSAPP]: null,
 } as const;
 
-interface DeployInstanceFormProps
-  extends Omit<React.HTMLAttributes<HTMLFormElement>, "onSubmit"> {
-  onSubmit?: (data: DeployInstanceSchemaInput) => Promise<void> | void;
-}
-
 export const DeployInstanceForm = ({
   className,
   children,
-  onSubmit,
   ...props
-}: DeployInstanceFormProps) => {
+}: React.HTMLAttributes<HTMLFormElement>) => {
   const { t } = useTranslation("dashboard");
   const form = useForm({
     resolver: standardSchemaResolver(deployInstanceSchema),
@@ -58,19 +52,12 @@ export const DeployInstanceForm = ({
     },
   });
 
-  const deploy = useMutation(instance.mutations.deploy);
-
-  const handleSubmit = async (data: DeployInstanceSchemaInput) => {
-    try {
-      await deploy.mutateAsync(data);
-      await onSubmit?.(data);
-      toast.success("Deployment started. This can take a few minutes.");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Unable to start deployment.",
-      );
-    }
-  };
+  const deploy = useMutation({
+    ...instance.mutations.deploy,
+    onSuccess: () => {
+      toast.success(t("user.instance.deploy.success"));
+    },
+  });
 
   return (
     <FormProvider {...form}>
@@ -79,7 +66,7 @@ export const DeployInstanceForm = ({
           "flex min-h-[200px] w-full min-w-[280px] flex-col gap-6 overflow-hidden rounded-2xl border p-4 sm:gap-8 sm:p-6 md:gap-10 md:p-8",
           className,
         )}
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit((data) => deploy.mutate(data))}
         {...props}
       >
         <Controller

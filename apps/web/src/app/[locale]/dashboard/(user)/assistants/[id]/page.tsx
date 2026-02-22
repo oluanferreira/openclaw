@@ -10,11 +10,11 @@ import {
   DashboardHeader,
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
+import { DetailsList, DetailsListItem } from "~/modules/dashboard/details-list";
 import {
   CommunicationChannelIcon,
   ModelIcon,
-} from "~/modules/dashboard/assistant/icons";
-import { DetailsList, DetailsListItem } from "~/modules/dashboard/details-list";
+} from "~/modules/dashboard/instance/icons";
 
 const assistant = {
   id: "1",

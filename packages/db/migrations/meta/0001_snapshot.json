@@ -1,5 +1,5 @@
 {
-  "id": "4f9c05dc-380c-454b-b230-ecb11bb30f58",
+  "id": "8fc5b9d0-a509-4880-aa7f-a229dcb5dcff",
   "prevId": "38aebd09-90e9-4fee-b8ad-b0fbb0d56ccf",
   "version": "7",
   "dialect": "postgresql",
@@ -347,46 +347,21 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.openclaw_instance": {
-      "name": "openclaw_instance",
+    "public.instance": {
+      "name": "instance",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "id": {
+          "name": "id",
           "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "container_id": {
-          "name": "container_id",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "gateway_port": {
-          "name": "gateway_port",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "gateway_url": {
-          "name": "gateway_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "log_path": {
-          "name": "log_path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'deploying'"
         },
         "created_at": {
           "name": "created_at",
@@ -394,36 +369,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
-      "indexes": {
-        "openclaw_instance_container_idx": {
-          "name": "openclaw_instance_container_idx",
-          "columns": [
-            {
-              "expression": "container_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
-        "openclaw_instance_user_id_user_id_fk": {
-          "name": "openclaw_instance_user_id_user_id_fk",
-          "tableFrom": "openclaw_instance",
+        "instance_user_id_user_id_fk": {
+          "name": "instance_user_id_user_id_fk",
+          "tableFrom": "instance",
           "tableTo": "user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
@@ -432,7 +384,13 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "instance_userId_unique": {
+          "name": "instance_userId_unique",
+          "nullsNotDistinct": false,
+          "columns": ["user_id"]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

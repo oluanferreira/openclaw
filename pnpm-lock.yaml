@@ -411,6 +411,9 @@ importers:
 
   packages/openclaw:
     dependencies:
+      '@workspace/db':
+        specifier: workspace:*
+        version: link:../db
       '@workspace/shared':
         specifier: workspace:*
         version: link:../shared

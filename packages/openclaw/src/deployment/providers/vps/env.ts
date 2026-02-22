@@ -15,6 +15,13 @@ export const preset = {
     VPS_PRIVATE_KEY_PASSPHRASE: z.string().min(1).optional(),
     VPS_DEPLOY_ROOT: z.string().min(1).default("/opt/openclaw"),
     VPS_OPENCLAW_IMAGE: z.string().min(1).default("openclaw:local"),
+    VPS_CONTAINER_MEMORY: z.string().min(1).default("2g"),
+    VPS_CONTAINER_CPUS: z.string().min(1).default("1.5"),
+    VPS_NODE_MAX_OLD_SPACE_SIZE: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(1024),
     OPENAI_API_KEY: z.string().min(1),
     ANTHROPIC_API_KEY: z.string().min(1),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),

@@ -39,7 +39,8 @@
           "invalid": "Ensure all fields are filled correctly.",
           "limited": "Limited cloud servers — only 8 left"
         },
-        "cta": "Deploy OpenClaw"
+        "cta": "Deploy OpenClaw",
+        "success": "Deployment started. This can take a few moments to complete."
       }
     }
   }

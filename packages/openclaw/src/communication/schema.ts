@@ -21,3 +21,9 @@ export const communicationChannelConfigSchema = z.discriminatedUnion(
 export type CommunicationChannelConfig = z.infer<
   typeof communicationChannelConfigSchema
 >;
+
+export const CommunicationChannelEnvironmentVariable = {
+  [CommunicatonChannel.TELEGRAM]: "TELEGRAM_BOT_TOKEN",
+  [CommunicatonChannel.DISCORD]: "DISCORD_BOT_TOKEN",
+  [CommunicatonChannel.WHATSAPP]: "WHATSAPP_BOT_TOKEN",
+} as const;
