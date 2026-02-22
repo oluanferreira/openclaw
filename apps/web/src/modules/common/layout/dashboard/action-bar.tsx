@@ -103,8 +103,8 @@ export const DashboardActionBar = ({ menu }: { menu: Menu }) => {
       </div>
 
       <div>
-        <ThemeSwitcher />
-        <I18nControls />
+        <ThemeSwitcher size="icon-sm" />
+        <I18nControls className="size-8! rounded-[min(var(--radius-md),10px)]" />
       </div>
     </header>
   );

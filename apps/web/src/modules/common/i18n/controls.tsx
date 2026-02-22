@@ -12,7 +12,9 @@ import { setLocaleCookie } from "./actions";
 
 import type { Locale } from "@workspace/i18n";
 
-export const I18nControls = () => {
+type I18nControlsProps = React.ComponentProps<typeof LocaleCustomizer>;
+
+export const I18nControls = (props: I18nControlsProps) => {
   const router = useRouter();
   const path = usePathname();
 
@@ -31,5 +33,5 @@ export const I18nControls = () => {
     [path, router],
   );
 
-  return <LocaleCustomizer onChange={onChange} variant="icon" />;
+  return <LocaleCustomizer onChange={onChange} variant="icon" {...props} />;
 };

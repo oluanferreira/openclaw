@@ -8,6 +8,7 @@ import { logger } from "@workspace/shared/logger";
 
 import { localize, delay } from "./middleware";
 import { authRouter } from "./modules/auth/router";
+import { openclawRouter } from "./modules/openclaw/router";
 import { onError } from "./utils/on-error";
 
 const monitor = statusMonitor({
@@ -37,6 +38,7 @@ const appRouter = new Hono()
   .use(monitor.middleware)
   .route("/status", monitor.routes)
   .route("/auth", authRouter)
+  .route("/openclaw", openclawRouter)
   .onError(onError);
 
 type AppRouter = typeof appRouter;

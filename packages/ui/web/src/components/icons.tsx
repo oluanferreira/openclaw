@@ -80,6 +80,7 @@ import {
   MoreHorizontal,
   Circle,
   Minus,
+  Box,
   Square,
   PanelLeft,
   Bell,
@@ -92,6 +93,7 @@ import { Icons as GlobalIcons } from "@workspace/ui/assets";
 export const Icons = {
   ...GlobalIcons,
   Minus,
+  Box,
   PanelLeft,
   Zap,
   Bell,

@@ -1,13 +1,13 @@
 {
   "user": {
     "home": {
-      "title": "Dashboard",
-      "description": "Overview of your personal account's activity across all your projects."
+      "title": "Overview",
+      "description": "Overview of your instance's activity."
     },
-    "assistant": {
-      "create": {
-        "title": "Deploy OpenClaw assistant",
-        "description": "Fill out the configuration and deploy your OpenClaw assistant in seconds.",
+    "instance": {
+      "deploy": {
+        "title": "Deploy OpenClaw instance",
+        "description": "Fill out the configuration and deploy your OpenClaw instance in seconds.",
         "model": {
           "label": "What model do you want to use?"
         },

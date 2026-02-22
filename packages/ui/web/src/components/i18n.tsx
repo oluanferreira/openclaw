@@ -21,12 +21,16 @@ export const LocaleIcon: Record<Locale, Icon> = {
 } as const;
 
 interface LocaleCustomizerProps {
+  readonly className?: string;
+  readonly iconClassName?: string;
   readonly onChange?: (lang: Locale) => Promise<void>;
   readonly variant?: "default" | "icon";
   readonly container?: HTMLElement | null;
 }
 
 export const LocaleCustomizer = ({
+  className,
+  iconClassName,
   onChange,
   variant = "default",
   container,
@@ -65,9 +69,13 @@ export const LocaleCustomizer = ({
           },
           variant === "icon" &&
             cn(
-              buttonVariants({ variant: "ghost", size: "icon" }),
+              buttonVariants({
+                variant: "ghost",
+                size: "icon",
+              }),
               "border-none p-0 shadow-none [&>*:nth-child(2)]:hidden",
             ),
+          className,
         )}
         aria-label={t("language.change")}
       >
@@ -78,7 +86,7 @@ export const LocaleCustomizer = ({
             aria-label={LocaleLabel[locale]}
             className="justify-center"
           >
-            <Icon className="size-5" />
+            <Icon className={iconClassName} />
           </SelectValue>
         )}
       </SelectTrigger>

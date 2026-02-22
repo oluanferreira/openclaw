@@ -6,7 +6,13 @@ import { Trans, useTranslation } from "@workspace/i18n";
 import { telegramSchema } from "@workspace/openclaw/communication";
 import { CommunicatonChannel } from "@workspace/openclaw/communication";
 import { Button } from "@workspace/ui-web/button";
-import { Dialog, DialogContent, DialogTrigger } from "@workspace/ui-web/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui-web/dialog";
 import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
@@ -44,6 +50,11 @@ export const TelegramConfiguration = ({
     },
   });
 
+  const handleTelegramSubmit = form.handleSubmit((data) => {
+    setOpen(false);
+    onSubmit(data);
+  });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={children} />
@@ -54,19 +65,22 @@ export const TelegramConfiguration = ({
         <section className="flex min-w-0 flex-1 flex-col justify-start gap-5 p-4 sm:gap-8 sm:p-6 md:p-9">
           <header className="flex items-center gap-3">
             <Icons.Telegram className="size-6 shrink-0" />
-            <span className="text-lg font-medium">
-              {t("user.assistant.create.communication.telegram.title")}
-            </span>
+            <DialogTitle className="text-lg font-medium">
+              {t("user.instance.deploy.communication.telegram.title")}
+            </DialogTitle>
           </header>
+          <DialogDescription className="sr-only">
+            {t("user.instance.deploy.communication.telegram.steps.title")}
+          </DialogDescription>
           <div className="flex w-full flex-col gap-3">
             <span className="text-base font-medium">
-              {t("user.assistant.create.communication.telegram.steps.title")}
+              {t("user.instance.deploy.communication.telegram.steps.title")}
             </span>
             <ol className="text-muted-foreground marker:text-foreground/30 list-inside list-decimal space-y-3.5 text-sm leading-relaxed marker:font-medium">
               <li>
                 <span className="ml-2 inline">
                   <Trans
-                    i18nKey="user.assistant.create.communication.telegram.steps.step.1"
+                    i18nKey="user.instance.deploy.communication.telegram.steps.step.1"
                     t={t}
                     components={{
                       bot: (
@@ -84,7 +98,7 @@ export const TelegramConfiguration = ({
               <li>
                 <span className="ml-2 inline">
                   <Trans
-                    i18nKey="user.assistant.create.communication.telegram.steps.step.2"
+                    i18nKey="user.instance.deploy.communication.telegram.steps.step.2"
                     t={t}
                     components={{
                       code: (
@@ -97,31 +111,31 @@ export const TelegramConfiguration = ({
               <li>
                 <span className="ml-2 inline">
                   {t(
-                    "user.assistant.create.communication.telegram.steps.step.3",
+                    "user.instance.deploy.communication.telegram.steps.step.3",
                   )}
                 </span>
               </li>
               <li>
                 <span className="ml-2 inline leading-relaxed">
                   {t(
-                    "user.assistant.create.communication.telegram.steps.step.4",
+                    "user.instance.deploy.communication.telegram.steps.step.4",
                   )}
                 </span>
               </li>
               <li>
                 <span className="ml-2 inline">
                   {t(
-                    "user.assistant.create.communication.telegram.steps.step.5",
+                    "user.instance.deploy.communication.telegram.steps.step.5",
                   )}
                 </span>
               </li>
             </ol>
           </div>
           <form
-            onSubmit={form.handleSubmit((data) => {
-              setOpen(false);
-              onSubmit(data);
-            })}
+            onSubmit={(event) => {
+              event.stopPropagation();
+              void handleTelegramSubmit(event);
+            }}
             className="flex flex-col gap-5 sm:gap-8"
           >
             <Controller
@@ -134,7 +148,7 @@ export const TelegramConfiguration = ({
                     className="text-muted-foreground"
                   >
                     {t(
-                      "user.assistant.create.communication.telegram.form.token.label",
+                      "user.instance.deploy.communication.telegram.form.token.label",
                     )}
                   </FieldLabel>
                   <Input
@@ -153,7 +167,7 @@ export const TelegramConfiguration = ({
               className="w-full"
               disabled={!form.formState.isValid}
             >
-              {t("user.assistant.create.communication.telegram.form.cta")}
+              {t("user.instance.deploy.communication.telegram.form.cta")}
               <Icons.Check className="size-4 shrink-0" />
             </Button>
           </form>

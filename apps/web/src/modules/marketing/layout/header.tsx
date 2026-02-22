@@ -22,8 +22,8 @@ export const Header = async () => {
         </TurboLink>
 
         <div className="flex items-center justify-center">
-          <ThemeSwitcher />
-          <I18nControls />
+          <ThemeSwitcher iconClassName="size-5" />
+          <I18nControls iconClassName="size-4.5" />
           <TurboLink
             href="mailto:hello@turbostarter.dev"
             className={buttonVariants({ variant: "ghost", size: "icon" })}

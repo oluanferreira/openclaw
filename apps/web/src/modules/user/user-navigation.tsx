@@ -108,8 +108,8 @@ export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
                 className="flex w-full cursor-pointer items-center gap-1.5"
                 onClick={() => setOpenMobile(false)}
               >
-                <Icons.Plus className="size-4" />
-                {t("createNewAssistant")}
+                <Icons.Box className="size-4" />
+                {t("yourInstance")}
               </TurboLink>
             }
           />
@@ -120,7 +120,7 @@ export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
           <DropdownMenuItem
             render={
               <TurboLink
-                href={pathsConfig.dashboard.user.account}
+                href={"#"}
                 className="flex w-full cursor-pointer items-center gap-1.5"
                 onClick={() => setOpenMobile(false)}
               >
@@ -132,7 +132,7 @@ export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
           <DropdownMenuItem
             render={
               <TurboLink
-                href={pathsConfig.dashboard.user.subscription}
+                href={"#"}
                 className="flex w-full cursor-pointer items-center gap-1.5"
                 onClick={() => setOpenMobile(false)}
               >
@@ -144,7 +144,7 @@ export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
           <DropdownMenuItem
             render={
               <TurboLink
-                href={pathsConfig.dashboard.user.apiKeys}
+                href={"#"}
                 className="flex w-full cursor-pointer items-center gap-1.5"
                 onClick={() => setOpenMobile(false)}
               >

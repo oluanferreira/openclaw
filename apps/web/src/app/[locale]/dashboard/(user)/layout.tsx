@@ -9,42 +9,52 @@ import { DashboardActionBar } from "~/modules/common/layout/dashboard/action-bar
 import { DashboardInset } from "~/modules/common/layout/dashboard/inset";
 import { DashboardSidebar } from "~/modules/common/layout/dashboard/sidebar/index";
 
-const assistants = [
-  "Atlas Navigator",
-  "Echo Whisper",
-  "Nova Insight",
-  "Pixel Genius",
-  "Orbit Guide",
-  "Sage Mentor",
-  "Blaze Pathfinder",
-  "Vera Visionary",
-  "Mira Advisor",
-  "Finn Innovator",
+const agents = [
+  "Alexander",
+  "Isabella",
+  "Benjamin",
+  "Gabriella",
+  "Nathaniel",
+  "Valentina",
+  "Sebastian",
+  "Anastasia",
+  "Christopher",
+  "Eleanor",
 ];
 
 const menu = [
   {
-    label: "assistants",
+    label: "yourInstance",
     items: [
       {
-        title: "createNewAssistant",
+        title: "overview",
         href: pathsConfig.dashboard.user.index,
-        icon: <Icons.Plus />,
+        icon: <Icons.Box />,
       },
-      ...assistants.map((assistant) => ({
-        title: assistant,
-        href: pathsConfig.dashboard.user.assistants.assistant(assistant),
+    ],
+  },
+  {
+    label: "agents",
+    items: [
+      ...agents.map((agent) => ({
+        title: agent,
+        href: "#",
         icon: (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={`https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${assistant}`}
+            src={`https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${agent}`}
             className="-ml-px size-4.5 rounded-md"
-            alt={assistant}
+            alt={agent}
             width={16}
             height={16}
           />
         ),
       })),
+      {
+        title: "addNew",
+        href: "#",
+        icon: <Icons.Plus />,
+      },
     ],
   },
   {
@@ -52,17 +62,17 @@ const menu = [
     items: [
       {
         title: "account",
-        href: pathsConfig.dashboard.user.account,
+        href: "#",
         icon: <Icons.UserRound />,
       },
       {
         title: "subscription",
-        href: pathsConfig.dashboard.user.subscription,
+        href: "#",
         icon: <Icons.CreditCard />,
       },
       {
         title: "apiKeys",
-        href: pathsConfig.dashboard.user.apiKeys,
+        href: "#",
         icon: <Icons.Webhook />,
       },
     ],

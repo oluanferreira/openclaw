@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./*": "./src/*/index.ts",
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./env": "./src/env.ts",
+    "./server": "./src/server.ts",
+    "./*": "./src/*/index.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -14,7 +16,14 @@
     "typecheck": "tsc --noEmit"
   },
   "prettier": "@workspace/prettier-config",
+  "dependencies": {
+    "@workspace/shared": "workspace:*",
+    "envin": "catalog:",
+    "ssh2": "1.17.0",
+    "zod": "catalog:"
+  },
   "devDependencies": {
+    "@types/ssh2": "1.15.5",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/prettier-config": "workspace:*",
     "@workspace/tsconfig": "workspace:*",

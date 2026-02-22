@@ -12,11 +12,11 @@ import { authClient } from "~/lib/auth/client";
 import { SocialProviders } from "~/modules/auth/social-providers";
 import { TurboLink } from "~/modules/common/turbo-link";
 import {
-  CreateAssistantForm,
-  CreateAssistantFormNote,
-  CreateAssistantFormFooter,
-  CreateAssistantSubmitButton,
-} from "~/modules/dashboard/assistant/create/form";
+  DeployInstanceForm,
+  DeployInstanceFormNote,
+  DeployInstanceFormFooter,
+  DeployInstanceSubmitButton,
+} from "~/modules/dashboard/instance/deploy/form";
 import { Section } from "~/modules/marketing/layout/section";
 
 export const Hero = () => {
@@ -36,8 +36,8 @@ export const Hero = () => {
       </div>
 
       <Card className="relative w-full max-w-3xl rounded-[24px] border p-2 shadow-xs">
-        <CreateAssistantForm>
-          <CreateAssistantFormFooter>
+        <DeployInstanceForm>
+          <DeployInstanceFormFooter>
             {user && (
               <div className="mb-4 flex min-w-0 items-center gap-2">
                 <Avatar className="size-9">
@@ -68,7 +68,7 @@ export const Hero = () => {
 
             {user ? (
               <div className="flex flex-col items-stretch gap-2 sm:flex-row">
-                <CreateAssistantSubmitButton />
+                <DeployInstanceSubmitButton />
                 <TurboLink
                   href={pathsConfig.dashboard.user.index}
                   className={cn(
@@ -83,13 +83,13 @@ export const Hero = () => {
             ) : (
               <SocialProviders className="flex-col items-stretch sm:flex-row" />
             )}
-            <CreateAssistantFormNote
+            <DeployInstanceFormNote
               {...(!session.data?.user
-                ? { note: t("user.assistant.create.note.signIn") }
+                ? { note: t("user.instance.deploy.note.signIn") }
                 : {})}
             />
-          </CreateAssistantFormFooter>
-        </CreateAssistantForm>
+          </DeployInstanceFormFooter>
+        </DeployInstanceForm>
       </Card>
     </Section>
   );

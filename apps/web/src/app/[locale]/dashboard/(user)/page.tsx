@@ -6,10 +6,10 @@ import {
   DashboardHeaderDescription,
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
-import { CreateAssistant } from "~/modules/dashboard/assistant/create";
+import { DeployInstance } from "~/modules/dashboard/instance/deploy";
 
 export const generateMetadata = getMetadata({
-  title: "createNewAssistant",
+  title: "dashboard:user.home.title",
   description: "dashboard:user.home.description",
 });
 
@@ -20,15 +20,15 @@ export default async function UserPage() {
       <DashboardHeader>
         <div>
           <DashboardHeaderTitle>
-            {t("user.assistant.create.title")}
+            {t("user.instance.deploy.title")}
           </DashboardHeaderTitle>
           <DashboardHeaderDescription>
-            {t("user.assistant.create.description")}
+            {t("user.instance.deploy.description")}
           </DashboardHeaderDescription>
         </div>
       </DashboardHeader>
 
-      <CreateAssistant />
+      <DeployInstance />
     </>
   );
 }

@@ -8,12 +8,6 @@ const pathsConfig = {
   dashboard: {
     user: {
       index: DASHBOARD_PREFIX,
-      assistants: {
-        assistant: (id: string) => `${DASHBOARD_PREFIX}/assistants/${id}`,
-      },
-      account: `${DASHBOARD_PREFIX}/account`,
-      subscription: `${DASHBOARD_PREFIX}/subscription`,
-      apiKeys: `${DASHBOARD_PREFIX}/api-keys`,
     },
   },
 } as const;

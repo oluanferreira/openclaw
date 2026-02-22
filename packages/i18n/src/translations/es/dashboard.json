@@ -1,12 +1,12 @@
 {
   "user": {
     "home": {
-      "title": "Panel",
-      "description": "Una vista general de la actividad de tu cuenta personal en todos tus proyectos."
+      "title": "Resumen",
+      "description": "Una vista general de la actividad de tu instancia."
     },
-    "assistant": {
-      "create": {
-        "title": "Desplegar asistente OpenClaw",
+    "instance": {
+      "deploy": {
+        "title": "Desplegar instancia OpenClaw",
         "description": "Rellena la configuración y despliega tu asistente OpenClaw en segundos.",
         "model": {
           "label": "¿Qué modelo quieres usar?"
