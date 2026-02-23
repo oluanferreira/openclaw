@@ -23,9 +23,7 @@ ROUTES_IMPORT="import $CADDY_ROUTES_DIR/*.caddy"
 
 cat > "$ROUTE_FILE" <<EOF
 $INSTANCE_HOST {
-  header {
-    -X-Forwarded-User
-  }
+  request_header -X-Forwarded-User
 
   forward_auth $AUTH_CHECK_ORIGIN {
     uri /api/openclaw/access
@@ -39,6 +37,7 @@ $INSTANCE_HOST {
     header_up X-Forwarded-Proto {scheme}
     header_up X-Forwarded-Host {host}
     header_up X-Forwarded-For {remote_host}
+    header_down -X-Forwarded-User
   }
 }
 EOF

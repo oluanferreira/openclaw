@@ -70,8 +70,8 @@ PORT_RANGE_START=${PORT_RANGE_START}
 PORT_RANGE_END=${PORT_RANGE_END}
 ALLOWED_USER_JSON=${escapeShell(JSON.stringify(params.userId))}
 TRUSTED_PROXY_USER_HEADER_JSON=${escapeShell(
-  JSON.stringify(TRUSTED_PROXY_USER_HEADER),
-)}
+    JSON.stringify(TRUSTED_PROXY_USER_HEADER),
+  )}
 ${toModelScriptValue(params.model)}
 ${toCommunicationChannelScriptValue(params.communication)}
 
@@ -84,19 +84,12 @@ CONTAINER_GID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -g' 2>/dev/null 
 chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 
-DOCKER_BRIDGE_GATEWAY=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
-TRUSTED_PROXIES_JSON='["127.0.0.1","::1"]'
-if [ -n "$DOCKER_BRIDGE_GATEWAY" ]; then
-  TRUSTED_PROXIES_JSON=$(printf '["127.0.0.1","::1","%s"]' "$DOCKER_BRIDGE_GATEWAY")
-fi
-
 cat > "$STATE_DIR/openclaw.json" <<EOF
 {
   "gateway": {
     "mode": "local",
     "bind": "lan",
-    "port": 7777,
-    "trustedProxies": $TRUSTED_PROXIES_JSON,
+    "trustedProxies": ["127.0.0.1", "::1"],
     "auth": {
       "mode": "trusted-proxy",
       "trustedProxy": {
@@ -142,28 +135,23 @@ CONTAINER_ID=$(docker run -d \
   --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-  -p "127.0.0.1:$PORT:7777" \
+  -p "127.0.0.1:$PORT:19000" \
   -v "$STATE_DIR:/opt/openclaw" \
   -e NODE_OPTIONS=${escapeShell(
     `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
   )} \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
-  -e OPENCLAW_GATEWAY_BIND="lan" \
-  -e OPENCLAW_GATEWAY_PORT="7777" \
   -e OPENCLAW_MODEL_PROVIDER="$MODEL_PROVIDER" \
   -e OPENCLAW_MODEL="$MODEL_ID" \
   -e TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN" \
   -e OPENAI_API_KEY=${escapeShell(aiEnv.OPENAI_API_KEY)} \
   -e ANTHROPIC_API_KEY=${escapeShell(aiEnv.ANTHROPIC_API_KEY)} \
   -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(aiEnv.GOOGLE_GENERATIVE_AI_API_KEY)} \
-  "$IMAGE" \
-  node dist/index.js gateway --bind lan --port 7777)
+  "$IMAGE")
 ${getProvisionRouteScript(params.id)}
 
 echo "container_id=$CONTAINER_ID"
-echo "gateway_port=$PORT"
-echo "log_path=$STATE_DIR/logs"
 `;
 };
 
@@ -179,13 +167,8 @@ export const strategy = {
     const { stdout } = await execute(script);
 
     const output = parseOutput(stdout);
-    const resolvedGatewayPort = Number(output.gateway_port);
 
-    if (
-      !output.container_id ||
-      !Number.isFinite(resolvedGatewayPort) ||
-      !output.log_path
-    ) {
+    if (!output.container_id) {
       throw new Error("Deployment returned an invalid result.");
     }
 
