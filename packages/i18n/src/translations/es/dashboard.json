@@ -41,6 +41,31 @@
       "cta": "Desplegar OpenClaw",
       "success": "Despliegue iniciado. Esto puede tomar unos minutos para completarse."
     },
+    "manage": {
+      "start": {
+        "success": "Instancia iniciada correctamente."
+      },
+      "stop": {
+        "success": "Instancia detenida correctamente."
+      },
+      "restart": {
+        "success": "Instancia reiniciada correctamente."
+      },
+      "destroy": {
+        "success": "Instancia eliminada correctamente."
+      }
+    },
+    "status": {
+      "stopped": "Detenido",
+      "running": "En ejecución",
+      "starting": "Iniciando",
+      "stopping": "Deteniendo",
+      "restarting": "Reiniciando",
+      "removing": "Eliminando",
+      "paused": "Pausado",
+      "exited": "Finalizado",
+      "dead": "Muerto"
+    },
     "error": {
       "alreadyExists": "Ya tienes una instancia desplegada. No puedes desplegar otra por ahora.",
       "notFound": "No tienes una instancia desplegada todavía. Por favor, despliega una primero."

@@ -1,53 +1,87 @@
 # VPS Deployment Setup Guide
 
-This guide explains the simple deployment architecture for `/api/assistants/create`:
-- one fixed VPS configured in env,
-- OpenClaw deployed in Docker on that VPS,
-- one OpenClaw instance per user (re-deploy updates the same user instance).
+This repo deploys one OpenClaw Gateway container per user onto a single VPS, then
+provisions a Caddy route:
+
+1. `https://<instance-id>.<VPS_INSTANCE_DOMAIN_SUFFIX>` terminates TLS in Caddy.
+2. Caddy runs `forward_auth` against your app API (`/api/openclaw/access`).
+3. If auth passes, Caddy injects `X-Forwarded-User` and proxies to the container.
+4. OpenClaw Gateway uses `trusted-proxy` auth and only accepts identity headers
+   from trusted proxy IP ranges.
 
 ## Required Environment Variables
 
-Set these in your root `.env`.
+Set these in root `.env` (API process environment).
 
 | Variable | Description | Example |
 | --- | --- | --- |
-| `VPS_HOST` | Public IP/DNS of your VPS | `203.0.113.10` |
+| `VPS_HOST` | VPS public IP/DNS used for SSH | `203.0.113.10` |
 | `VPS_SSH_PORT` | SSH port | `22` |
 | `VPS_USER` | SSH user | `root` |
-| `VPS_PRIVATE_KEY` | Private key content for SSH auth | `-----BEGIN OPENSSH PRIVATE KEY-----\n...` |
-| `VPS_PRIVATE_KEY_PASSPHRASE` | Passphrase for encrypted key (optional) | `secret` |
-| `VPS_DEPLOY_ROOT` | Root directory for OpenClaw files on VPS | `/opt/openclaw` |
-| `VPS_PORT_RANGE_START` | Start of gateway port range | `19000` |
-| `VPS_PORT_RANGE_END` | End of gateway port range | `19999` |
+| `VPS_PRIVATE_KEY` | SSH private key content (`\n` escaped) | `-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----` |
+| `VPS_PRIVATE_KEY_PASSPHRASE` | Optional SSH key passphrase | `secret` |
+| `VPS_DEPLOY_ROOT` | Root dir for instance state on VPS | `/opt/openclaw` |
+| `VPS_OPENCLAW_IMAGE` | Docker image with OpenClaw gateway build | `ghcr.io/openclaw/openclaw:latest` |
+| `VPS_INSTANCE_DOMAIN_SUFFIX` | Wildcard suffix for instance hosts | `openclaw.turbostarter.dev` |
+| `VPS_AUTH_CHECK_ORIGIN` | App/API origin used by Caddy `forward_auth` | `https://turbostarter.dev` |
+| `OPENAI_API_KEY` | Model provider key (required by env schema) | `...` |
+| `ANTHROPIC_API_KEY` | Model provider key (required by env schema) | `...` |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Model provider key (required by env schema) | `...` |
 
-## Example `.env`
+Optional:
 
-```env
-VPS_HOST=203.0.113.10
-VPS_SSH_PORT=22
-VPS_USER=root
-VPS_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----
-VPS_PRIVATE_KEY_PASSPHRASE=your-key-passphrase
-VPS_DEPLOY_ROOT=/opt/openclaw
-VPS_PORT_RANGE_START=19000
-VPS_PORT_RANGE_END=19999
+| Variable | Description | Example |
+| --- | --- | --- |
+| `VPS_CADDY_ROUTES_DIR` | Directory where per-instance Caddy routes are written | `/etc/caddy/routes` |
+| `VPS_CADDY_CONFIG_PATH` | Main Caddyfile path | `/etc/caddy/Caddyfile` |
+| `VPS_CONTAINER_MEMORY` | Memory limit per container | `2g` |
+| `VPS_CONTAINER_CPUS` | CPU limit per container | `1.5` |
+| `VPS_NODE_MAX_OLD_SPACE_SIZE` | Node heap size in MB | `1024` |
+
+## Caddy Prerequisites
+
+Before first deploy, Caddy must already be running on VPS and be responsible for
+`*.<VPS_INSTANCE_DOMAIN_SUFFIX>` TLS/HTTP traffic.
+
+The deployer will append this line to your main Caddyfile if missing:
+
+```caddyfile
+import /etc/caddy/routes/*.caddy
 ```
 
-## Notes
+## Trusted-Proxy Defaults
 
-1. User isolation:
-- each user has their own root under `<VPS_DEPLOY_ROOT>/users/<user-scope>`.
-- different users do not share state.
+Generated OpenClaw config now trusts these proxy ranges by default:
 
-2. Per-user sharing:
-- user instances share config/workspace/state for that user.
-- same user redeploys update the same compose project.
+- `127.0.0.1`
+- `::1`
+- `10.0.0.0/8`
+- `172.16.0.0/12`
+- `192.168.0.0/16`
 
-3. Port allocation:
-- deploy uses a VPS-level lock and allocates a free port inside your configured range.
-
-## Preflight Check
+## Preflight Checks
 
 ```bash
-ssh -p <VPS_SSH_PORT> <VPS_USER>@<VPS_HOST> "echo ok && docker --version && docker compose version"
+ssh -p <VPS_SSH_PORT> <VPS_USER>@<VPS_HOST> \
+  "docker --version && caddy version && caddy validate --config /etc/caddy/Caddyfile"
 ```
+
+After one deploy completes:
+
+```bash
+ssh -p <VPS_SSH_PORT> <VPS_USER>@<VPS_HOST> \
+  "ls -la /etc/caddy/routes && docker ps --format '{{.Names}} {{.Ports}}'"
+```
+
+## If You See Gateway Dashboard + `disconnected (1006)`
+
+That means HTTP reached the gateway page, but WebSocket auth did not pass.
+Check these first:
+
+1. Route file for the instance exists in `VPS_CADDY_ROUTES_DIR`.
+2. `VPS_AUTH_CHECK_ORIGIN` points at the same app origin where user sessions are valid.
+3. Caddy route includes both `forward_auth` and `header_up X-Forwarded-User`.
+4. Container config file `<VPS_DEPLOY_ROOT>/instances/<id>/openclaw.json` has:
+   - `"auth.mode": "trusted-proxy"`
+   - `"trustedProxy.userHeader": "x-forwarded-user"`
+   - expected `trustedProxies`.

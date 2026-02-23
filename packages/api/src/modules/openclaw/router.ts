@@ -1,6 +1,10 @@
 import { Hono } from "hono";
 
-import { deployInstanceSchema } from "@workspace/openclaw";
+import {
+  deployInstanceSchema,
+  ManageInstanceAction,
+  manageInstanceSchema,
+} from "@workspace/openclaw";
 import {
   createInstance,
   deploy,
@@ -8,6 +12,8 @@ import {
   getStatus,
   getInstanceIdFromHeaders,
   getInstanceByUserId,
+  manage,
+  deleteInstance,
 } from "@workspace/openclaw/server";
 import { HttpStatusCode } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
@@ -55,18 +61,13 @@ export const openclawRouter = new Hono()
     const userId = c.var.user.id;
     const instanceId = getInstanceIdFromHeaders(c.req.raw.headers);
 
-    console.log("userId", userId);
-    console.log("instanceId", instanceId);
-
     if (!instanceId) {
       throw new HttpException(HttpStatusCode.BAD_REQUEST, {
-        message: "Invalid instance host.",
+        message: "error.notFound",
       });
     }
 
-    console.log("instanceId", instanceId);
     const instance = await getInstanceById(instanceId);
-    console.log("instance", instance);
 
     if (instance?.userId !== userId) {
       throw new HttpException(HttpStatusCode.FORBIDDEN, {
@@ -75,6 +76,22 @@ export const openclawRouter = new Hono()
     }
 
     c.header("X-Forwarded-User", instance.userId);
-
     return c.json({ ok: true });
-  });
+  })
+  .post(
+    "/manage",
+    enforceInstance,
+    validate("json", manageInstanceSchema),
+    async (c) => {
+      const instanceId = c.var.instanceId;
+      const payload = c.req.valid("json");
+
+      const result = await manage(instanceId, payload.action);
+
+      if (payload.action === ManageInstanceAction.DESTROY) {
+        await deleteInstance(instanceId);
+      }
+
+      return c.json(result);
+    },
+  );

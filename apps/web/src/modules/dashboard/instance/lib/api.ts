@@ -13,6 +13,10 @@ const queries = {
     queryKey: [KEY, "get"],
     queryFn: () => handle(api.openclaw.$get)(),
   }),
+  status: queryOptions({
+    queryKey: [KEY, "status"],
+    queryFn: () => handle(api.openclaw.status.$get)(),
+  }),
 };
 
 const mutations = {
@@ -22,6 +26,15 @@ const mutations = {
       json: InferRequestType<(typeof api.openclaw)["$post"]>["json"],
     ) =>
       handle(api.openclaw.$post)({
+        json,
+      }),
+  }),
+  manage: mutationOptions({
+    mutationKey: [KEY, "manage"],
+    mutationFn: (
+      json: InferRequestType<(typeof api.openclaw.manage)["$post"]>["json"],
+    ) =>
+      handle(api.openclaw.manage.$post)({
         json,
       }),
   }),

@@ -1,3 +1,9 @@
 import { strategy } from "./providers";
-export const { deploy, getStatus } = strategy;
-export * from "./providers/vps/status";
+
+import type { ManageInstanceAction } from "./schema";
+
+export const { deploy, getStatus, cli } = strategy;
+
+export const manage = async (id: string, action: ManageInstanceAction) => {
+  return strategy[action](id);
+};

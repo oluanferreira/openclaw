@@ -1,4 +1,5 @@
-import { useTranslation } from "@workspace/i18n";
+import { isKey, useTranslation } from "@workspace/i18n";
+import { InstanceStatus } from "@workspace/openclaw";
 import { Badge } from "@workspace/ui-web/badge";
 import { Icons } from "@workspace/ui-web/icons";
 
@@ -9,11 +10,30 @@ import {
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
 import { InstanceActions } from "./actions";
+
+const statusToVariant = {
+  [InstanceStatus.STOPPED]: "secondary",
+  [InstanceStatus.RUNNING]: "success",
+  [InstanceStatus.STARTING]: "warning",
+  [InstanceStatus.STOPPING]: "warning",
+  [InstanceStatus.RESTARTING]: "warning",
+  [InstanceStatus.REMOVING]: "warning",
+  [InstanceStatus.PAUSED]: "warning",
+  [InstanceStatus.EXITED]: "destructive",
+  [InstanceStatus.DEAD]: "destructive",
+} as const;
+
 export const InstanceHeader = () => {
-  const { t } = useTranslation("common");
-  const { instance } = useInstance();
+  const { t, i18n } = useTranslation(["common", "dashboard"]);
+  const { instance, status } = useInstance();
 
   const url = `https://${instance.data?.id}.openclaw.turbostarter.dev`;
+
+  const key = `dashboard.instance.status.${status.data?.status}`;
+  const variant =
+    status.data?.status && status.data.status in statusToVariant
+      ? statusToVariant[status.data.status as InstanceStatus]
+      : "secondary";
 
   return (
     <DashboardHeader>
@@ -22,7 +42,11 @@ export const InstanceHeader = () => {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <DashboardHeaderTitle>{t("yourInstance")}</DashboardHeaderTitle>
-            <Badge variant="success">{t("running")}</Badge>
+            {status.data && (
+              <Badge variant={variant} className="capitalize">
+                {isKey(key, i18n, "dashboard") ? t(key) : status.data.status}
+              </Badge>
+            )}
           </div>
 
           <a

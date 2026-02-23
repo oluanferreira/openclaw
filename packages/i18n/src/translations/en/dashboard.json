@@ -41,6 +41,31 @@
       "cta": "Deploy OpenClaw",
       "success": "Deployment started. This can take a few moments to complete."
     },
+    "manage": {
+      "start": {
+        "success": "Instance started successfully."
+      },
+      "stop": {
+        "success": "Instance stopped successfully."
+      },
+      "restart": {
+        "success": "Instance restarted successfully."
+      },
+      "destroy": {
+        "success": "Instance destroyed successfully."
+      }
+    },
+    "status": {
+      "stopped": "Stopped",
+      "running": "Running",
+      "starting": "Starting",
+      "stopping": "Stopping",
+      "restarting": "Restarting",
+      "removing": "Removing",
+      "paused": "Paused",
+      "exited": "Exited",
+      "dead": "Dead"
+    },
     "error": {
       "alreadyExists": "You already have an instance deployed. You can't deploy another one for now.",
       "notFound": "You don't have an instance deployed yet. Please deploy one first."

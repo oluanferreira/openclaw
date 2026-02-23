@@ -178,4 +178,10 @@ export const strategy = {
     };
   },
   getStatus,
+  cli: async (id, command) =>
+    execute(`docker exec ${id} node dist/index.js ${command}`),
+  start: async (id) => execute(`docker start ${id}`),
+  stop: async (id) => execute(`docker stop ${id}`),
+  restart: async (id) => execute(`docker restart ${id}`),
+  destroy: async (id) => execute(`docker rm -f ${id}`),
 } satisfies OpenClawDeploymentProviderStrategy;

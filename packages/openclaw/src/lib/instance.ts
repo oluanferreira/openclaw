@@ -20,3 +20,6 @@ export const getInstanceByUserId = async (userId: string) =>
     .from(instance)
     .where(eq(instance.userId, userId))
     .then((entries) => entries[0] ?? null);
+
+export const deleteInstance = async (id: string) =>
+  db.delete(instance).where(eq(instance.id, id));

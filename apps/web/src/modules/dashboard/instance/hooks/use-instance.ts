@@ -11,9 +11,10 @@ import { instance as instanceApi } from "../lib/api";
 export const useInstance = () => {
   const { t } = useTranslation("dashboard");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const instance = useQuery(instanceApi.queries.get);
-  const queryClient = useQueryClient();
+  const status = useQuery(instanceApi.queries.status);
 
   const deploy = useMutation({
     ...instanceApi.mutations.deploy,
@@ -25,5 +26,13 @@ export const useInstance = () => {
     },
   });
 
-  return { instance, deploy };
+  const manage = useMutation({
+    ...instanceApi.mutations.manage,
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries(instanceApi.queries.get);
+      toast.success(t(`instance.manage.${variables.action}.success`));
+    },
+  });
+
+  return { instance, status, deploy, manage };
 };

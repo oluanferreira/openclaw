@@ -153,6 +153,7 @@
   "memberships": "Membresías",
   "invitations": "Invitaciones",
   "actions": "Acciones",
+  "start": "Iniciar",
   "lastDays": "Últimos {{count}} días",
   "lastMonths_one": "Últimos mes",
   "lastMonths_other": "Últimos {{count}} meses",
