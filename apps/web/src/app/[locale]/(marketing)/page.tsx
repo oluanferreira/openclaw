@@ -1,5 +1,6 @@
 import { withI18n } from "@workspace/i18n/with-i18n";
 
+import { getSession } from "~/lib/auth/server";
 import { getMetadata } from "~/lib/metadata";
 import { Comparison } from "~/modules/marketing/home/comparison";
 import { Hero } from "~/modules/marketing/home/hero";
@@ -10,10 +11,12 @@ export const generateMetadata = getMetadata({
   description: "common:product.description",
 });
 
-const HomePage = () => {
+const HomePage = async () => {
+  const { user } = await getSession();
+
   return (
     <>
-      <Hero />
+      <Hero user={user} />
       <Comparison />
       <UseCases />
     </>

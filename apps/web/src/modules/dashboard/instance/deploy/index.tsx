@@ -9,7 +9,7 @@ import {
 
 export const DeployInstance = () => {
   return (
-    <Card className="relative w-full max-w-3xl rounded-[24px] border p-2 shadow-xs">
+    <Card className="relative w-full max-w-3xl rounded-[24px] border p-2">
       <DeployInstanceForm>
         <DeployInstanceFormFooter>
           <DeployInstanceSubmitButton />

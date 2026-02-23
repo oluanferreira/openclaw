@@ -1,47 +1,49 @@
 {
-  "user": {
+  "instance": {
     "home": {
       "title": "Overview",
       "description": "Overview of your instance's activity."
     },
-    "instance": {
-      "deploy": {
-        "title": "Deploy OpenClaw instance",
-        "description": "Fill out the configuration and deploy your OpenClaw instance in seconds.",
-        "model": {
-          "label": "What model do you want to use?"
-        },
-        "communication": {
-          "label": "Which channel do you want to use for chatting?",
-          "telegram": {
-            "title": "Connect Telegram",
-            "steps": {
-              "title": "How to get your bot token?",
-              "step": {
-                "1": "Open Telegram and go to <bot>@BotFather</bot>.",
-                "2": "Start a chat and type <code>/newbot</code>.",
-                "3": "Follow the prompts to name your bot and choose a username.",
-                "4": "BotFather will send you a message with your bot token. Copy the entire token (it looks like a long string of numbers and letters).",
-                "5": "Paste the token in the field below and click Save & Connect."
-              }
-            },
-            "form": {
-              "token": {
-                "label": "Enter bot token"
-              },
-              "cta": "Save & Connect"
+    "deploy": {
+      "title": "Deploy OpenClaw instance",
+      "description": "Fill out the configuration and deploy your OpenClaw instance in seconds.",
+      "model": {
+        "label": "What model do you want to use?"
+      },
+      "communication": {
+        "label": "Which channel do you want to use for chatting?",
+        "telegram": {
+          "title": "Connect Telegram",
+          "steps": {
+            "title": "How to get your bot token?",
+            "step": {
+              "1": "Open Telegram and go to <bot>@BotFather</bot>.",
+              "2": "Start a chat and type <code>/newbot</code>.",
+              "3": "Follow the prompts to name your bot and choose a username.",
+              "4": "BotFather will send you a message with your bot token. Copy the entire token (it looks like a long string of numbers and letters).",
+              "5": "Paste the token in the field below and click Save & Connect."
             }
+          },
+          "form": {
+            "token": {
+              "label": "Enter bot token"
+            },
+            "cta": "Save & Connect"
           }
-        },
-        "note": {
-          "pricing": "<strong>$49 per month.</strong> Includes $15 in AI credits refreshed monthly.",
-          "signIn": "Sign in to deploy your AI assistant and connect your channels.",
-          "invalid": "Ensure all fields are filled correctly.",
-          "limited": "Limited cloud servers — only 8 left"
-        },
-        "cta": "Deploy OpenClaw",
-        "success": "Deployment started. This can take a few moments to complete."
-      }
+        }
+      },
+      "note": {
+        "pricing": "<strong>$49 per month.</strong> Includes $15 in AI credits refreshed monthly.",
+        "signIn": "Sign in to deploy your AI assistant and connect your channels.",
+        "invalid": "Ensure all fields are filled correctly.",
+        "limited": "Limited cloud servers — only 8 left"
+      },
+      "cta": "Deploy OpenClaw",
+      "success": "Deployment started. This can take a few moments to complete."
+    },
+    "error": {
+      "alreadyExists": "You already have an instance deployed. You can't deploy another one for now.",
+      "notFound": "You don't have an instance deployed yet. Please deploy one first."
     }
   }
 }

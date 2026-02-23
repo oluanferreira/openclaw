@@ -12,11 +12,11 @@ export const getInstanceById = async (id: string) =>
     .select()
     .from(instance)
     .where(eq(instance.id, id))
-    .then((entries) => entries[0]);
+    .then((entries) => entries[0] ?? null);
 
 export const getInstanceByUserId = async (userId: string) =>
   db
     .select()
     .from(instance)
     .where(eq(instance.userId, userId))
-    .then((entries) => entries[0]);
+    .then((entries) => entries[0] ?? null);

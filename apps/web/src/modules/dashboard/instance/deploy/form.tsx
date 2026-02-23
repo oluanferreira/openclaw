@@ -1,14 +1,12 @@
 "use client";
 
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { useMutation } from "@tanstack/react-query";
 import {
   Controller,
   FormProvider,
   useForm,
   useFormContext,
 } from "react-hook-form";
-import { toast } from "sonner";
 
 import { Trans, useTranslation } from "@workspace/i18n";
 import { deployInstanceSchema } from "@workspace/openclaw";
@@ -23,7 +21,7 @@ import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
 import { Spinner } from "@workspace/ui-web/spinner";
 
-import { instance } from "~/modules/dashboard/instance/lib/api";
+import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
 import { ModelIcon } from "../icons";
 import { CommunicationChannelIcon } from "../icons";
@@ -52,12 +50,7 @@ export const DeployInstanceForm = ({
     },
   });
 
-  const deploy = useMutation({
-    ...instance.mutations.deploy,
-    onSuccess: () => {
-      toast.success(t("user.instance.deploy.success"));
-    },
-  });
+  const { deploy } = useInstance();
 
   return (
     <FormProvider {...form}>
@@ -66,7 +59,7 @@ export const DeployInstanceForm = ({
           "flex min-h-[200px] w-full min-w-[280px] flex-col gap-6 overflow-hidden rounded-2xl border p-4 sm:gap-8 sm:p-6 md:gap-10 md:p-8",
           className,
         )}
-        onSubmit={form.handleSubmit((data) => deploy.mutate(data))}
+        onSubmit={form.handleSubmit((data) => deploy.mutateAsync(data))}
         {...props}
       >
         <Controller
@@ -75,7 +68,7 @@ export const DeployInstanceForm = ({
           render={({ field }) => (
             <Field className="gap-3 sm:gap-4">
               <FieldLabel className="text-base text-balance sm:text-lg">
-                {t("user.instance.deploy.model.label")}
+                {t("instance.deploy.model.label")}
               </FieldLabel>
 
               <div className="flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
@@ -115,7 +108,7 @@ export const DeployInstanceForm = ({
           render={({ field }) => (
             <Field className="gap-3 sm:gap-4">
               <FieldLabel className="text-base text-balance sm:text-lg">
-                {t("user.instance.deploy.communication.label")}
+                {t("instance.deploy.communication.label")}
               </FieldLabel>
 
               <div className="flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
@@ -204,7 +197,7 @@ export const DeployInstanceSubmitButton = ({
       ) : (
         <Icons.Zap className="size-5 shrink-0 fill-current" />
       )}
-      {t("user.instance.deploy.cta")}
+      {t("instance.deploy.cta")}
     </Button>
   );
 };
@@ -228,12 +221,12 @@ export const DeployInstanceFormNote = ({
     }
 
     if (!form.formState.isValid) {
-      return t("user.instance.deploy.note.invalid");
+      return t("instance.deploy.note.invalid");
     }
 
     return (
       <Trans
-        i18nKey="user.instance.deploy.note.pricing"
+        i18nKey="instance.deploy.note.pricing"
         t={t}
         components={{ strong: <span className="text-foreground" /> }}
       />
@@ -246,9 +239,7 @@ export const DeployInstanceFormNote = ({
       {...props}
     >
       {renderNote()}{" "}
-      <span className="text-primary">
-        {t("user.instance.deploy.note.limited")}
-      </span>
+      <span className="text-primary">{t("instance.deploy.note.limited")}</span>
     </span>
   );
 };

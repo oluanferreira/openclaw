@@ -104,7 +104,7 @@ export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
           <DropdownMenuItem
             render={
               <TurboLink
-                href={pathsConfig.dashboard.user.index}
+                href={pathsConfig.dashboard.index}
                 className="flex w-full cursor-pointer items-center gap-1.5"
                 onClick={() => setOpenMobile(false)}
               >

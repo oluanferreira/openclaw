@@ -6,9 +6,7 @@ const API_PREFIX = "/api";
 const pathsConfig = {
   index: "/",
   dashboard: {
-    user: {
-      index: DASHBOARD_PREFIX,
-    },
+    index: DASHBOARD_PREFIX,
   },
 } as const;
 

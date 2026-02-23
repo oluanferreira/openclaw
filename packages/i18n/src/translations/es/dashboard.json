@@ -1,47 +1,49 @@
 {
-  "user": {
+  "instance": {
     "home": {
       "title": "Resumen",
       "description": "Una vista general de la actividad de tu instancia."
     },
-    "instance": {
-      "deploy": {
-        "title": "Desplegar instancia OpenClaw",
-        "description": "Rellena la configuración y despliega tu asistente OpenClaw en segundos.",
-        "model": {
-          "label": "¿Qué modelo quieres usar?"
-        },
-        "communication": {
-          "label": "¿Qué canal quieres usar para chatear?",
-          "telegram": {
-            "title": "Conectar Telegram",
-            "steps": {
-              "title": "¿Cómo obtener tu token de bot?",
-              "step": {
-                "1": "Abre Telegram y ve a <bot>@BotFather</bot>.",
-                "2": "Inicia un chat y escribe <code>/newbot</code>.",
-                "3": "Sigue las instrucciones para nombrar tu bot y elegir un nombre de usuario.",
-                "4": "BotFather te enviará un mensaje con tu token de bot. Copia el token completo (es una cadena larga de números y letras).",
-                "5": "Pega el token en el campo inferior y haz clic en Guardar y Conectar."
-              }
-            },
-            "form": {
-              "token": {
-                "label": "Introduce el token de bot"
-              },
-              "cta": "Guardar y Conectar"
+    "deploy": {
+      "title": "Desplegar instancia OpenClaw",
+      "description": "Rellena la configuración y despliega tu asistente OpenClaw en segundos.",
+      "model": {
+        "label": "¿Qué modelo quieres usar?"
+      },
+      "communication": {
+        "label": "¿Qué canal quieres usar para chatear?",
+        "telegram": {
+          "title": "Conectar Telegram",
+          "steps": {
+            "title": "¿Cómo obtener tu token de bot?",
+            "step": {
+              "1": "Abre Telegram y ve a <bot>@BotFather</bot>.",
+              "2": "Inicia un chat y escribe <code>/newbot</code>.",
+              "3": "Sigue las instrucciones para nombrar tu bot y elegir un nombre de usuario.",
+              "4": "BotFather te enviará un mensaje con tu token de bot. Copia el token completo (es una cadena larga de números y letras).",
+              "5": "Pega el token en el campo inferior y haz clic en Guardar y Conectar."
             }
+          },
+          "form": {
+            "token": {
+              "label": "Introduce el token de bot"
+            },
+            "cta": "Guardar y Conectar"
           }
-        },
-        "note": {
-          "pricing": "<strong>$49 por mes.</strong> Incluye $15 en créditos de IA renovados mensualmente.",
-          "signIn": "Inicia sesión para desplegar tu asistente de IA y conectar tus canales.",
-          "invalid": "Asegúrate de que todos los campos estén llenos correctamente.",
-          "limited": "Servidores en la nube limitados — solo 8 restantes"
-        },
-        "cta": "Desplegar OpenClaw",
-        "success": "Despliegue iniciado. Esto puede tomar unos minutos para completarse."
-      }
+        }
+      },
+      "note": {
+        "pricing": "<strong>$49 por mes.</strong> Incluye $15 en créditos de IA renovados mensualmente.",
+        "signIn": "Inicia sesión para desplegar tu asistente de IA y conectar tus canales.",
+        "invalid": "Asegúrate de que todos los campos estén llenos correctamente.",
+        "limited": "Servidores en la nube limitados — solo 8 restantes"
+      },
+      "cta": "Desplegar OpenClaw",
+      "success": "Despliegue iniciado. Esto puede tomar unos minutos para completarse."
+    },
+    "error": {
+      "alreadyExists": "Ya tienes una instancia desplegada. No puedes desplegar otra por ahora.",
+      "notFound": "No tienes una instancia desplegada todavía. Por favor, despliega una primero."
     }
   }
 }

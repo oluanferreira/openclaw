@@ -3,6 +3,8 @@ import * as z from "zod";
 
 import { envConfig } from "@workspace/shared/constants";
 
+import { preset as caddyPreset } from "./caddy/env";
+
 import type { Preset } from "envin/types";
 
 export const preset = {
@@ -22,10 +24,8 @@ export const preset = {
       .int()
       .positive()
       .default(1024),
-    OPENAI_API_KEY: z.string().min(1),
-    ANTHROPIC_API_KEY: z.string().min(1),
-    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
   },
+  extends: [caddyPreset],
 } as const satisfies Preset;
 
 export const env = defineEnv({

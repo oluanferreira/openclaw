@@ -1,10 +1,13 @@
 import { createHash, randomBytes } from "node:crypto";
 
 import { MODELS } from "../../../ai";
+import { env as aiEnv } from "../../../ai/env";
 import { CommunicationChannelEnvironmentVariable } from "../../../communication";
 
-import { env } from "./env";
-import { execute, parseOutput } from "./sdk";
+import { getInstanceUrl, getProvisionRouteScript } from "./caddy";
+import { env as vpsEnv } from "./env";
+import { execute, parseOutput, escapeShell } from "./sdk";
+import { getStatus } from "./status";
 
 import type { Model } from "../../../ai";
 import type { CommunicationChannelConfig } from "../../../communication";
@@ -13,8 +16,6 @@ import type { OpenClawDeploymentProviderStrategy } from "../types";
 
 const PORT_RANGE_START = 20000;
 const PORT_RANGE_END = 40000;
-
-const escapeShell = (value: string) => `'${value.replaceAll("'", "'\"'\"'")}'`;
 
 const getGatewayToken = () => randomBytes(32).toString("hex");
 
@@ -28,7 +29,7 @@ const toInitialPort = (instanceId: string) => {
 };
 
 const toStateDir = (instanceId: string) =>
-  `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  `${vpsEnv.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
 
 const toModelScriptValue = (model: Model) => {
   const modelInfo = MODELS.find((m) => m.id === model);
@@ -60,8 +61,8 @@ const getDeploymentScript = (
   return `
 set -euo pipefail
 
-DEPLOY_ROOT=${escapeShell(env.VPS_DEPLOY_ROOT)}
-IMAGE=${escapeShell(env.VPS_OPENCLAW_IMAGE)}
+DEPLOY_ROOT=${escapeShell(vpsEnv.VPS_DEPLOY_ROOT)}
+IMAGE=${escapeShell(vpsEnv.VPS_OPENCLAW_IMAGE)}
 INSTANCE_ID=${escapeShell(params.id)}
 CONTAINER_NAME=${escapeShell(params.id)}
 STATE_DIR=${escapeShell(toStateDir(params.id))}
@@ -108,27 +109,30 @@ docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
 CONTAINER_ID=$(docker run -d \
   --name "$CONTAINER_NAME" \
   --restart unless-stopped \
-  --memory=${escapeShell(env.VPS_CONTAINER_MEMORY)} \
+  --memory=${escapeShell(vpsEnv.VPS_CONTAINER_MEMORY)} \
   --pids-limit="512" \
-  --cpus=${escapeShell(env.VPS_CONTAINER_CPUS)} \
+  --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
   -p "127.0.0.1:$PORT:7777" \
   -v "$STATE_DIR:/opt/openclaw" \
   -e NODE_OPTIONS=${escapeShell(
-    `--max-old-space-size=${env.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
+    `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
   )} \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
+  -e OPENCLAW_GATEWAY_BIND="lan" \
   -e OPENCLAW_GATEWAY_PORT="7777" \
   -e OPENCLAW_GATEWAY_TOKEN="$GATEWAY_TOKEN" \
   -e OPENCLAW_MODEL_PROVIDER="$MODEL_PROVIDER" \
   -e OPENCLAW_MODEL="$MODEL_ID" \
   -e TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN" \
-  -e OPENAI_API_KEY=${escapeShell(env.OPENAI_API_KEY)} \
-  -e ANTHROPIC_API_KEY=${escapeShell(env.ANTHROPIC_API_KEY)} \
-  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(env.GOOGLE_GENERATIVE_AI_API_KEY)} \
-  "$IMAGE")
+  -e OPENAI_API_KEY=${escapeShell(aiEnv.OPENAI_API_KEY)} \
+  -e ANTHROPIC_API_KEY=${escapeShell(aiEnv.ANTHROPIC_API_KEY)} \
+  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(aiEnv.GOOGLE_GENERATIVE_AI_API_KEY)} \
+  "$IMAGE" \
+  node dist/index.js gateway --bind lan --port 7777)
+${getProvisionRouteScript(params.id)}
 
 echo "container_id=$CONTAINER_ID"
 echo "gateway_port=$PORT"
@@ -159,6 +163,10 @@ export const strategy = {
       throw new Error("Deployment returned an invalid result.");
     }
 
-    return output.container_id;
+    return {
+      id,
+      url: output.instance_url ?? getInstanceUrl(id),
+    };
   },
+  getStatus,
 } satisfies OpenClawDeploymentProviderStrategy;

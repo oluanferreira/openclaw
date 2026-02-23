@@ -5,6 +5,7 @@ import { createMiddleware } from "hono/factory";
 import { auth } from "@workspace/auth/server";
 import { makeZodI18nMap } from "@workspace/i18n";
 import { getLocaleFromRequest, getTranslation } from "@workspace/i18n/server";
+import { getInstanceByUserId } from "@workspace/openclaw/server";
 import { HttpStatusCode, NodeEnv } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
@@ -36,6 +37,40 @@ export const enforceAuth = createMiddleware<{
 });
 
 /**
+ * Reusable middleware that enforces an instance exists for the user before running the
+ * procedure
+ */
+export const enforceInstance = createMiddleware<{
+  Variables: {
+    user: User;
+    instanceId: string;
+  };
+}>(async (c, next) => {
+  const instance = await getInstanceByUserId(c.var.user.id);
+
+  if (!instance) {
+    throw new HttpException(HttpStatusCode.NOT_FOUND, {
+      code: "dashboard:instance.error.notFound",
+    });
+  }
+
+  c.set("instanceId", instance.id);
+  await next();
+});
+
+export const enforceNoInstance = createMiddleware<{
+  Variables: {
+    user: User;
+  };
+}>(async (c, next) => {
+  const instance = await getInstanceByUserId(c.var.user.id);
+  if (instance) {
+    throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+      code: "dashboard:instance.error.alreadyExists",
+    });
+  }
+  await next();
+});
 
 /**
  * Middleware for adding an articifial delay in development.

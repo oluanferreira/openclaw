@@ -22,7 +22,7 @@ interface SocialProvidersProps extends React.ComponentProps<"div"> {
 }
 
 export const SocialProviders = ({
-  redirectTo = pathsConfig.dashboard.user.index,
+  redirectTo = pathsConfig.dashboard.index,
   className,
   ...props
 }: SocialProvidersProps) => {

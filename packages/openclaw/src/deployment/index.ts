@@ -1,2 +1,3 @@
 import { strategy } from "./providers";
-export const { deploy } = strategy;
+export const { deploy, getStatus } = strategy;
+export * from "./providers/vps/status";

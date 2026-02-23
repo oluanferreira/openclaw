@@ -8,7 +8,6 @@ import { Card } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 
 import { pathsConfig } from "~/config/paths";
-import { authClient } from "~/lib/auth/client";
 import { SocialProviders } from "~/modules/auth/social-providers";
 import { TurboLink } from "~/modules/common/turbo-link";
 import {
@@ -19,10 +18,14 @@ import {
 } from "~/modules/dashboard/instance/deploy/form";
 import { Section } from "~/modules/marketing/layout/section";
 
-export const Hero = () => {
+import type { User } from "@workspace/auth";
+
+interface HeroProps {
+  user: User | null;
+}
+
+export const Hero = ({ user }: HeroProps) => {
   const { t } = useTranslation(["common", "marketing", "dashboard"]);
-  const session = authClient.useSession();
-  const user = session.data?.user;
 
   return (
     <Section id="hero">
@@ -70,7 +73,7 @@ export const Hero = () => {
               <div className="flex flex-col items-stretch gap-2 sm:flex-row">
                 <DeployInstanceSubmitButton />
                 <TurboLink
-                  href={pathsConfig.dashboard.user.index}
+                  href={pathsConfig.dashboard.index}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "lg" }),
                     "h-auto px-4 py-2.5 text-base sm:px-5",
@@ -84,9 +87,7 @@ export const Hero = () => {
               <SocialProviders className="flex-col items-stretch sm:flex-row" />
             )}
             <DeployInstanceFormNote
-              {...(!session.data?.user
-                ? { note: t("user.instance.deploy.note.signIn") }
-                : {})}
+              {...(!user ? { note: t("instance.deploy.note.signIn") } : {})}
             />
           </DeployInstanceFormFooter>
         </DeployInstanceForm>

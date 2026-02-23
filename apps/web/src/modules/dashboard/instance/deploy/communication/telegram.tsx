@@ -66,21 +66,21 @@ export const TelegramConfiguration = ({
           <header className="flex items-center gap-3">
             <Icons.Telegram className="size-6 shrink-0" />
             <DialogTitle className="text-lg font-medium">
-              {t("user.instance.deploy.communication.telegram.title")}
+              {t("instance.deploy.communication.telegram.title")}
             </DialogTitle>
           </header>
           <DialogDescription className="sr-only">
-            {t("user.instance.deploy.communication.telegram.steps.title")}
+            {t("instance.deploy.communication.telegram.steps.title")}
           </DialogDescription>
           <div className="flex w-full flex-col gap-3">
             <span className="text-base font-medium">
-              {t("user.instance.deploy.communication.telegram.steps.title")}
+              {t("instance.deploy.communication.telegram.steps.title")}
             </span>
             <ol className="text-muted-foreground marker:text-foreground/30 list-inside list-decimal space-y-3.5 text-sm leading-relaxed marker:font-medium">
               <li>
                 <span className="ml-2 inline">
                   <Trans
-                    i18nKey="user.instance.deploy.communication.telegram.steps.step.1"
+                    i18nKey="instance.deploy.communication.telegram.steps.step.1"
                     t={t}
                     components={{
                       bot: (
@@ -98,7 +98,7 @@ export const TelegramConfiguration = ({
               <li>
                 <span className="ml-2 inline">
                   <Trans
-                    i18nKey="user.instance.deploy.communication.telegram.steps.step.2"
+                    i18nKey="instance.deploy.communication.telegram.steps.step.2"
                     t={t}
                     components={{
                       code: (
@@ -110,23 +110,17 @@ export const TelegramConfiguration = ({
               </li>
               <li>
                 <span className="ml-2 inline">
-                  {t(
-                    "user.instance.deploy.communication.telegram.steps.step.3",
-                  )}
+                  {t("instance.deploy.communication.telegram.steps.step.3")}
                 </span>
               </li>
               <li>
                 <span className="ml-2 inline leading-relaxed">
-                  {t(
-                    "user.instance.deploy.communication.telegram.steps.step.4",
-                  )}
+                  {t("instance.deploy.communication.telegram.steps.step.4")}
                 </span>
               </li>
               <li>
                 <span className="ml-2 inline">
-                  {t(
-                    "user.instance.deploy.communication.telegram.steps.step.5",
-                  )}
+                  {t("instance.deploy.communication.telegram.steps.step.5")}
                 </span>
               </li>
             </ol>
@@ -148,7 +142,7 @@ export const TelegramConfiguration = ({
                     className="text-muted-foreground"
                   >
                     {t(
-                      "user.instance.deploy.communication.telegram.form.token.label",
+                      "instance.deploy.communication.telegram.form.token.label",
                     )}
                   </FieldLabel>
                   <Input
@@ -167,7 +161,7 @@ export const TelegramConfiguration = ({
               className="w-full"
               disabled={!form.formState.isValid}
             >
-              {t("user.instance.deploy.communication.telegram.form.cta")}
+              {t("instance.deploy.communication.telegram.form.cta")}
               <Icons.Check className="size-4 shrink-0" />
             </Button>
           </form>

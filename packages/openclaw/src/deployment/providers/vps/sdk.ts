@@ -107,3 +107,6 @@ export const parseOutput = (stdout: string) => {
     pairs.filter((pair): pair is readonly [string, string] => Boolean(pair)),
   );
 };
+
+export const escapeShell = (value: string) =>
+  `'${value.replaceAll("'", "'\"'\"'")}'`;
