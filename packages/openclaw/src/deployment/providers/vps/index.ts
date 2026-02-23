@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash } from "node:crypto";
 
 import { MODELS } from "../../../ai";
 import { env as aiEnv } from "../../../ai/env";
@@ -16,8 +16,7 @@ import type { OpenClawDeploymentProviderStrategy } from "../types";
 
 const PORT_RANGE_START = 20000;
 const PORT_RANGE_END = 40000;
-
-const getGatewayToken = () => randomBytes(32).toString("hex");
+const TRUSTED_PROXY_USER_HEADER = "x-forwarded-user";
 
 const toInstanceId = (userId: string) =>
   createHash("sha256").update(userId).digest("hex").slice(0, 16);
@@ -55,7 +54,7 @@ const getDeploymentScript = (
   params: DeployInstanceSchemaInput & {
     id: string;
     port: number;
-    token: string;
+    userId: string;
   },
 ) => {
   return `
@@ -69,7 +68,10 @@ STATE_DIR=${escapeShell(toStateDir(params.id))}
 INITIAL_PORT=${params.port}
 PORT_RANGE_START=${PORT_RANGE_START}
 PORT_RANGE_END=${PORT_RANGE_END}
-GATEWAY_TOKEN=${escapeShell(params.token)}
+ALLOWED_USER_JSON=${escapeShell(JSON.stringify(params.userId))}
+TRUSTED_PROXY_USER_HEADER_JSON=${escapeShell(
+  JSON.stringify(TRUSTED_PROXY_USER_HEADER),
+)}
 ${toModelScriptValue(params.model)}
 ${toCommunicationChannelScriptValue(params.communication)}
 
@@ -81,6 +83,32 @@ CONTAINER_UID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -u' 2>/dev/null 
 CONTAINER_GID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -g' 2>/dev/null || echo "1000")
 chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR"
 chmod 700 "$STATE_DIR"
+
+DOCKER_BRIDGE_GATEWAY=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
+TRUSTED_PROXIES_JSON='["127.0.0.1","::1"]'
+if [ -n "$DOCKER_BRIDGE_GATEWAY" ]; then
+  TRUSTED_PROXIES_JSON=$(printf '["127.0.0.1","::1","%s"]' "$DOCKER_BRIDGE_GATEWAY")
+fi
+
+cat > "$STATE_DIR/openclaw.json" <<EOF
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "port": 7777,
+    "trustedProxies": $TRUSTED_PROXIES_JSON,
+    "auth": {
+      "mode": "trusted-proxy",
+      "trustedProxy": {
+        "userHeader": $TRUSTED_PROXY_USER_HEADER_JSON,
+        "allowUsers": [$ALLOWED_USER_JSON]
+      }
+    }
+  }
+}
+EOF
+chown "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/openclaw.json"
+chmod 600 "$STATE_DIR/openclaw.json"
 
 PORT="$INITIAL_PORT"
 for _ in $(seq 1 128); do
@@ -123,7 +151,6 @@ CONTAINER_ID=$(docker run -d \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
   -e OPENCLAW_GATEWAY_BIND="lan" \
   -e OPENCLAW_GATEWAY_PORT="7777" \
-  -e OPENCLAW_GATEWAY_TOKEN="$GATEWAY_TOKEN" \
   -e OPENCLAW_MODEL_PROVIDER="$MODEL_PROVIDER" \
   -e OPENCLAW_MODEL="$MODEL_ID" \
   -e TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN" \
@@ -147,8 +174,7 @@ export const strategy = {
   }: DeployInstanceSchemaInput & { userId: string }) => {
     const id = toInstanceId(userId);
     const port = toInitialPort(id);
-    const token = getGatewayToken();
-    const script = getDeploymentScript({ id, port, token, ...input });
+    const script = getDeploymentScript({ id, port, userId, ...input });
 
     const { stdout } = await execute(script);
 

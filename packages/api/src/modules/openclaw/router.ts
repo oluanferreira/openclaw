@@ -15,22 +15,27 @@ import { HttpException } from "@workspace/shared/utils";
 import {
   enforceAuth,
   validate,
-  enforceNoInstance,
   enforceInstance,
+  enforceNoInstance,
 } from "../../middleware";
 
 export const openclawRouter = new Hono()
   .use(enforceAuth)
   .post(
     "/",
-    validate("json", deployInstanceSchema),
     enforceNoInstance,
+    validate("json", deployInstanceSchema),
     async (c) => {
       const userId = c.var.user.id;
       const payload = c.req.valid("json");
 
       const deployment = await deploy({ userId, ...payload });
-      await createInstance({ id: deployment.id, userId });
+      await createInstance({
+        id: deployment.id,
+        userId,
+        communicationChannel: payload.communication.channel,
+        ...payload,
+      });
 
       return c.json(deployment, 202);
     },
@@ -50,13 +55,18 @@ export const openclawRouter = new Hono()
     const userId = c.var.user.id;
     const instanceId = getInstanceIdFromHeaders(c.req.raw.headers);
 
+    console.log("userId", userId);
+    console.log("instanceId", instanceId);
+
     if (!instanceId) {
       throw new HttpException(HttpStatusCode.BAD_REQUEST, {
         message: "Invalid instance host.",
       });
     }
 
+    console.log("instanceId", instanceId);
     const instance = await getInstanceById(instanceId);
+    console.log("instance", instance);
 
     if (instance?.userId !== userId) {
       throw new HttpException(HttpStatusCode.FORBIDDEN, {
@@ -64,5 +74,7 @@ export const openclawRouter = new Hono()
       });
     }
 
-    return c.body(null, HttpStatusCode.NO_CONTENT);
+    c.header("X-Forwarded-User", instance.userId);
+
+    return c.json({ ok: true });
   });

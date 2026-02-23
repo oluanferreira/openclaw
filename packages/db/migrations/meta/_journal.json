@@ -15,6 +15,13 @@
       "when": 1771775204521,
       "tag": "0001_workable_earthquake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771870749716,
+      "tag": "0002_left_morlun",
+      "breakpoints": true
     }
   ]
 }

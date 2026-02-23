@@ -13,6 +13,8 @@ export const InstanceHeader = () => {
   const { t } = useTranslation("common");
   const { instance } = useInstance();
 
+  const url = `https://${instance.data?.id}.openclaw.turbostarter.dev`;
+
   return (
     <DashboardHeader>
       <div className="flex min-w-0 items-center gap-4">
@@ -24,10 +26,12 @@ export const InstanceHeader = () => {
           </div>
 
           <a
-            href="#"
+            rel="noopener noreferrer"
+            target="_blank"
+            href={url}
             className="text-primary inline-flex items-center gap-1 text-sm underline underline-offset-3 hover:no-underline"
           >
-            {instance.data?.id} <Icons.ExternalLink className="size-3.5" />
+            {url} <Icons.ExternalLink className="size-3.5" />
           </a>
         </div>
       </div>

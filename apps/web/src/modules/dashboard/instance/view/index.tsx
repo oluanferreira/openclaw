@@ -47,17 +47,13 @@ export const ViewInstance = () => {
       </>
     );
   }
-  const assistant = {
-    model: "claude-opus-4.6",
-    communication: "telegram",
-  };
 
   const details = [
     {
       id: "model",
       label: t("model"),
       value: (() => {
-        const model = MODELS.find((model) => model.id === assistant.model);
+        const model = MODELS.find((model) => model.id === instance.data?.model);
         if (!model) return null;
         const Icon = ModelIcon[model.id];
         return (
@@ -73,7 +69,7 @@ export const ViewInstance = () => {
       label: t("communication"),
       value: (() => {
         const communication = COMMUNICATION_CHANNELS.find(
-          (channel) => channel.id === assistant.communication,
+          (channel) => channel.id === instance.data?.communicationChannel,
         );
 
         if (!communication) return null;

@@ -1,13 +1,18 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+
 import { useTranslation } from "@workspace/i18n";
 import { cn } from "@workspace/ui";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
 import { buttonVariants } from "@workspace/ui-web/button";
 import { Card } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
+import { Spinner } from "@workspace/ui-web/spinner";
 
 import { pathsConfig } from "~/config/paths";
+import { auth } from "~/modules/auth/lib/api";
 import { SocialProviders } from "~/modules/auth/social-providers";
 import { TurboLink } from "~/modules/common/turbo-link";
 import {
@@ -26,6 +31,15 @@ interface HeroProps {
 
 export const Hero = ({ user }: HeroProps) => {
   const { t } = useTranslation(["common", "marketing", "dashboard"]);
+  const router = useRouter();
+
+  const signOut = useMutation({
+    ...auth.mutations.signOut,
+    onSuccess: () => {
+      router.replace(pathsConfig.index);
+      router.refresh();
+    },
+  });
 
   return (
     <Section id="hero">
@@ -55,11 +69,17 @@ export const Hero = ({ user }: HeroProps) => {
                       {user.name}
                     </span>
                     <button
+                      onClick={() => signOut.mutate()}
                       type="button"
                       className="text-muted-foreground hover:text-primary ml-1 flex shrink-0 cursor-pointer items-center gap-1.5 transition-colors"
                       title="Sign out"
+                      disabled={signOut.isPending}
                     >
-                      <Icons.LogOut className="size-3.5" />
+                      {signOut.isPending ? (
+                        <Spinner className="size-3.5" />
+                      ) : (
+                        <Icons.LogOut className="size-3.5" />
+                      )}
                     </button>
                   </div>
                   <span className="text-muted-foreground truncate text-xs">
