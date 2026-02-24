@@ -49,12 +49,14 @@ export const SocialProviders = ({
             ) : (
               <Icon className="size-5" />
             )}
-            <Trans
-              i18nKey="login.social"
-              t={t}
-              values={{ provider }}
-              components={{ capitalize: <span className="capitalize" /> }}
-            />
+            <span>
+              <Trans
+                i18nKey="login.social"
+                t={t}
+                values={{ provider }}
+                components={{ capitalize: <span className="capitalize" /> }}
+              />
+            </span>
           </Button>
         );
       })}

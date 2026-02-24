@@ -16,7 +16,6 @@ import type { OpenClawDeploymentProviderStrategy } from "../types";
 
 const PORT_RANGE_START = 20000;
 const PORT_RANGE_END = 40000;
-const TRUSTED_PROXY_USER_HEADER = "x-forwarded-user";
 
 const toInstanceId = (userId: string) =>
   createHash("sha256").update(userId).digest("hex").slice(0, 16);
@@ -68,10 +67,6 @@ STATE_DIR=${escapeShell(toStateDir(params.id))}
 INITIAL_PORT=${params.port}
 PORT_RANGE_START=${PORT_RANGE_START}
 PORT_RANGE_END=${PORT_RANGE_END}
-ALLOWED_USER_JSON=${escapeShell(JSON.stringify(params.userId))}
-TRUSTED_PROXY_USER_HEADER_JSON=${escapeShell(
-    JSON.stringify(TRUSTED_PROXY_USER_HEADER),
-  )}
 ${toModelScriptValue(params.model)}
 ${toCommunicationChannelScriptValue(params.communication)}
 
@@ -89,12 +84,12 @@ cat > "$STATE_DIR/openclaw.json" <<EOF
   "gateway": {
     "mode": "local",
     "bind": "lan",
-    "trustedProxies": ["127.0.0.1", "::1"],
+    "trustedProxies": ["127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
     "auth": {
       "mode": "trusted-proxy",
       "trustedProxy": {
-        "userHeader": $TRUSTED_PROXY_USER_HEADER_JSON,
-        "allowUsers": [$ALLOWED_USER_JSON]
+        "userHeader": "x-forwarded-user",
+        "allowUsers": [${escapeShell(params.userId)}]
       }
     }
   }

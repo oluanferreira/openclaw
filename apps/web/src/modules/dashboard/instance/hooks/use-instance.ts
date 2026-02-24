@@ -20,6 +20,7 @@ export const useInstance = () => {
     ...instanceApi.mutations.deploy,
     onSuccess: async () => {
       await queryClient.invalidateQueries(instanceApi.queries.get);
+      await queryClient.invalidateQueries(instanceApi.queries.status);
       toast.success(t("instance.deploy.success"));
       router.refresh();
       router.replace(pathsConfig.dashboard.index);
@@ -30,6 +31,7 @@ export const useInstance = () => {
     ...instanceApi.mutations.manage,
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries(instanceApi.queries.get);
+      await queryClient.invalidateQueries(instanceApi.queries.status);
       toast.success(t(`instance.manage.${variables.action}.success`));
     },
   });
