@@ -17,6 +17,11 @@ const queries = {
     queryKey: [KEY, "status"],
     queryFn: () => handle(api.openclaw.status.$get)(),
   }),
+  logs: queryOptions({
+    queryKey: [KEY, "logs"],
+    queryFn: () => handle(api.openclaw.logs.$get)(),
+    refetchInterval: 1000,
+  }),
 };
 
 const mutations = {

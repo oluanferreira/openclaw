@@ -51,13 +51,10 @@ import /etc/caddy/routes/*.caddy
 
 ## Trusted-Proxy Defaults
 
-Generated OpenClaw config now trusts these proxy ranges by default:
+Generated OpenClaw config now trusts loopback proxy addresses by default:
 
 - `127.0.0.1`
 - `::1`
-- `10.0.0.0/8`
-- `172.16.0.0/12`
-- `192.168.0.0/16`
 
 ## Preflight Checks
 

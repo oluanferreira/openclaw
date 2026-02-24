@@ -38,3 +38,15 @@ export const DashboardHeaderDescription = ({
     />
   );
 };
+
+export const DashboarHeaderLabel = ({
+  className,
+  ...props
+}: React.ComponentProps<"span">) => {
+  return (
+    <span
+      className={cn("text-muted-foreground text-sm uppercase", className)}
+      {...props}
+    />
+  );
+};

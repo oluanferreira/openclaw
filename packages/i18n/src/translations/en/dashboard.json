@@ -66,6 +66,9 @@
       "exited": "Exited",
       "dead": "Dead"
     },
+    "logs": {
+      "loading": "Waiting for logs..."
+    },
     "error": {
       "alreadyExists": "You already have an instance deployed. You can't deploy another one for now.",
       "notFound": "You don't have an instance deployed yet. Please deploy one first."

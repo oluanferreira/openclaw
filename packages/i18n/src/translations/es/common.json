@@ -154,6 +154,8 @@
   "invitations": "Invitaciones",
   "actions": "Acciones",
   "start": "Iniciar",
+  "configuration": "Configuración",
+  "pendingActions": "Acciones pendientes",
   "lastDays": "Últimos {{count}} días",
   "lastMonths_one": "Últimos mes",
   "lastMonths_other": "Últimos {{count}} meses",

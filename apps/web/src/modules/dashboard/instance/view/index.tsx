@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui-web/card";
+import { Skeleton } from "@workspace/ui-web/skeleton";
 
 import {
   DashboardHeader,
@@ -93,22 +94,39 @@ export const ViewInstance = () => {
   return (
     <>
       <InstanceHeader />
-      <section className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
-        {details
-          .filter(({ value }) => value !== null)
-          .map((detail) => (
-            <Card key={detail.id}>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-muted-foreground text-base font-normal">
-                  {detail.label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="truncate text-lg font-medium">
-                {detail.value}
-              </CardContent>
-            </Card>
+
+      <div className="flex w-full flex-col gap-4">
+        <span className="text-muted-foreground ml-1 text-sm uppercase">
+          {t("pendingActions")}
+        </span>
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <Skeleton key={index} className="h-14 w-full" />
           ))}
+        </div>
+      </div>
+      <section className="flex w-full flex-col gap-4">
+        <span className="text-muted-foreground ml-1 text-sm uppercase">
+          {t("configuration")}
+        </span>
+        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+          {details
+            .filter(({ value }) => value !== null)
+            .map((detail) => (
+              <Card key={detail.id}>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-muted-foreground text-base font-normal">
+                    {detail.label}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="truncate text-lg font-medium">
+                  {detail.value}
+                </CardContent>
+              </Card>
+            ))}
+        </div>
       </section>
+
       <InstanceLogs />
     </>
   );

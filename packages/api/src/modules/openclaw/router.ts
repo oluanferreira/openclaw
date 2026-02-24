@@ -10,6 +10,7 @@ import {
   deploy,
   getInstanceById,
   getStatus,
+  getLogs,
   getInstanceIdFromHeaders,
   getInstanceByUserId,
   manage,
@@ -52,11 +53,12 @@ export const openclawRouter = new Hono()
 
     return c.json(instance);
   })
-  .get("/status", enforceInstance, async (c) => {
-    const status = await getStatus(c.var.instanceId);
-
-    return c.json(status);
-  })
+  .get("/status", enforceInstance, async (c) =>
+    c.json(await getStatus(c.var.instanceId)),
+  )
+  .get("/logs", enforceInstance, async (c) =>
+    c.json(await getLogs(c.var.instanceId)),
+  )
   .get("/access", async (c) => {
     const userId = c.var.user.id;
     const instanceId = getInstanceIdFromHeaders(c.req.raw.headers);

@@ -2,7 +2,10 @@ import { createHash } from "node:crypto";
 
 import { MODELS } from "../../../ai";
 import { env as aiEnv } from "../../../ai/env";
-import { CommunicationChannelEnvironmentVariable } from "../../../communication";
+import {
+  CommunicationChannelEnvironmentVariable,
+  CommunicatonChannel,
+} from "../../../communication";
 
 import { getInstanceUrl, getProvisionRouteScript } from "./caddy";
 import { env as vpsEnv } from "./env";
@@ -56,6 +59,41 @@ const getDeploymentScript = (
     userId: string;
   },
 ) => {
+  const instanceOrigin = `https://${params.id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}`;
+  const generatedAt = new Date().toISOString();
+
+  const gatewayConfig = JSON.stringify(
+    {
+      gateway: {
+        mode: "local",
+        bind: "lan",
+        controlUi: {
+          enabled: true,
+          allowedOrigins: [instanceOrigin],
+        },
+        trustedProxies: ["127.0.0.1", "::1", "172.17.0.1"],
+        auth: {
+          mode: "trusted-proxy",
+          trustedProxy: {
+            userHeader: "x-forwarded-user",
+            allowUsers: [params.userId],
+          },
+        },
+      },
+      channels: {
+        telegram: {
+          enabled:
+            params.communication.channel === CommunicatonChannel.TELEGRAM,
+        },
+      },
+      wizard: {
+        timestamp: generatedAt,
+      },
+    },
+    null,
+    2,
+  );
+
   return `
 set -euo pipefail
 
@@ -80,20 +118,7 @@ chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 
 cat > "$STATE_DIR/openclaw.json" <<EOF
-{
-  "gateway": {
-    "mode": "local",
-    "bind": "lan",
-    "trustedProxies": ["127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
-    "auth": {
-      "mode": "trusted-proxy",
-      "trustedProxy": {
-        "userHeader": "x-forwarded-user",
-        "allowUsers": [${escapeShell(params.userId)}]
-      }
-    }
-  }
-}
+${gatewayConfig}
 EOF
 chown "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/openclaw.json"
 chmod 600 "$STATE_DIR/openclaw.json"
@@ -130,7 +155,7 @@ CONTAINER_ID=$(docker run -d \
   --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-  -p "127.0.0.1:$PORT:19000" \
+  -p "127.0.0.1:$PORT:18789" \
   -v "$STATE_DIR:/opt/openclaw" \
   -e NODE_OPTIONS=${escapeShell(
     `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
@@ -179,4 +204,5 @@ export const strategy = {
   stop: async (id) => execute(`docker stop ${id}`),
   restart: async (id) => execute(`docker restart ${id}`),
   destroy: async (id) => execute(`docker rm -f ${id}`),
+  getLogs: async (id) => execute(`docker logs ${id}`),
 } satisfies OpenClawDeploymentProviderStrategy;

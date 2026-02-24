@@ -121,6 +121,8 @@
   "clear": "Clear",
   "slider": "Slider",
   "start": "Start",
+  "configuration": "Configuration",
+  "pendingActions": "Pending actions",
   "rowsPerPage": "Rows per page",
   "leave": "Leave",
   "revokeAll": "Revoke all",

@@ -66,6 +66,9 @@
       "exited": "Finalizado",
       "dead": "Muerto"
     },
+    "logs": {
+      "loading": "Esperando logs..."
+    },
     "error": {
       "alreadyExists": "Ya tienes una instancia desplegada. No puedes desplegar otra por ahora.",
       "notFound": "No tienes una instancia desplegada todavía. Por favor, despliega una primero."

@@ -23,27 +23,29 @@ ROUTES_IMPORT="import $CADDY_ROUTES_DIR/*.caddy"
 
 cat > "$ROUTE_FILE" <<EOF
 $INSTANCE_HOST {
-  request_header -X-Forwarded-User
-
-  forward_auth $AUTH_CHECK_ORIGIN {
-    uri /api/openclaw/access
-    header_up Host {upstream_hostport}
-    header_up X-OpenClaw-Instance-Host {host}
-    header_up -Connection
-    header_up -Upgrade
-    header_up -Sec-WebSocket-Key
-    header_up -Sec-WebSocket-Version
-    header_up -Sec-WebSocket-Protocol
-    header_up -Sec-WebSocket-Extensions
-    copy_headers X-Forwarded-User
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
   }
 
-  reverse_proxy 127.0.0.1:$PORT {
-    header_up X-Forwarded-User {header.X-Forwarded-User}
-    header_up X-Forwarded-Proto {scheme}
-    header_up X-Forwarded-Host {host}
-    header_up X-Forwarded-For {remote_host}
-    header_down -X-Forwarded-User
+  route {
+    request_header -X-Forwarded-User
+
+    forward_auth $AUTH_CHECK_ORIGIN {
+      uri /api/openclaw/access
+      header_up Host {upstream_hostport}
+      header_up X-OpenClaw-Instance-Host {host}
+      header_up -Connection
+      header_up -Upgrade
+      header_up -Sec-WebSocket-Key
+      header_up -Sec-WebSocket-Version
+      header_up -Sec-WebSocket-Protocol
+      header_up -Sec-WebSocket-Extensions
+      copy_headers X-Forwarded-User
+    }
+
+    reverse_proxy 127.0.0.1:$PORT {
+      header_up X-Forwarded-User {header.X-Forwarded-User}
+    }
   }
 }
 EOF
