@@ -154,6 +154,6 @@ export const strategy = {
   restart: async (id) => execute(`docker restart ${id}`),
   destroy: async (id) => execute(`docker rm -f ${id}`),
   getLogs: async (id) =>
-    execute(`docker logs --timestamps --details --tail 500 ${id} 2>&1`),
+    execute(`docker logs --timestamps --details ${id} 2>&1`),
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;
