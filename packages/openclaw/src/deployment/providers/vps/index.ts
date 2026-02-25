@@ -31,6 +31,12 @@ const getUrl = (id: string, token?: string) =>
 
 const getGatewayToken = () => randomBytes(32).toString("base64");
 
+const toEscapedCommand = (args: readonly string[]) =>
+  args.map((arg) => escapeShell(arg)).join(" ");
+
+const executeDocker = (args: readonly string[]) =>
+  execute(`docker ${toEscapedCommand(args)}`);
+
 const getDeploymentScript = (
   params: DeployInstanceSchemaInput & {
     id: string;
@@ -147,13 +153,13 @@ export const strategy = {
     };
   },
   getStatus,
-  cli: async (id, command) =>
-    execute(`docker exec ${id} node dist/index.js ${command}`),
-  start: async (id) => execute(`docker start ${id}`),
-  stop: async (id) => execute(`docker stop ${id}`),
-  restart: async (id) => execute(`docker restart ${id}`),
-  destroy: async (id) => execute(`docker rm -f ${id}`),
+  cli: async (id, commandArgs) =>
+    executeDocker(["exec", id, "node", "dist/index.js", ...commandArgs]),
+  start: async (id) => executeDocker(["start", id]),
+  stop: async (id) => executeDocker(["stop", id]),
+  restart: async (id) => executeDocker(["restart", id]),
+  destroy: async (id) => executeDocker(["rm", "-f", id]),
   getLogs: async (id) =>
-    execute(`docker logs --timestamps --details ${id} 2>&1`),
+    execute(`docker logs --timestamps --details ${escapeShell(id)} 2>&1`),
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

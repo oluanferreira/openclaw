@@ -8,7 +8,7 @@ import { toChannelRequests, toDeviceRequests } from "./utils";
 
 const getDevicePairingList = async (id: string) => {
   try {
-    const result = await cli(id, "devices list --json");
+    const result = await cli(id, ["devices", "list", "--json"]);
     return cliDevicePairingListSchema.safeParse(JSON.parse(result.stdout));
   } catch {
     return null;
@@ -17,7 +17,7 @@ const getDevicePairingList = async (id: string) => {
 
 const getChannelPairingList = async (id: string) => {
   try {
-    const result = await cli(id, "pairing list --json");
+    const result = await cli(id, ["pairing", "list", "--json"]);
     return cliChannelPairingListSchema.safeParse(JSON.parse(result.stdout));
   } catch {
     return null;

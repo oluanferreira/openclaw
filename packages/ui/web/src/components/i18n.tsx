@@ -73,7 +73,7 @@ export const LocaleCustomizer = ({
                 variant: "ghost",
                 size: "icon",
               }),
-              "border-none p-0 shadow-none [&>*:nth-child(2)]:hidden",
+              "dark:bg-background border-none p-0 shadow-none [&>*:nth-child(2)]:hidden",
             ),
           className,
         )}

@@ -4,6 +4,6 @@
 
 Ship your OpenClaw wrapper in minutes. Powered by [TurboStarter](https://www.turbostarter.dev).
 
-[📚 Documentation](/docs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[💬 Discord](https://discord.gg/KjpK2uk3JP)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[📚 Documentation](/docs/README.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[💬 Discord](https://discord.gg/KjpK2uk3JP)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 </div>

@@ -4,9 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { useTranslation } from "@workspace/i18n";
-import { cn } from "@workspace/ui";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
-import { buttonVariants } from "@workspace/ui-web/button";
 import { Card } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 import { Spinner } from "@workspace/ui-web/spinner";
@@ -14,7 +12,6 @@ import { Spinner } from "@workspace/ui-web/spinner";
 import { pathsConfig } from "~/config/paths";
 import { auth } from "~/modules/auth/lib/api";
 import { SocialProviders } from "~/modules/auth/social-providers";
-import { TurboLink } from "~/modules/common/turbo-link";
 import {
   DeployInstanceForm,
   DeployInstanceFormNote,
@@ -92,7 +89,7 @@ export const Hero = ({ user }: HeroProps) => {
             {user ? (
               <div className="flex flex-col items-stretch gap-2 sm:flex-row">
                 <DeployInstanceSubmitButton />
-                <TurboLink
+                {/* <TurboLink
                   href={pathsConfig.dashboard.index}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "lg" }),
@@ -101,7 +98,7 @@ export const Hero = ({ user }: HeroProps) => {
                 >
                   <Icons.Home className="size-4.5 shrink-0" />
                   {t("goToDashboard")}
-                </TurboLink>
+                </TurboLink> */}
               </div>
             ) : (
               <SocialProviders className="flex-col items-stretch sm:flex-row" />

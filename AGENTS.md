@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guide for AI agents working on the Turbostarter monorepo.
+Guide for AI agents working on the TurboClaw monorepo.
 
 ## Agent rules
 
@@ -15,6 +15,7 @@ Guide for AI agents working on the Turbostarter monorepo.
 - Use Zod for validation
 - Check `packages/*` for shared helpers before duplicating logic
 - Import from package entry points (`@workspace/ui-web`, not deep paths)
+- Verify a script exists in the target `package.json` before running it
 
 **DON'T:**
 - Commit, push, or modify git state unless explicitly asked
@@ -28,61 +29,55 @@ Guide for AI agents working on the Turbostarter monorepo.
 
 ## Where to look first
 
-| Task                | Start here                                      |
-| ------------------- | ----------------------------------------------- |
-| Auth logic          | `packages/auth/` → then app-specific usage      |
-| API endpoints       | `packages/api/src/modules/`                     |
-| Database schema     | `packages/db/src/schema/`                       |
-| UI components       | `packages/ui/web/` or `packages/ui/mobile/`     |
-| Billing             | `packages/billing/{shared,web,mobile}/`         |
-| Translations        | `packages/i18n/src/translations/`               |
-| Email templates     | `packages/email/src/templates/`                 |
-| Web pages           | `apps/web/src/app/[locale]/`                    |
-| Mobile screens      | `apps/mobile/src/app/`                          |
-| Extension entries   | `apps/extension/src/app/`                       |
+| Task | Start here |
+| ---- | ---------- |
+| Auth logic | `packages/auth/` -> then `apps/web/src/lib/auth/` and `apps/web/src/modules/auth/` |
+| API endpoints | `packages/api/src/modules/{auth,openclaw}/` |
+| OpenClaw domain | `packages/openclaw/src/{config,deployment}/` |
+| Database schema | `packages/db/src/schema/` |
+| UI components | `packages/ui/web/src/components/` and `packages/ui/shared/src/` |
+| Web pages | `apps/web/src/app/[locale]/` |
+| Dashboard features | `apps/web/src/modules/dashboard/` |
+| Translations | `packages/i18n/src/translations/` |
+| Shared utils/schema | `packages/shared/src/{utils,schema,constants}/` |
+| Tooling scripts | `tooling/scripts/src/` |
 
 ## Project structure
 
 ```
 apps/
-  web/         Next.js App Router (src/app/[locale]/{(marketing),auth,dashboard,admin})
-  mobile/      Expo Router (src/app/{(setup),dashboard}, src/modules/)
-  extension/   WXT + React (src/app/{background,content,popup,options,sidepanel,...})
+  web/         Next.js App Router (src/app/[locale]/{(marketing),dashboard}, src/modules/)
 
 packages/
-  api/         @workspace/api       Hono modules (admin,ai,auth,billing,organization,storage)
-  auth/        @workspace/auth      Better Auth server + clients (web.ts, mobile.ts)
-  billing/     @workspace/billing   Shared + web (Stripe,LemonSqueezy,Polar) + mobile (RevenueCat,Superwall)
-  cms/         @workspace/cms       MDX content (blog, legal)
+  api/         @workspace/api       Hono modules (auth, openclaw)
+  auth/        @workspace/auth      Better Auth server + clients
   db/          @workspace/db        Drizzle schema, migrations, scripts
-  email/       @workspace/email     React Email templates + providers
   i18n/        @workspace/i18n      Translations + server/client utils
-  shared/      @workspace/shared    Constants, schema, logger, hooks, utils
-  storage/     @workspace/storage   S3 storage providers
-  analytics/   @workspace/analytics[-web|-mobile|-extension]
-  monitoring/  @workspace/monitoring[-web|-mobile|-extension]
-  ui/          @workspace/ui[-web|-mobile]
+  openclaw/    @workspace/openclaw  OpenClaw config + deployment logic
+  shared/      @workspace/shared    Constants, schema, logger, utils
+  ui/shared/   @workspace/ui        Shared UI styles/assets/utils
+  ui/web/      @workspace/ui-web    Web UI components + hooks
 
-tooling/       ESLint, Prettier, TypeScript configs
+tooling/       ESLint, Prettier, TypeScript, scripts, GitHub helpers
 ```
 
 ## Commands
 
-| Task                    | Command                                                  |
-| ----------------------- | -------------------------------------------------------- |
-| Install deps            | `pnpm install`                                           |
-| Dev (all/specific)      | `pnpm dev` / `pnpm --filter <app> dev`                   |
-| Build                   | `pnpm build` / `pnpm --filter <app> build`               |
-| Mobile run              | `pnpm --filter mobile ios` / `android`                   |
-| Extension build         | `pnpm --filter extension build:chrome` / `build:firefox` |
-| Lint/Format/Typecheck   | `pnpm lint` / `pnpm format` / `pnpm typecheck`           |
-| Fix lint/format         | `pnpm lint:fix` / `pnpm format:fix`                      |
-| Test                    | `pnpm test`                                              |
-| Clean                   | `pnpm clean`                                             |
-| Services                | `pnpm services:setup` / `services:start` / `services:stop` |
-| DB migrate              | `pnpm with-env -F @workspace/db db:migrate`              |
-| DB generate             | `pnpm with-env -F @workspace/db db:generate`             |
-| DB studio               | `pnpm with-env -F @workspace/db db:studio`               |
+| Task | Command |
+| ---- | ------- |
+| Install deps | `pnpm install` |
+| Dev (all/specific) | `pnpm dev` / `pnpm --filter web dev` |
+| Build (all/specific) | `pnpm build` / `pnpm --filter web build` |
+| Start web (prod) | `pnpm --filter web start` |
+| Lint/Format/Typecheck | `pnpm lint` / `pnpm format` / `pnpm typecheck` |
+| Fix lint/format | `pnpm lint:fix` / `pnpm format:fix` |
+| Clean | `pnpm clean` |
+| Services | `pnpm services:setup` / `pnpm services:start` / `pnpm services:status` / `pnpm services:logs` / `pnpm services:stop` |
+| DB migrate | `pnpm with-env -F @workspace/db db:migrate` |
+| DB generate | `pnpm with-env -F @workspace/db db:generate` |
+| DB status/reset | `pnpm with-env -F @workspace/db db:status` / `pnpm with-env -F @workspace/db db:reset` |
+| DB studio | `pnpm with-env -F @workspace/db db:studio` |
+| Auth schema generate | `pnpm with-env -F @workspace/auth db:generate` |
 
 Environment: create `.env` at repo root with `DATABASE_URL`, `PRODUCT_NAME`, `URL`, `DEFAULT_LOCALE`.
 
@@ -90,7 +85,7 @@ Environment: create `.env` at repo root with `DATABASE_URL`, `PRODUCT_NAME`, `UR
 
 - TypeScript: functional, declarative; no classes
 - Naming: `isLoading`, `hasError`, `handleClick`
-- File layout: exported component → subcomponents → helpers → types
+- File layout: exported component -> subcomponents -> helpers -> types
 - Error handling: guard clauses, early returns
 - JSX: declarative, minimal curly braces
 - Commits: Conventional Commits
@@ -99,15 +94,16 @@ Environment: create `.env` at repo root with `DATABASE_URL`, `PRODUCT_NAME`, `UR
 
 **Web:** RSC by default; `use client` only when needed; `Suspense` for client components; `nuqs` for URL state; `@workspace/ui-web`
 
-**Mobile:** SafeAreaProvider; minimize hooks; memoize; `expo-image`; `@workspace/ui-mobile`
+**API:** Keep modules under `packages/api/src/modules/`; validate input with Zod; reuse shared schemas from `@workspace/shared` when possible.
 
-**Extension:** background for long tasks; content scripts for DOM; WXT messaging; `@workspace/ui-web`
+**OpenClaw package:** Keep provider-specific logic under `packages/openclaw/src/deployment/providers/`; keep env/schema validation in package-local `env.ts`/`schema.ts`.
 
 ## Troubleshooting
 
-| Issue                   | Fix                                              |
-| ----------------------- | ------------------------------------------------ |
-| Version mismatch        | Check `package.json#packageManager`              |
-| Services refused        | `pnpm services:start`, verify Docker running     |
-| Env not loaded          | Create `.env` at root; use `pnpm with-env`       |
-| Module issues           | `pnpm clean && pnpm install`                     |
+| Issue | Fix |
+| ----- | --- |
+| Version mismatch | Check `package.json#packageManager` |
+| Services refused | `pnpm services:start`, verify Docker running |
+| Env not loaded | Create `.env` at root; use `pnpm with-env` |
+| Module issues | `pnpm clean && pnpm install` |
+| Missing command | Check the target package `package.json` scripts and run via `pnpm --filter <pkg> <script>` |
