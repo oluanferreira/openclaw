@@ -52,6 +52,15 @@ const mutations = {
         json,
       }),
   }),
+  cli: mutationOptions({
+    mutationKey: [KEY, "cli"],
+    mutationFn: (
+      json: InferRequestType<(typeof api.openclaw.cli)["$post"]>["json"],
+    ) =>
+      handle(api.openclaw.cli.$post)({
+        json,
+      }),
+  }),
 };
 
 export const instance = {

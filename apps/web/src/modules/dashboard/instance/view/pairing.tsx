@@ -1,10 +1,13 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { toast } from "sonner";
 
 import { useTranslation } from "@workspace/i18n";
+import { Command } from "@workspace/openclaw/cli";
 import { Button } from "@workspace/ui-web/button";
 import { Card } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
@@ -12,6 +15,8 @@ import { Spinner } from "@workspace/ui-web/spinner";
 
 import { usePairing } from "~/modules/dashboard/instance/hooks/use-pairing";
 import { CommunicationChannelIcon } from "~/modules/dashboard/instance/icons";
+
+import { instance as instanceApi } from "../lib/api";
 
 import type { PairingRequest } from "@workspace/openclaw/config";
 
@@ -28,8 +33,21 @@ const ChannelPairing = ({
 }: {
   request: Extract<PairingRequest, { type: "channel" }>;
 }) => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["common", "dashboard"]);
   const Icon = CommunicationChannelIcon[request.channel];
+
+  const queryClient = useQueryClient();
+  const cli = useMutation({
+    ...instanceApi.mutations.cli,
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries(instanceApi.queries.pairing);
+      if (variables.command === Command.PAIRING_APPROVE) {
+        toast.success(t("instance.pairing.channel.approve.success"));
+      } else if (variables.command === Command.PAIRING_REJECT) {
+        toast.success(t("instance.pairing.channel.reject.success"));
+      }
+    },
+  });
 
   return (
     <Card className="flex flex-wrap items-start gap-4 p-4">
@@ -56,12 +74,46 @@ const ChannelPairing = ({
         </span>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Icons.Check className="size-4" /> {t("accept")}
+          <Button
+            variant="outline"
+            onClick={() =>
+              cli.mutate({
+                command: Command.PAIRING_APPROVE,
+                args: { channel: request.channel, code: request.code },
+              })
+            }
+            disabled={
+              cli.isPending && cli.variables.command === Command.PAIRING_APPROVE
+            }
+          >
+            {cli.isPending &&
+            cli.variables.command === Command.PAIRING_APPROVE ? (
+              <Spinner className="size-4" />
+            ) : (
+              <Icons.Check className="size-4" />
+            )}
+            {t("approve")}
           </Button>
 
-          <Button variant="outline">
-            <Icons.X className="size-4" /> {t("reject")}
+          <Button
+            variant="outline"
+            onClick={() =>
+              cli.mutate({
+                command: Command.PAIRING_REJECT,
+                args: { channel: request.channel, code: request.code },
+              })
+            }
+            disabled={
+              cli.isPending && cli.variables.command === Command.PAIRING_REJECT
+            }
+          >
+            {cli.isPending &&
+            cli.variables.command === Command.PAIRING_REJECT ? (
+              <Spinner className="size-4" />
+            ) : (
+              <Icons.X className="size-4" />
+            )}
+            {t("reject")}
           </Button>
         </div>
       </div>
@@ -74,7 +126,20 @@ const DevicePairing = ({
 }: {
   request: Extract<PairingRequest, { type: "device" }>;
 }) => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["common", "dashboard"]);
+
+  const queryClient = useQueryClient();
+  const cli = useMutation({
+    ...instanceApi.mutations.cli,
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries(instanceApi.queries.pairing);
+      if (variables.command === Command.DEVICE_APPROVE) {
+        toast.success(t("instance.pairing.device.approve.success"));
+      } else if (variables.command === Command.DEVICE_REJECT) {
+        toast.success(t("instance.pairing.device.reject.success"));
+      }
+    },
+  });
 
   return (
     <Card className="flex flex-wrap items-start gap-4 p-4">
@@ -98,13 +163,45 @@ const DevicePairing = ({
         </span>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Icons.Check className="size-4" />
-            {t("accept")}
+          <Button
+            variant="outline"
+            onClick={() =>
+              cli.mutate({
+                command: Command.DEVICE_APPROVE,
+                args: { id: request.id },
+              })
+            }
+            disabled={
+              cli.isPending && cli.variables.command === Command.DEVICE_APPROVE
+            }
+          >
+            {cli.isPending &&
+            cli.variables.command === Command.DEVICE_APPROVE ? (
+              <Spinner className="size-4" />
+            ) : (
+              <Icons.Check className="size-4" />
+            )}
+            {t("approve")}
           </Button>
-
-          <Button variant="outline">
-            <Icons.X className="size-4" /> {t("reject")}{" "}
+          <Button
+            variant="outline"
+            onClick={() =>
+              cli.mutate({
+                command: Command.DEVICE_REJECT,
+                args: { id: request.id },
+              })
+            }
+            disabled={
+              cli.isPending && cli.variables.command === Command.DEVICE_REJECT
+            }
+          >
+            {cli.isPending &&
+            cli.variables.command === Command.DEVICE_REJECT ? (
+              <Spinner className="size-4" />
+            ) : (
+              <Icons.X className="size-4" />
+            )}
+            {t("reject")}
           </Button>
         </div>
       </div>
@@ -116,7 +213,7 @@ export const InstancePairing = () => {
   const { t } = useTranslation("common");
   const { pairing } = usePairing();
 
-  if (!pairing.data) {
+  if (!pairing.data?.length) {
     return null;
   }
 

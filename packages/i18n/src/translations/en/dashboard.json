@@ -69,6 +69,24 @@
     "logs": {
       "loading": "Waiting for logs..."
     },
+    "pairing": {
+      "device": {
+        "approve": {
+          "success": "Device approved successfully. You can now access dashboard from it."
+        },
+        "reject": {
+          "success": "Device pairing request rejected successfully."
+        }
+      },
+      "channel": {
+        "approve": {
+          "success": "Channel approved successfully. You can now chat with your assistant there."
+        },
+        "reject": {
+          "success": "Channel rejected successfully."
+        }
+      }
+    },
     "error": {
       "alreadyExists": "You already have an instance deployed. You can't deploy another one for now.",
       "notFound": "You don't have an instance deployed yet. Please deploy one first."

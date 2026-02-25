@@ -69,6 +69,24 @@
     "logs": {
       "loading": "Esperando logs..."
     },
+    "pairing": {
+      "device": {
+        "approve": {
+          "success": "Dispositivo aprobado correctamente. Ahora puedes acceder al dashboard desde él."
+        },
+        "reject": {
+          "success": "Solicitud de emparejamiento de dispositivo rechazada correctamente."
+        }
+      },
+      "channel": {
+        "approve": {
+          "success": "Canal aprobado correctamente. Ahora puedes chatear con tu asistente allí."
+        },
+        "reject": {
+          "success": "Canal rechazado correctamente."
+        }
+      }
+    },
     "error": {
       "alreadyExists": "Ya tienes una instancia desplegada. No puedes desplegar otra por ahora.",
       "notFound": "No tienes una instancia desplegada todavía. Por favor, despliega una primero."

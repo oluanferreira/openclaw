@@ -5,6 +5,7 @@ import {
   ManageInstanceAction,
   manageInstanceSchema,
 } from "@workspace/openclaw";
+import { getCommandToRun, commandSchema } from "@workspace/openclaw/cli";
 import {
   createInstance,
   deploy,
@@ -15,6 +16,7 @@ import {
   deleteInstance,
   getUrl,
   getPairingRequests,
+  cli,
 } from "@workspace/openclaw/server";
 
 import {
@@ -84,4 +86,12 @@ export const openclawRouter = new Hono()
 
       return c.json(result);
     },
-  );
+  )
+  .post("/cli", enforceInstance, validate("json", commandSchema), async (c) => {
+    const instanceId = c.var.instanceId;
+    const payload = c.req.valid("json");
+
+    const command = getCommandToRun(payload);
+
+    return c.json(await cli(instanceId, command));
+  });
