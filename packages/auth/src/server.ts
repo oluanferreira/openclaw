@@ -18,7 +18,6 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [
-    "https://746f-2a02-a316-40da-6980-5d19-b46e-4feb-9ca1.ngrok-free.app",
     ...(env.NODE_ENV === NodeEnv.DEVELOPMENT
       ? ["http://localhost*", "https://localhost*"]
       : []),

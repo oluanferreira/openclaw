@@ -1,10 +1,9 @@
 import type { DeployInstanceSchemaInput } from "../schema";
 
 export interface OpenClawDeploymentProviderStrategy {
-  deploy: (input: DeployInstanceSchemaInput & { userId: string }) => Promise<{
-    id: string;
-    url: string;
-  }>;
+  deploy: (
+    input: DeployInstanceSchemaInput & { userId: string },
+  ) => Promise<{ id: string; token: string }>;
   getStatus: (id: string) => Promise<{ status: string | null } | null>;
   cli: (id: string, command: string) => Promise<{ stdout: string }>;
   start: (id: string) => Promise<{ stdout: string }>;

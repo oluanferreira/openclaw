@@ -20,6 +20,7 @@ export const useInstance = () => {
     ...instanceApi.mutations.deploy,
     onSuccess: async () => {
       await queryClient.invalidateQueries(instanceApi.queries.status);
+      await queryClient.invalidateQueries(instanceApi.queries.logs);
       await queryClient.invalidateQueries(instanceApi.queries.get);
       toast.success(t("instance.deploy.success"));
       router.refresh();

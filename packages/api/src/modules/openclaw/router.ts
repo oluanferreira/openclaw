@@ -8,17 +8,14 @@ import {
 import {
   createInstance,
   deploy,
-  getInstanceById,
   getStatus,
   getLogs,
-  getInstanceIdFromHeaders,
   getInstanceByUserId,
   manage,
   deleteInstance,
   getUrl,
+  getPairingRequests,
 } from "@workspace/openclaw/server";
-import { HttpStatusCode } from "@workspace/shared/constants";
-import { HttpException } from "@workspace/shared/utils";
 
 import {
   enforceAuth,
@@ -39,9 +36,9 @@ export const openclawRouter = new Hono()
 
       const deployment = await deploy({ userId, ...payload });
       await createInstance({
-        id: deployment.id,
         userId,
         communicationChannel: payload.communication.channel,
+        ...deployment,
         ...payload,
       });
 
@@ -56,7 +53,7 @@ export const openclawRouter = new Hono()
       return c.json(null);
     }
 
-    const url = getUrl(instance.id);
+    const url = getUrl(instance.id, instance.token);
     return c.json({
       ...instance,
       url,
@@ -67,6 +64,9 @@ export const openclawRouter = new Hono()
   )
   .get("/logs", enforceInstance, async (c) =>
     c.json(await getLogs(c.var.instanceId)),
+  )
+  .get("/pairing", enforceInstance, async (c) =>
+    c.json(await getPairingRequests(c.var.instanceId)),
   )
   .post(
     "/manage",
@@ -84,25 +84,4 @@ export const openclawRouter = new Hono()
 
       return c.json(result);
     },
-  )
-  .get("/access", async (c) => {
-    const userId = c.var.user.id;
-    const instanceId = getInstanceIdFromHeaders(c.req.raw.headers);
-
-    if (!instanceId) {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
-        message: "error.notFound",
-      });
-    }
-
-    const instance = await getInstanceById(instanceId);
-
-    if (instance?.userId !== userId) {
-      throw new HttpException(HttpStatusCode.FORBIDDEN, {
-        code: "error.forbidden",
-      });
-    }
-
-    c.header("X-Forwarded-User", instance.userId);
-    return c.json({ ok: true });
-  });
+  );

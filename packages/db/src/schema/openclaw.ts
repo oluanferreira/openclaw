@@ -18,6 +18,7 @@ export const instance = pgTable("instance", {
     .references(() => user.id, { onDelete: "cascade" }),
   model: text().notNull(),
   communicationChannel: text().notNull(),
+  token: text().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -4,10 +4,7 @@ This repo deploys one OpenClaw Gateway container per user onto a single VPS, the
 provisions a Caddy route:
 
 1. `https://<instance-id>.<VPS_INSTANCE_DOMAIN_SUFFIX>` terminates TLS in Caddy.
-2. Caddy runs `forward_auth` against your app API (`/api/openclaw/access`).
-3. If auth passes, Caddy injects `X-Forwarded-User` and proxies to the container.
-4. OpenClaw Gateway uses `trusted-proxy` auth and only accepts identity headers
-   from trusted proxy IP ranges.
+2. Caddy reverse proxies traffic directly to the container.
 
 ## Required Environment Variables
 
@@ -21,9 +18,8 @@ Set these in root `.env` (API process environment).
 | `VPS_PRIVATE_KEY` | SSH private key content (`\n` escaped) | `-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----` |
 | `VPS_PRIVATE_KEY_PASSPHRASE` | Optional SSH key passphrase | `secret` |
 | `VPS_DEPLOY_ROOT` | Root dir for instance state on VPS | `/opt/openclaw` |
-| `VPS_OPENCLAW_IMAGE` | Docker image with OpenClaw gateway build | `ghcr.io/openclaw/openclaw:latest` |
+| `VPS_OPENCLAW_IMAGE` | Docker image with OpenClaw gateway build | `ghcr.io/openclaw/openclaw:2026.2.24` |
 | `VPS_INSTANCE_DOMAIN_SUFFIX` | Wildcard suffix for instance hosts | `openclaw.turbostarter.dev` |
-| `VPS_AUTH_CHECK_ORIGIN` | App/API origin used by Caddy `forward_auth` | `https://turbostarter.dev` |
 | `OPENAI_API_KEY` | Model provider key (required by env schema) | `...` |
 | `ANTHROPIC_API_KEY` | Model provider key (required by env schema) | `...` |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Model provider key (required by env schema) | `...` |
@@ -49,12 +45,13 @@ The deployer will append this line to your main Caddyfile if missing:
 import /etc/caddy/routes/*.caddy
 ```
 
-## Trusted-Proxy Defaults
+## Frontend Command Execution
 
-Generated OpenClaw config now trusts loopback proxy addresses by default:
+Commands run via `docker exec` with the per-instance gateway token and do not
+require trusted-proxy header injection.
 
-- `127.0.0.1`
-- `::1`
+After enabling this code, redeploy existing instances so the latest route and
+container config are applied.
 
 ## Preflight Checks
 
@@ -76,9 +73,7 @@ That means HTTP reached the gateway page, but WebSocket auth did not pass.
 Check these first:
 
 1. Route file for the instance exists in `VPS_CADDY_ROUTES_DIR`.
-2. `VPS_AUTH_CHECK_ORIGIN` points at the same app origin where user sessions are valid.
-3. Caddy route includes both `forward_auth` and `header_up X-Forwarded-User`.
-4. Container config file `<VPS_DEPLOY_ROOT>/instances/<id>/openclaw.json` has:
-   - `"auth.mode": "trusted-proxy"`
-   - `"trustedProxy.userHeader": "x-forwarded-user"`
-   - expected `trustedProxies`.
+2. Caddy route contains `reverse_proxy 127.0.0.1:<port>`.
+3. Container config file `<VPS_DEPLOY_ROOT>/instances/<id>/openclaw.json` has:
+   - `"auth.mode": "token"`
+   - a non-empty token value.

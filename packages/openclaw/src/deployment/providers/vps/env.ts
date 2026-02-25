@@ -19,7 +19,7 @@ export const preset = {
     VPS_OPENCLAW_IMAGE: z
       .string()
       .min(1)
-      .default("ghcr.io/openclaw/openclaw:latest"),
+      .default("ghcr.io/openclaw/openclaw:2026.2.24"),
     VPS_CONTAINER_MEMORY: z.string().min(1).default("2g"),
     VPS_CONTAINER_CPUS: z.string().min(1).default("1.5"),
     VPS_NODE_MAX_OLD_SPACE_SIZE: z.coerce

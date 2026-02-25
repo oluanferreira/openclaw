@@ -8,7 +8,7 @@ export type Provider = (typeof Provider)[keyof typeof Provider];
 
 export const Model = {
   CLAUDE_OPUS_4_6: "claude-opus-4-6",
-  OPENAI_5_2: "openai-5.2",
+  GPT_5_2: "gpt-5.2",
   GEMINI_3_0_FLASH: "gemini-3-0-flash",
 } as const;
 
@@ -21,7 +21,7 @@ export const MODELS = [
     name: "Claude Opus 4.6",
   },
   {
-    id: Model.OPENAI_5_2,
+    id: Model.GPT_5_2,
     provider: Provider.OPENAI,
     name: "GPT 5.2",
   },

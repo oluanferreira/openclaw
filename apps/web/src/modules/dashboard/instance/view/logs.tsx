@@ -3,7 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useTranslation } from "@workspace/i18n";
+import { Icons } from "@workspace/ui-web/icons";
 import { ScrollArea } from "@workspace/ui-web/scroll-area";
+import { Spinner } from "@workspace/ui-web/spinner";
 
 import { instance as instanceApi } from "../lib/api";
 
@@ -13,19 +15,23 @@ interface ParsedLogLine {
   message: string;
 }
 
+const DOCKER_LOG_TIMESTAMP_PREFIX =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\s+/;
+
 const parseLogs = (stdout: string) =>
   stdout
     .split("\n")
     .map((line) => line.trimEnd())
     .filter((line) => line.length > 0)
     .map<ParsedLogLine>((line) => {
-      const firstSpaceIndex = line.indexOf(" ");
+      const normalizedLine = line.replace(DOCKER_LOG_TIMESTAMP_PREFIX, "");
+      const firstSpaceIndex = normalizedLine.indexOf(" ");
       if (firstSpaceIndex <= 0) {
-        return { raw: line, time: null, message: line };
+        return { raw: line, time: null, message: normalizedLine };
       }
 
-      const time = line.slice(0, firstSpaceIndex);
-      const message = line.slice(firstSpaceIndex + 1);
+      const time = normalizedLine.slice(0, firstSpaceIndex);
+      const message = normalizedLine.slice(firstSpaceIndex + 1);
 
       return { raw: line, time, message };
     });
@@ -36,11 +42,25 @@ export const InstanceLogs = () => {
   const logs = useQuery(instanceApi.queries.logs);
   const entries = parseLogs(logs.data?.stdout ?? "");
 
+  const status = logs.isLoading
+    ? { label: t("connecting"), icon: Spinner }
+    : logs.isError
+      ? logs.isRefetching
+        ? { label: t("reconnecting"), icon: Spinner }
+        : { label: t("disconnected"), icon: Icons.X }
+      : { label: t("connected"), icon: Icons.Check };
+
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col gap-4">
-      <span className="text-muted-foreground ml-1 text-sm uppercase">
-        {t("logs")}
-      </span>
+      <div className="gap- flex items-center justify-between">
+        <span className="text-muted-foreground ml-1 text-sm uppercase">
+          {t("logs")}
+        </span>
+        <div className="text-muted-foreground flex items-center gap-1">
+          <span className="text-xs">{status.label}</span>
+          <status.icon className="size-3" />
+        </div>
+      </div>
       <ScrollArea className="bg-card min-h-0 w-full flex-1 rounded-2xl border p-0">
         <pre className="py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap @md/dashboard:py-4 @lg/dashboard:text-sm">
           {!entries.length ? (

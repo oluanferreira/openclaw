@@ -1,6 +1,8 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import * as z from "zod";
 
 import { handle } from "@workspace/api/utils";
+import { pairingRequestSchema } from "@workspace/openclaw/config";
 
 import { api } from "~/lib/api/client";
 
@@ -21,6 +23,13 @@ const queries = {
     queryKey: [KEY, "logs"],
     queryFn: () => handle(api.openclaw.logs.$get)(),
     refetchInterval: 1000,
+  }),
+  pairing: queryOptions({
+    queryKey: [KEY, "pairing"],
+    queryFn: () =>
+      handle(api.openclaw.pairing.$get, {
+        schema: z.array(pairingRequestSchema),
+      })(),
   }),
 };
 

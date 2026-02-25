@@ -8,14 +8,16 @@ const toInstanceHost = (instanceId: string) =>
 export const getInstanceUrl = (instanceId: string) =>
   `https://${toInstanceHost(instanceId)}`;
 
-export const getProvisionRouteScript = (instanceId: string) => {
+export const getProvisionRouteScript = (
+  instanceId: string,
+  _gatewayToken: string,
+) => {
   const instanceHost = toInstanceHost(instanceId);
 
   return `
 INSTANCE_HOST=${escapeShell(instanceHost)}
 CADDY_ROUTES_DIR=${escapeShell(env.VPS_CADDY_ROUTES_DIR)}
 CADDY_CONFIG_PATH=${escapeShell(env.VPS_CADDY_CONFIG_PATH)}
-AUTH_CHECK_ORIGIN=${escapeShell(env.VPS_AUTH_CHECK_ORIGIN)}
 
 mkdir -p "$CADDY_ROUTES_DIR"
 ROUTE_FILE="$CADDY_ROUTES_DIR/$INSTANCE_HOST.caddy"
@@ -27,26 +29,7 @@ $INSTANCE_HOST {
     Strict-Transport-Security "max-age=31536000; includeSubDomains"
   }
 
-  route {
-    request_header -X-Forwarded-User
-
-    forward_auth $AUTH_CHECK_ORIGIN {
-      uri /api/openclaw/access
-      header_up Host {upstream_hostport}
-      header_up X-OpenClaw-Instance-Host {host}
-      header_up -Connection
-      header_up -Upgrade
-      header_up -Sec-WebSocket-Key
-      header_up -Sec-WebSocket-Version
-      header_up -Sec-WebSocket-Protocol
-      header_up -Sec-WebSocket-Extensions
-      copy_headers X-Forwarded-User
-    }
-
-    reverse_proxy 127.0.0.1:$PORT {
-      header_up X-Forwarded-User {header.X-Forwarded-User}
-    }
-  }
+  reverse_proxy 127.0.0.1:$PORT
 }
 EOF
 

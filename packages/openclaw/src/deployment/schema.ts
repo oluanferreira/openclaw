@@ -25,6 +25,21 @@ export const manageInstanceSchema = z.object({
 
 export type ManageInstanceSchemaInput = z.input<typeof manageInstanceSchema>;
 
+export const ExecuteInstanceCommand = {
+  DEVICES_LIST: "devices:list",
+} as const;
+
+export type ExecuteInstanceCommand =
+  (typeof ExecuteInstanceCommand)[keyof typeof ExecuteInstanceCommand];
+
+export const executeInstanceCommandSchema = z.object({
+  command: z.enum(ExecuteInstanceCommand),
+});
+
+export type ExecuteInstanceCommandSchemaInput = z.input<
+  typeof executeInstanceCommandSchema
+>;
+
 export const InstanceStatus = {
   STOPPED: "stopped",
   RUNNING: "running",

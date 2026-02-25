@@ -9,6 +9,6 @@ export const CommunicationChannelIcon = {
 
 export const ModelIcon = {
   [Model.CLAUDE_OPUS_4_6]: Icons.Claude,
-  [Model.OPENAI_5_2]: Icons.OpenAI,
+  [Model.GPT_5_2]: Icons.OpenAI,
   [Model.GEMINI_3_0_FLASH]: Icons.Gemini,
 } as const;

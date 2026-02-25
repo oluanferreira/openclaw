@@ -193,7 +193,7 @@ export const DeployInstanceSubmitButton = ({
       {...props}
     >
       {form.formState.isSubmitting ? (
-        <Spinner />
+        <Spinner className="size-5" />
       ) : (
         <Icons.Zap className="size-5 shrink-0 fill-current" />
       )}

@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui-web/card";
-import { Skeleton } from "@workspace/ui-web/skeleton";
 
 import {
   DashboardHeader,
@@ -24,6 +23,7 @@ import {
 
 import { InstanceHeader } from "./header";
 import { InstanceLogs } from "./logs";
+import { InstancePairing } from "./pairing";
 
 export const ViewInstance = () => {
   const { instance } = useInstance();
@@ -42,7 +42,6 @@ export const ViewInstance = () => {
             </DashboardHeaderDescription>
           </div>
         </DashboardHeader>
-
         <DeployInstance />
       </>
     );
@@ -93,17 +92,7 @@ export const ViewInstance = () => {
   return (
     <>
       <InstanceHeader />
-
-      <div className="flex w-full flex-col gap-4">
-        <span className="text-muted-foreground ml-1 text-sm uppercase">
-          {t("pendingActions")}
-        </span>
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <Skeleton key={index} className="h-14 w-full" />
-          ))}
-        </div>
-      </div>
+      <InstancePairing />
       <section className="flex w-full flex-col gap-4">
         <span className="text-muted-foreground ml-1 text-sm uppercase">
           {t("configuration")}

@@ -22,6 +22,13 @@
       "when": 1771870749716,
       "tag": "0002_left_morlun",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772022071506,
+      "tag": "0003_zippy_the_watchers",
+      "breakpoints": true
     }
   ]
 }

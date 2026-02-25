@@ -1,9 +1,9 @@
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 import { env as aiEnv } from "../../../config/ai/env";
 import { getGatewayConfig } from "../../../config/gateway";
 
-import { getInstanceUrl, getProvisionRouteScript } from "./caddy";
+import { getProvisionRouteScript } from "./caddy";
 import { env as vpsEnv } from "./env";
 import { execute, parseOutput, escapeShell } from "./sdk";
 import { getStatus } from "./status";
@@ -26,13 +26,16 @@ const toInitialPort = (instanceId: string) => {
 const toStateDir = (instanceId: string) =>
   `${vpsEnv.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
 
-const getUrl = (id: string) =>
-  `https://${id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}`;
+const getUrl = (id: string, token?: string) =>
+  `https://${id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}${token ? `/#token=${encodeURIComponent(token)}` : ""}`;
+
+const getGatewayToken = () => randomBytes(32).toString("base64");
 
 const getDeploymentScript = (
   params: DeployInstanceSchemaInput & {
     id: string;
     port: number;
+    token: string;
     userId: string;
   },
 ) => {
@@ -108,7 +111,7 @@ CONTAINER_ID=$(docker run -d \
   -e ANTHROPIC_API_KEY=${escapeShell(aiEnv.ANTHROPIC_API_KEY)} \
   -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(aiEnv.GOOGLE_GENERATIVE_AI_API_KEY)} \
   "$IMAGE")
-${getProvisionRouteScript(params.id)}
+${getProvisionRouteScript(params.id, params.token)}
 
 echo "container_id=$CONTAINER_ID"
 `;
@@ -121,7 +124,14 @@ export const strategy = {
   }: DeployInstanceSchemaInput & { userId: string }) => {
     const id = toInstanceId(userId);
     const port = toInitialPort(id);
-    const script = getDeploymentScript({ id, port, userId, ...input });
+    const token = getGatewayToken();
+    const script = getDeploymentScript({
+      id,
+      port,
+      userId,
+      token,
+      ...input,
+    });
 
     const { stdout } = await execute(script);
 
@@ -133,7 +143,7 @@ export const strategy = {
 
     return {
       id,
-      url: output.instance_url ?? getInstanceUrl(id),
+      token,
     };
   },
   getStatus,
@@ -143,6 +153,7 @@ export const strategy = {
   stop: async (id) => execute(`docker stop ${id}`),
   restart: async (id) => execute(`docker restart ${id}`),
   destroy: async (id) => execute(`docker rm -f ${id}`),
-  getLogs: async (id) => execute(`docker logs ${id} 2>&1`),
+  getLogs: async (id) =>
+    execute(`docker logs --timestamps --details --tail 500 ${id} 2>&1`),
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

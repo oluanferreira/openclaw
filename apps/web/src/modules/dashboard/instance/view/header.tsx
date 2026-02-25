@@ -56,7 +56,18 @@ export const InstanceHeader = () => {
             href={instance.data?.url}
             className="text-primary inline-flex w-full items-center gap-1 text-sm underline underline-offset-3 hover:no-underline"
           >
-            <span className="truncate">{instance.data?.url}</span>{" "}
+            <span className="truncate">
+              {instance.data?.url
+                ? (() => {
+                    try {
+                      const url = new URL(instance.data.url);
+                      return url.origin;
+                    } catch {
+                      return instance.data.url;
+                    }
+                  })()
+                : ""}
+            </span>
             <Icons.ExternalLink className="size-3.5" />
           </a>
         </div>

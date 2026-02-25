@@ -18,28 +18,25 @@ const toAgentModelId = (model: Model) => {
 
 interface GatewayConfigInput {
   origin: string;
-  userId: string;
+  token: string;
 }
 
 export const getGatewayConfig = ({
   origin,
-  userId,
+  token,
   ...config
 }: OpenclawConfig & GatewayConfigInput) => ({
   gateway: {
     mode: "local",
     bind: "lan",
+    trustedProxies: TRUSTED_PROXIES,
     controlUi: {
       enabled: true,
       allowedOrigins: [origin],
     },
-    trustedProxies: TRUSTED_PROXIES,
     auth: {
-      mode: "trusted-proxy",
-      trustedProxy: {
-        userHeader: "x-forwarded-user",
-        allowUsers: [userId],
-      },
+      mode: "token",
+      token,
     },
   },
   agents: {
