@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslation } from "@workspace/i18n";
-import { MODELS } from "@workspace/openclaw/ai";
-import { COMMUNICATION_CHANNELS } from "@workspace/openclaw/communication";
+import { MODELS, COMMUNICATION_CHANNELS } from "@workspace/openclaw/config";
 import {
   Card,
   CardContent,
@@ -58,8 +57,8 @@ export const ViewInstance = () => {
         if (!model) return null;
         const Icon = ModelIcon[model.id];
         return (
-          <div className="inline-flex items-center gap-3">
-            <Icon className="size-6" />
+          <div className="inline-flex items-center gap-2 @md/dashboard:gap-3">
+            <Icon className="size-5 @md/dashboard:size-6" />
             <span>{model.name}</span>
           </div>
         );
@@ -77,8 +76,8 @@ export const ViewInstance = () => {
 
         const Icon = CommunicationChannelIcon[communication.id];
         return (
-          <div className="inline-flex items-center gap-3">
-            <Icon className="size-6" />
+          <div className="inline-flex items-center gap-2 @md/dashboard:gap-3">
+            <Icon className="size-5 @md/dashboard:size-6" />
             <span>{communication.name}</span>
           </div>
         );
@@ -109,17 +108,17 @@ export const ViewInstance = () => {
         <span className="text-muted-foreground ml-1 text-sm uppercase">
           {t("configuration")}
         </span>
-        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid w-full grid-cols-1 gap-4 @xl/dashboard:grid-cols-3">
           {details
             .filter(({ value }) => value !== null)
             .map((detail) => (
               <Card key={detail.id}>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-muted-foreground text-base font-normal">
+                <CardHeader className="p-5 pb-0! @md/dashboard:p-6">
+                  <CardTitle className="text-muted-foreground text-sm font-normal @md/dashboard:text-base">
                     {detail.label}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="truncate text-lg font-medium">
+                <CardContent className="truncate p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
                   {detail.value}
                 </CardContent>
               </Card>

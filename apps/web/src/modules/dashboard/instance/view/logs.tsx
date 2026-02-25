@@ -42,16 +42,16 @@ export const InstanceLogs = () => {
         {t("logs")}
       </span>
       <ScrollArea className="bg-card min-h-0 w-full flex-1 rounded-2xl border p-0">
-        <pre className="py-4 font-mono text-xs leading-relaxed whitespace-pre-wrap sm:text-sm">
+        <pre className="py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap @md/dashboard:py-4 @lg/dashboard:text-sm">
           {!entries.length ? (
-            <div className="text-muted-foreground px-5 py-1">
+            <div className="text-muted-foreground px-3 py-1 @md/dashboard:px-5">
               {t("instance.logs.loading")}
             </div>
           ) : (
             entries.map((entry, idx) => (
               <div
                 key={`${entry.raw}-${idx}`}
-                className="hover:bg-muted px-5 py-1"
+                className="hover:bg-muted px-3 py-1 @md/dashboard:px-5"
               >
                 {entry.time ? (
                   <>

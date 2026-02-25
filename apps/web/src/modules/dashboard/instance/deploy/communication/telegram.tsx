@@ -3,8 +3,10 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Trans, useTranslation } from "@workspace/i18n";
-import { telegramSchema } from "@workspace/openclaw/communication";
-import { CommunicatonChannel } from "@workspace/openclaw/communication";
+import {
+  telegramSchema,
+  CommunicatonChannel,
+} from "@workspace/openclaw/config";
 import { Button } from "@workspace/ui-web/button";
 import {
   Dialog,
@@ -17,7 +19,7 @@ import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 
-import type { CommunicationChannelConfig } from "@workspace/openclaw/communication";
+import type { CommunicationChannelConfig } from "@workspace/openclaw/config";
 
 interface TelegramConfigurationProps {
   children: React.ReactElement;

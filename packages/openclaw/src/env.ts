@@ -2,7 +2,7 @@ import { defineEnv } from "envin";
 
 import { envConfig } from "@workspace/shared/constants";
 
-import { preset as aiPreset } from "./ai/env";
+import { preset as aiPreset } from "./config/ai/env";
 import { preset as providerPreset } from "./deployment/providers/env";
 
 import type { Preset } from "envin/types";

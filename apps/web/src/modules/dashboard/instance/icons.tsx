@@ -1,5 +1,4 @@
-import { Model } from "@workspace/openclaw/ai";
-import { CommunicatonChannel } from "@workspace/openclaw/communication";
+import { Model, CommunicatonChannel } from "@workspace/openclaw/config";
 import { Icons } from "@workspace/ui-web/icons";
 
 export const CommunicationChannelIcon = {

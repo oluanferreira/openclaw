@@ -2,6 +2,7 @@ import { isKey, useTranslation } from "@workspace/i18n";
 import { InstanceStatus } from "@workspace/openclaw";
 import { Badge } from "@workspace/ui-web/badge";
 import { Icons } from "@workspace/ui-web/icons";
+import { Skeleton } from "@workspace/ui-web/skeleton";
 
 import {
   DashboardHeader,
@@ -27,8 +28,6 @@ export const InstanceHeader = () => {
   const { t, i18n } = useTranslation(["common", "dashboard"]);
   const { instance, status } = useInstance();
 
-  const url = `https://${instance.data?.id}.openclaw.turbostarter.dev`;
-
   const key = `dashboard.instance.status.${status.data?.status}`;
   const variant =
     status.data?.status && status.data.status in statusToVariant
@@ -42,20 +41,23 @@ export const InstanceHeader = () => {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <DashboardHeaderTitle>{t("yourInstance")}</DashboardHeaderTitle>
-            {status.data && (
+            {status.data ? (
               <Badge variant={variant} className="capitalize">
                 {isKey(key, i18n, "dashboard") ? t(key) : status.data.status}
               </Badge>
+            ) : (
+              <Skeleton className="h-5.5 w-16" />
             )}
           </div>
 
           <a
             rel="noopener noreferrer"
             target="_blank"
-            href={url}
-            className="text-primary inline-flex items-center gap-1 text-sm underline underline-offset-3 hover:no-underline"
+            href={instance.data?.url}
+            className="text-primary inline-flex w-full items-center gap-1 text-sm underline underline-offset-3 hover:no-underline"
           >
-            {url} <Icons.ExternalLink className="size-3.5" />
+            <span className="truncate">{instance.data?.url}</span>{" "}
+            <Icons.ExternalLink className="size-3.5" />
           </a>
         </div>
       </div>

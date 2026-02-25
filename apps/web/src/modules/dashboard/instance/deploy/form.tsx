@@ -10,11 +10,11 @@ import {
 
 import { Trans, useTranslation } from "@workspace/i18n";
 import { deployInstanceSchema } from "@workspace/openclaw";
-import { MODELS } from "@workspace/openclaw/ai";
 import {
+  MODELS,
   COMMUNICATION_CHANNELS,
   CommunicatonChannel,
-} from "@workspace/openclaw/communication";
+} from "@workspace/openclaw/config";
 import { cn } from "@workspace/ui";
 import { Button } from "@workspace/ui-web/button";
 import { Field, FieldLabel } from "@workspace/ui-web/field";

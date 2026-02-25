@@ -1,19 +1,13 @@
 import { createHash } from "node:crypto";
 
-import { MODELS } from "../../../ai";
-import { env as aiEnv } from "../../../ai/env";
-import {
-  CommunicationChannelEnvironmentVariable,
-  CommunicatonChannel,
-} from "../../../communication";
+import { env as aiEnv } from "../../../config/ai/env";
+import { getGatewayConfig } from "../../../config/gateway";
 
 import { getInstanceUrl, getProvisionRouteScript } from "./caddy";
 import { env as vpsEnv } from "./env";
 import { execute, parseOutput, escapeShell } from "./sdk";
 import { getStatus } from "./status";
 
-import type { Model } from "../../../ai";
-import type { CommunicationChannelConfig } from "../../../communication";
 import type { DeployInstanceSchemaInput } from "../../schema";
 import type { OpenClawDeploymentProviderStrategy } from "../types";
 
@@ -32,25 +26,8 @@ const toInitialPort = (instanceId: string) => {
 const toStateDir = (instanceId: string) =>
   `${vpsEnv.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
 
-const toModelScriptValue = (model: Model) => {
-  const modelInfo = MODELS.find((m) => m.id === model);
-
-  if (!modelInfo) {
-    throw new Error(`Model ${model} not found.`);
-  }
-
-  return `MODEL_PROVIDER=${escapeShell(modelInfo.provider)}
-MODEL_ID=${escapeShell(modelInfo.id)}`;
-};
-
-const toCommunicationChannelScriptValue = (
-  communication: CommunicationChannelConfig,
-) => {
-  const environmentVariable =
-    CommunicationChannelEnvironmentVariable[communication.channel];
-
-  return `${environmentVariable}=${escapeShell(communication.token)}`;
-};
+const getUrl = (id: string) =>
+  `https://${id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}`;
 
 const getDeploymentScript = (
   params: DeployInstanceSchemaInput & {
@@ -59,40 +36,7 @@ const getDeploymentScript = (
     userId: string;
   },
 ) => {
-  const instanceOrigin = `https://${params.id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}`;
-  const generatedAt = new Date().toISOString();
-
-  const gatewayConfig = JSON.stringify(
-    {
-      gateway: {
-        mode: "local",
-        bind: "lan",
-        controlUi: {
-          enabled: true,
-          allowedOrigins: [instanceOrigin],
-        },
-        trustedProxies: ["127.0.0.1", "::1", "172.17.0.1"],
-        auth: {
-          mode: "trusted-proxy",
-          trustedProxy: {
-            userHeader: "x-forwarded-user",
-            allowUsers: [params.userId],
-          },
-        },
-      },
-      channels: {
-        telegram: {
-          enabled:
-            params.communication.channel === CommunicatonChannel.TELEGRAM,
-        },
-      },
-      wizard: {
-        timestamp: generatedAt,
-      },
-    },
-    null,
-    2,
-  );
+  const origin = getUrl(params.id);
 
   return `
 set -euo pipefail
@@ -105,8 +49,6 @@ STATE_DIR=${escapeShell(toStateDir(params.id))}
 INITIAL_PORT=${params.port}
 PORT_RANGE_START=${PORT_RANGE_START}
 PORT_RANGE_END=${PORT_RANGE_END}
-${toModelScriptValue(params.model)}
-${toCommunicationChannelScriptValue(params.communication)}
 
 umask 077
 mkdir -p "$DEPLOY_ROOT/instances"
@@ -118,7 +60,7 @@ chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 
 cat > "$STATE_DIR/openclaw.json" <<EOF
-${gatewayConfig}
+${JSON.stringify(getGatewayConfig({ origin, ...params }), null, 2)}
 EOF
 chown "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/openclaw.json"
 chmod 600 "$STATE_DIR/openclaw.json"
@@ -162,9 +104,6 @@ CONTAINER_ID=$(docker run -d \
   )} \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
-  -e OPENCLAW_MODEL_PROVIDER="$MODEL_PROVIDER" \
-  -e OPENCLAW_MODEL="$MODEL_ID" \
-  -e TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN" \
   -e OPENAI_API_KEY=${escapeShell(aiEnv.OPENAI_API_KEY)} \
   -e ANTHROPIC_API_KEY=${escapeShell(aiEnv.ANTHROPIC_API_KEY)} \
   -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(aiEnv.GOOGLE_GENERATIVE_AI_API_KEY)} \
@@ -204,5 +143,6 @@ export const strategy = {
   stop: async (id) => execute(`docker stop ${id}`),
   restart: async (id) => execute(`docker restart ${id}`),
   destroy: async (id) => execute(`docker rm -f ${id}`),
-  getLogs: async (id) => execute(`docker logs ${id}`),
+  getLogs: async (id) => execute(`docker logs ${id} 2>&1`),
+  getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

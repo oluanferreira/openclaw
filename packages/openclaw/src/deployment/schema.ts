@@ -1,11 +1,10 @@
 import * as z from "zod";
 
-import { Model } from "../ai";
-import { communicationChannelConfigSchema } from "../communication";
+import { openclawConfigSchema } from "../config";
 
-export const deployInstanceSchema = z.object({
-  model: z.enum(Model),
-  communication: communicationChannelConfigSchema,
+export const deployInstanceSchema = openclawConfigSchema.pick({
+  model: true,
+  communication: true,
 });
 
 export type DeployInstanceSchemaInput = z.input<typeof deployInstanceSchema>;
