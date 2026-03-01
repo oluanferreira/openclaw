@@ -1,6 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
 
-import { env as aiEnv } from "../../../config/ai/env";
 import { getGatewayConfig } from "../../../config/gateway";
 
 import { getProvisionRouteScript } from "./caddy";
@@ -113,9 +112,9 @@ CONTAINER_ID=$(docker run -d \
   )} \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
-  -e OPENAI_API_KEY=${escapeShell(aiEnv.OPENAI_API_KEY)} \
-  -e ANTHROPIC_API_KEY=${escapeShell(aiEnv.ANTHROPIC_API_KEY)} \
-  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(aiEnv.GOOGLE_GENERATIVE_AI_API_KEY)} \
+  -e OPENAI_API_KEY=${escapeShell(params.aiKeys?.openaiApiKey ?? "")} \
+  -e ANTHROPIC_API_KEY=${escapeShell(params.aiKeys?.anthropicApiKey ?? "")} \
+  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(params.aiKeys?.googleApiKey ?? "")} \
   "$IMAGE")
 ${getProvisionRouteScript(params.id, params.token)}
 

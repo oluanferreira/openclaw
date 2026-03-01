@@ -1,11 +1,10 @@
 import { getTranslation } from "@workspace/i18n/server";
-import { buttonVariants } from "@workspace/ui-web/button";
-import { Icons } from "@workspace/ui-web/icons";
 
 import { pathsConfig } from "~/config/paths";
 import { I18nControls } from "~/modules/common/i18n/controls";
 import { ThemeSwitcher } from "~/modules/common/theme";
 import { TurboLink } from "~/modules/common/turbo-link";
+import { Icons } from "@workspace/ui-web/icons";
 
 export const Header = async () => {
   const { t } = await getTranslation({ ns: "common" });
@@ -24,13 +23,6 @@ export const Header = async () => {
         <div className="flex items-center justify-center">
           <ThemeSwitcher iconClassName="size-5" />
           <I18nControls iconClassName="size-4.5" />
-          <TurboLink
-            href="mailto:hello@turbostarter.dev"
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-          >
-            <Icons.Mail className="size-5" />
-            <span className="sr-only">{t("contactUs")}</span>
-          </TurboLink>
         </div>
       </div>
     </header>

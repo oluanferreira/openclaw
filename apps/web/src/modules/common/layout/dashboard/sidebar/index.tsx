@@ -36,10 +36,11 @@ import type { User } from "@workspace/auth";
 interface DashboardSidebarProps {
   readonly user: User;
   readonly menu: Menu;
+  readonly hideFooter?: boolean;
 }
 
 export const DashboardSidebar = memo<DashboardSidebarProps>(
-  ({ user, menu }) => {
+  ({ user, menu, hideFooter }) => {
     const { t, i18n } = useTranslation("common");
     const { setOpenMobile } = useSidebar();
     const {
@@ -173,7 +174,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
                     </SidebarGroup>
                   ))}
 
-                  {href === ROOT_MENU_HREF && (
+                  {href === ROOT_MENU_HREF && !hideFooter && (
                     <SidebarGroup className="mt-auto">
                       <SidebarGroupContent>
                         <SidebarMenu>
@@ -182,7 +183,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
                               tooltip={t("support")}
                               onClick={() => setOpenMobile(false)}
                               render={
-                                <TurboLink href="mailto:hello@turbostarter.dev" />
+                                <TurboLink href="mailto:suporte@clawin1click.com" />
                               }
                             >
                               <Icons.LifeBuoy />
@@ -195,7 +196,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
                               tooltip={t("feedback")}
                               onClick={() => setOpenMobile(false)}
                               render={
-                                <TurboLink href="mailto:hello@turbostarter.dev" />
+                                <TurboLink href="mailto:suporte@clawin1click.com" />
                               }
                             >
                               <Icons.MessageCircle />
@@ -214,7 +215,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <UserNavigation user={user} />
+              <UserNavigation user={user} minimal={hideFooter} />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>

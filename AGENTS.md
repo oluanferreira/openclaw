@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guide for AI agents working on the TurboClaw monorepo.
+Guide for AI agents working on the ClaWin1click monorepo.
 
 ## Agent rules
 

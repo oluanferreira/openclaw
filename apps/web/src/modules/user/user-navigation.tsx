@@ -27,9 +27,10 @@ import type { User } from "@workspace/auth";
 
 interface UserNavigationProps {
   readonly user: User;
+  readonly minimal?: boolean;
 }
 
-export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
+export const UserNavigation = memo<UserNavigationProps>(({ user, minimal }) => {
   const { t } = useTranslation(["common", "auth"]);
   const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -99,61 +100,66 @@ export const UserNavigation = memo<UserNavigationProps>(({ user }) => {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
 
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            render={
-              <TurboLink
-                href={pathsConfig.dashboard.index}
-                className="flex w-full cursor-pointer items-center gap-1.5"
-                onClick={() => setOpenMobile(false)}
-              >
-                <Icons.Box className="size-4" />
-                {t("yourInstance")}
-              </TurboLink>
-            }
-          />
+        {!minimal && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                render={
+                  <TurboLink
+                    href={pathsConfig.dashboard.index}
+                    className="flex w-full cursor-pointer items-center gap-1.5"
+                    onClick={() => setOpenMobile(false)}
+                  >
+                    <Icons.Box className="size-4" />
+                    {t("yourInstance")}
+                  </TurboLink>
+                }
+              />
 
-          <DropdownMenuSeparator />
-        </DropdownMenuGroup>
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            render={
-              <TurboLink
-                href={"#"}
-                className="flex w-full cursor-pointer items-center gap-1.5"
-                onClick={() => setOpenMobile(false)}
-              >
-                <Icons.Settings className="size-4" />
-                {t("account")}
-              </TurboLink>
-            }
-          />
-          <DropdownMenuItem
-            render={
-              <TurboLink
-                href={"#"}
-                className="flex w-full cursor-pointer items-center gap-1.5"
-                onClick={() => setOpenMobile(false)}
-              >
-                <Icons.CreditCard className="size-4" />
-                {t("subscription")}
-              </TurboLink>
-            }
-          />
-          <DropdownMenuItem
-            render={
-              <TurboLink
-                href={"#"}
-                className="flex w-full cursor-pointer items-center gap-1.5"
-                onClick={() => setOpenMobile(false)}
-              >
-                <Icons.Webhook className="size-4" />
-                {t("apiKeys")}
-              </TurboLink>
-            }
-          />
-        </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+            </DropdownMenuGroup>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                render={
+                  <TurboLink
+                    href={"#"}
+                    className="flex w-full cursor-pointer items-center gap-1.5"
+                    onClick={() => setOpenMobile(false)}
+                  >
+                    <Icons.Settings className="size-4" />
+                    {t("account")}
+                  </TurboLink>
+                }
+              />
+              <DropdownMenuItem
+                render={
+                  <TurboLink
+                    href={pathsConfig.dashboard.billing}
+                    className="flex w-full cursor-pointer items-center gap-1.5"
+                    onClick={() => setOpenMobile(false)}
+                  >
+                    <Icons.CreditCard className="size-4" />
+                    {t("subscription")}
+                  </TurboLink>
+                }
+              />
+              <DropdownMenuItem
+                render={
+                  <TurboLink
+                    href={"#"}
+                    className="flex w-full cursor-pointer items-center gap-1.5"
+                    onClick={() => setOpenMobile(false)}
+                  >
+                    <Icons.Webhook className="size-4" />
+                    {t("apiKeys")}
+                  </TurboLink>
+                }
+              />
+            </DropdownMenuGroup>
+          </>
+        )}
+
         <DropdownMenuSeparator />
 
         <DropdownMenuItem

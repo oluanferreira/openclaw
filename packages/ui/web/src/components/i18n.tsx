@@ -18,6 +18,7 @@ import {
 export const LocaleIcon: Record<Locale, Icon> = {
   [Locale.EN]: Icons.UnitedKingdom,
   [Locale.ES]: Icons.Spain,
+  [Locale.PT]: Icons.Brazil,
 } as const;
 
 interface LocaleCustomizerProps {

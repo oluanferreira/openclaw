@@ -10,6 +10,11 @@
       "model": {
         "label": "¿Qué modelo quieres usar?"
       },
+      "aiKey": {
+        "label": "Clave de API {{provider}}",
+        "link": "Obtén tu clave aquí",
+        "placeholder": "Pega tu clave de API aquí"
+      },
       "communication": {
         "label": "¿Qué canal quieres usar para chatear?",
         "telegram": {
@@ -90,6 +95,50 @@
     "error": {
       "alreadyExists": "Ya tienes una instancia desplegada. No puedes desplegar otra por ahora.",
       "notFound": "No tienes una instancia desplegada todavía. Por favor, despliega una primero."
+    },
+    "gettingStarted": {
+      "title": "Primeros Pasos",
+      "subtitle": "Tu instancia está activa. Sigue los pasos a continuación para empezar a usarla.",
+      "dismiss": "Entendido, no mostrar más",
+      "steps": [
+        {
+          "title": "Accede a tu instancia",
+          "description": "Haz clic en el enlace de tu instancia arriba para abrir el panel de control de OpenClaw en una nueva pestaña."
+        },
+        {
+          "title": "Espera la solicitud de emparejamiento",
+          "description": "Al abrir el panel, verás el mensaje <strong>\"pairing required\"</strong>. Esto es normal — es una capa de seguridad de OpenClaw."
+        },
+        {
+          "title": "Aprueba el emparejamiento aquí",
+          "description": "Vuelve a esta página. Aparecerá una solicitud en la sección <strong>\"Emparejamiento\"</strong> debajo de esta tarjeta. Haz clic en <strong>Aprobar</strong>."
+        },
+        {
+          "title": "Conecta tu canal (Telegram/Discord/WhatsApp)",
+          "description": "Abre tu bot en el canal elegido y envía cualquier mensaje. Aparecerá una nueva solicitud de emparejamiento aquí — apruébala también."
+        },
+        {
+          "title": "¡Listo! Tu asistente está activo",
+          "description": "Tras aprobar, ya puedes chatear con tu asistente de IA a través del canal elegido."
+        }
+      ]
     }
+  },
+  "billing": {
+    "title": "Facturación",
+    "description": "Gestiona tu suscripción y detalles de facturación.",
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "canceled": "Cancelada",
+      "past_due": "Vencida"
+    },
+    "plan": "Plan de Suscripción",
+    "renewsOn": "Se renueva el {{date}}",
+    "subscribe": "Suscribirse",
+    "manage": "Gestionar suscripción",
+    "required": "Se requiere una suscripción activa para desplegar instancias.",
+    "currency": "Moneda",
+    "perMonth": "mes"
   }
 }

@@ -1,0 +1,144 @@
+{
+  "instance": {
+    "home": {
+      "title": "Visão Geral",
+      "description": "Visão geral da atividade da sua instância."
+    },
+    "deploy": {
+      "title": "Fazer deploy da instância OpenClaw",
+      "description": "Preencha a configuração e faça deploy da sua instância OpenClaw em segundos.",
+      "model": {
+        "label": "Qual modelo você quer usar?"
+      },
+      "aiKey": {
+        "label": "Chave de API {{provider}}",
+        "link": "Obtenha sua chave aqui",
+        "placeholder": "Cole sua chave de API aqui"
+      },
+      "communication": {
+        "label": "Qual canal você quer usar para conversar?",
+        "telegram": {
+          "title": "Conectar Telegram",
+          "steps": {
+            "title": "Como obter seu token de bot?",
+            "step": {
+              "1": "Abra o Telegram e vá até <bot>@BotFather</bot>.",
+              "2": "Inicie uma conversa e digite <code>/newbot</code>.",
+              "3": "Siga as instruções para nomear seu bot e escolher um usuário.",
+              "4": "O BotFather enviará uma mensagem com o token do seu bot. Copie o token completo (parece uma longa sequência de números e letras).",
+              "5": "Cole o token no campo abaixo e clique em Salvar e Conectar."
+            }
+          },
+          "form": {
+            "token": {
+              "label": "Insira o token do bot"
+            },
+            "cta": "Salvar e Conectar"
+          }
+        }
+      },
+      "note": {
+        "pricing": "<strong>R$ 49 por mês.</strong> Inclui R$ 15 em créditos de IA renovados mensalmente.",
+        "signIn": "Entre para fazer deploy do seu assistente de IA e conectar seus canais.",
+        "invalid": "Certifique-se de que todos os campos estão preenchidos corretamente.",
+        "limited": "Servidores limitados — apenas 8 disponíveis"
+      },
+      "cta": "Fazer Deploy do OpenClaw",
+      "success": "Deploy iniciado. Pode levar alguns instantes para concluir."
+    },
+    "manage": {
+      "start": {
+        "success": "Instância iniciada com sucesso."
+      },
+      "stop": {
+        "success": "Instância parada com sucesso."
+      },
+      "restart": {
+        "success": "Instância reiniciada com sucesso."
+      },
+      "destroy": {
+        "success": "Instância destruída com sucesso."
+      }
+    },
+    "status": {
+      "stopped": "Parado",
+      "running": "Em execução",
+      "starting": "Iniciando",
+      "stopping": "Parando",
+      "restarting": "Reiniciando",
+      "removing": "Removendo",
+      "paused": "Pausado",
+      "exited": "Encerrado",
+      "dead": "Inativo"
+    },
+    "logs": {
+      "loading": "Aguardando logs..."
+    },
+    "pairing": {
+      "device": {
+        "approve": {
+          "success": "Dispositivo aprovado com sucesso. Você já pode acessar o painel por ele."
+        },
+        "reject": {
+          "success": "Solicitação de emparelhamento do dispositivo rejeitada com sucesso."
+        }
+      },
+      "channel": {
+        "approve": {
+          "success": "Canal aprovado com sucesso. Você já pode conversar com seu assistente por lá."
+        },
+        "reject": {
+          "success": "Canal rejeitado com sucesso."
+        }
+      }
+    },
+    "error": {
+      "alreadyExists": "Você já possui uma instância em execução. Não é possível fazer outro deploy agora.",
+      "notFound": "Você ainda não possui uma instância. Faça um deploy primeiro."
+    },
+    "gettingStarted": {
+      "title": "Primeiros Passos",
+      "subtitle": "Sua instância está no ar! Siga os passos abaixo para começar a usar.",
+      "dismiss": "Entendi, não mostrar mais",
+      "steps": [
+        {
+          "title": "Acesse sua instância",
+          "description": "Clique no link da sua instância acima para abrir o painel de controle do OpenClaw em uma nova aba."
+        },
+        {
+          "title": "Aguarde a solicitação de emparelhamento",
+          "description": "Ao abrir o painel, você verá a mensagem <strong>\"pairing required\"</strong>. Isso é normal — é uma camada de segurança do OpenClaw."
+        },
+        {
+          "title": "Aprove o emparelhamento aqui",
+          "description": "Volte a esta página. Uma solicitação aparecerá na seção <strong>\"Emparelhamento\"</strong> abaixo deste card. Clique em <strong>Aprovar</strong>."
+        },
+        {
+          "title": "Conecte seu canal (Telegram/Discord/WhatsApp)",
+          "description": "Abra seu bot no canal escolhido e envie qualquer mensagem. Uma nova solicitação de emparelhamento aparecerá aqui — aprove também."
+        },
+        {
+          "title": "Pronto! Seu assistente está ativo",
+          "description": "Após aprovar, você já pode conversar com seu assistente de IA pelo canal escolhido."
+        }
+      ]
+    }
+  },
+  "billing": {
+    "title": "Faturamento",
+    "description": "Gerencie sua assinatura e dados de cobrança.",
+    "status": {
+      "active": "Ativa",
+      "inactive": "Inativa",
+      "canceled": "Cancelada",
+      "past_due": "Em atraso"
+    },
+    "plan": "Plano de Assinatura",
+    "renewsOn": "Renova em {{date}}",
+    "subscribe": "Assinar",
+    "manage": "Gerenciar assinatura",
+    "required": "É necessária uma assinatura ativa para fazer deploy de instâncias.",
+    "currency": "Moeda",
+    "perMonth": "mês"
+  }
+}

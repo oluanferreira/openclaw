@@ -19,6 +19,7 @@ export const instance = pgTable("instance", {
   model: text().notNull(),
   communicationChannel: text().notNull(),
   token: text().notNull(),
+  vpsId: text().notNull().default("vps-main"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

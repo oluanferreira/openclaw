@@ -10,6 +10,11 @@
       "model": {
         "label": "What model do you want to use?"
       },
+      "aiKey": {
+        "label": "{{provider}} API Key",
+        "link": "Get your key here",
+        "placeholder": "Paste your API key here"
+      },
       "communication": {
         "label": "Which channel do you want to use for chatting?",
         "telegram": {
@@ -90,6 +95,50 @@
     "error": {
       "alreadyExists": "You already have an instance deployed. You can't deploy another one for now.",
       "notFound": "You don't have an instance deployed yet. Please deploy one first."
+    },
+    "gettingStarted": {
+      "title": "Getting Started",
+      "subtitle": "Your instance is live! Follow the steps below to start using it.",
+      "dismiss": "Got it, do not show again",
+      "steps": [
+        {
+          "title": "Open your instance",
+          "description": "Click the instance link above to open the OpenClaw control panel in a new tab."
+        },
+        {
+          "title": "Wait for the pairing request",
+          "description": "When you open the panel, you will see <strong>\"pairing required\"</strong>. This is normal — it is a security layer from OpenClaw."
+        },
+        {
+          "title": "Approve the pairing here",
+          "description": "Return to this page. A request will appear in the <strong>\"Pairing\"</strong> section below this card. Click <strong>Approve</strong>."
+        },
+        {
+          "title": "Connect your channel (Telegram/Discord/WhatsApp)",
+          "description": "Open your bot on the chosen channel and send any message. A new pairing request will appear here — approve it too."
+        },
+        {
+          "title": "Done! Your assistant is ready",
+          "description": "After approving, you can already chat with your AI assistant through your chosen channel."
+        }
+      ]
     }
+  },
+  "billing": {
+    "title": "Billing",
+    "description": "Manage your subscription and billing details.",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "canceled": "Canceled",
+      "past_due": "Past Due"
+    },
+    "plan": "Subscription Plan",
+    "renewsOn": "Renews on {{date}}",
+    "subscribe": "Subscribe",
+    "manage": "Manage subscription",
+    "required": "An active subscription is required to deploy instances.",
+    "currency": "Currency",
+    "perMonth": "mo"
   }
 }

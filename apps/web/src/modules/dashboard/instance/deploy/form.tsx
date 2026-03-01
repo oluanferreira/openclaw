@@ -6,6 +6,7 @@ import {
   FormProvider,
   useForm,
   useFormContext,
+  useWatch,
 } from "react-hook-form";
 
 import { Trans, useTranslation } from "@workspace/i18n";
@@ -19,8 +20,10 @@ import { cn } from "@workspace/ui";
 import { Button } from "@workspace/ui-web/button";
 import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
+import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
+import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
 import { ModelIcon } from "../icons";
@@ -36,6 +39,35 @@ const ChannelConfiguration = {
   [CommunicatonChannel.WHATSAPP]: null,
 } as const;
 
+const AI_KEY_CONFIG: Record<
+  string,
+  {
+    field: "openaiApiKey" | "anthropicApiKey" | "googleApiKey";
+    provider: string;
+    link: string;
+    placeholder: string;
+  }
+> = {
+  "gpt-5.2": {
+    field: "openaiApiKey",
+    provider: "OpenAI",
+    link: "https://platform.openai.com/api-keys",
+    placeholder: "sk-proj-...",
+  },
+  "claude-opus-4-6": {
+    field: "anthropicApiKey",
+    provider: "Anthropic",
+    link: "https://console.anthropic.com/settings/keys",
+    placeholder: "sk-ant-...",
+  },
+  "gemini-3-0-flash": {
+    field: "googleApiKey",
+    provider: "Google",
+    link: "https://aistudio.google.com/app/apikey",
+    placeholder: "AIza...",
+  },
+};
+
 export const DeployInstanceForm = ({
   className,
   children,
@@ -47,10 +79,16 @@ export const DeployInstanceForm = ({
     defaultValues: {
       model: MODELS[0].id,
       communication: {},
+      aiKeys: {
+        openaiApiKey: "",
+        anthropicApiKey: "",
+        googleApiKey: "",
+      },
     },
   });
 
   const { deploy } = useInstance();
+  const { subscription, checkout } = useBilling();
 
   return (
     <FormProvider {...form}>
@@ -59,7 +97,13 @@ export const DeployInstanceForm = ({
           "flex min-h-[200px] w-full min-w-[280px] flex-col gap-6 overflow-hidden rounded-2xl border p-4 sm:gap-8 sm:p-6 md:gap-10 md:p-8",
           className,
         )}
-        onSubmit={form.handleSubmit((data) => deploy.mutateAsync(data))}
+        onSubmit={form.handleSubmit((data) => {
+          if (!subscription.data || subscription.data.status !== "active") {
+            checkout.mutate();
+            return;
+          }
+          return deploy.mutateAsync(data);
+        })}
         {...props}
       >
         <Controller
@@ -101,6 +145,8 @@ export const DeployInstanceForm = ({
             </Field>
           )}
         />
+
+        <AiKeyField />
 
         <Controller
           control={form.control}
@@ -161,6 +207,46 @@ export const DeployInstanceForm = ({
         {children}
       </form>
     </FormProvider>
+  );
+};
+
+const AiKeyField = () => {
+  const { t } = useTranslation("dashboard");
+  const { control } = useFormContext<DeployInstanceSchemaInput>();
+  const selectedModel = useWatch({ control, name: "model" });
+
+  const config = AI_KEY_CONFIG[selectedModel];
+  if (!config) return null;
+
+  return (
+    <Controller
+      control={control}
+      name={`aiKeys.${config.field}`}
+      render={({ field, fieldState }) => (
+        <Field className="gap-3 sm:gap-4" data-invalid={fieldState.invalid}>
+          <div className="flex items-center justify-between gap-2">
+            <FieldLabel className="text-base text-balance sm:text-lg">
+              {t("instance.deploy.aiKey.label", { provider: config.provider })}
+            </FieldLabel>
+            <a
+              href={config.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary flex items-center gap-1 text-sm font-medium hover:underline"
+            >
+              {t("instance.deploy.aiKey.link")}
+              <Icons.ExternalLink className="size-3.5" />
+            </a>
+          </div>
+          <Input
+            {...field}
+            type="password"
+            placeholder={config.placeholder}
+            aria-invalid={fieldState.invalid}
+          />
+        </Field>
+      )}
+    />
   );
 };
 

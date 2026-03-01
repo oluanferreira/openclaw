@@ -7,6 +7,13 @@ const pathsConfig = {
   index: "/",
   dashboard: {
     index: DASHBOARD_PREFIX,
+    billing: `${DASHBOARD_PREFIX}/billing`,
+  },
+  admin: {
+    index: ADMIN_PREFIX,
+    users: `${ADMIN_PREFIX}/users`,
+    instances: `${ADMIN_PREFIX}/instances`,
+    subscriptions: `${ADMIN_PREFIX}/subscriptions`,
   },
 } as const;
 

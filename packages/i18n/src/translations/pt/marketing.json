@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "title": "Faça deploy do 🦞 OpenClaw em 30 segundos",
+    "subtitle": "Esqueça a complexidade técnica e faça deploy da sua própria instância OpenClaw ativa 24/7 em apenas 30 segundos."
+  },
+  "comparison": {
+    "title": "Método Tradicional vs {{productName}}",
+    "traditional": {
+      "steps": {
+        "provisionCloudServer": "Provisionar um servidor na nuvem",
+        "generateSshKeys": "Gerar e proteger chaves SSH",
+        "establishServerConnection": "Estabelecer conexão com o servidor",
+        "installNodeAndPackageManager": "Instalar Node.js e gerenciador de pacotes",
+        "installOpenClaw": "Baixar e instalar o OpenClaw",
+        "configureOpenClawEnvironment": "Configurar o ambiente do OpenClaw",
+        "linkAiProvider": "Vincular ao provedor de IA",
+        "integrateTelegram": "Integrar com o Telegram"
+      },
+      "note": "Se você <highlight>não tem conhecimento técnico</highlight>, multiplique esses tempos por <highlight>10</highlight> — você precisa aprender cada etapa antes de executá-la."
+    },
+    "product": {
+      "timeUnderSeconds": "< {{seconds}} segundos",
+      "subtitle": "Escolha um modelo, conecte o Telegram e faça deploy — tudo em menos de 30 segundos.",
+      "description": "Servidores, SSH e ambiente OpenClaw já configurados, prontos para serem atribuídos. Conexão simples, segura e rápida com seu bot."
+    }
+  },
+  "useCases": {
+    "title": "O que o OpenClaw pode fazer por você?",
+    "subtitle": "Um assistente, milhares de casos de uso",
+    "note": "PS. Você pode adicionar quantos casos de uso quiser via linguagem natural",
+    "case": {
+      "readSummarizeEmail": "Ler e resumir e-mails",
+      "draftReplies": "Redigir respostas e acompanhamentos",
+      "translateMessagesRealtime": "Traduzir mensagens em tempo real",
+      "organizeInbox": "Organizar sua caixa de entrada",
+      "answerSupportTickets": "Responder tickets de suporte",
+      "summarizeLongDocuments": "Resumir documentos longos",
+      "notifyBeforeMeeting": "Notificar antes de reuniões",
+      "scheduleMeetingsFromChat": "Agendar reuniões pelo chat",
+      "remindDeadlines": "Lembrar prazos importantes",
+      "planYourWeek": "Planejar sua semana",
+      "takeMeetingNotes": "Anotar pontos de reuniões",
+      "syncAcrossTimeZones": "Sincronizar entre fusos horários",
+      "doYourTaxes": "Auxiliar no imposto de renda",
+      "trackExpensesReceipts": "Rastrear despesas e recibos",
+      "compareInsuranceQuotes": "Comparar cotações de seguros",
+      "manageSubscriptions": "Gerenciar assinaturas",
+      "runPayrollCalculations": "Calcular folha de pagamento",
+      "negotiateRefunds": "Negociar reembolsos",
+      "findCoupons": "Encontrar cupons de desconto",
+      "findBestPricesOnline": "Encontrar melhores preços online",
+      "findDiscountCodes": "Encontrar códigos de desconto",
+      "priceDropAlerts": "Alertas de queda de preço",
+      "compareProductSpecs": "Comparar especificações de produtos",
+      "negotiateDeals": "Negociar acordos",
+      "writeContractsNdas": "Redigir contratos e NDAs",
+      "researchCompetitors": "Pesquisar concorrentes",
+      "screenPrioritizeLeads": "Filtrar e priorizar leads",
+      "generateInvoices": "Gerar faturas",
+      "createPresentationsFromBullets": "Criar apresentações a partir de tópicos",
+      "bookTravelHotels": "Reservar viagens e hotéis",
+      "findRecipesFromIngredients": "Encontrar receitas por ingredientes",
+      "draftSocialPosts": "Redigir posts para redes sociais",
+      "monitorNewsAlerts": "Monitorar notícias e alertas",
+      "setTrackGoals": "Definir e acompanhar metas",
+      "screenColdOutreach": "Filtrar mensagens frias",
+      "draftJobDescriptions": "Redigir descrições de vagas",
+      "runStandupSummaries": "Resumir standups",
+      "trackOkrsKpis": "Acompanhar OKRs e KPIs"
+    }
+  }
+}

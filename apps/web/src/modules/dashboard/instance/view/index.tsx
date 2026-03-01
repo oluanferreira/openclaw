@@ -24,6 +24,7 @@ import {
 import { InstanceHeader } from "./header";
 import { InstanceLogs } from "./logs";
 import { InstancePairing } from "./pairing";
+import { InstanceGettingStarted } from "./getting-started";
 
 export const ViewInstance = () => {
   const { instance } = useInstance();
@@ -92,6 +93,7 @@ export const ViewInstance = () => {
   return (
     <>
       <InstanceHeader />
+      <InstanceGettingStarted instanceUrl={instance.data.url} />
       <InstancePairing />
       <section className="flex w-full flex-col gap-4">
         <span className="text-muted-foreground ml-1 text-sm uppercase">

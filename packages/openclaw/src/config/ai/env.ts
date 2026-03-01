@@ -8,9 +8,9 @@ import type { Preset } from "envin/types";
 export const preset = {
   id: "ai",
   server: {
-    OPENAI_API_KEY: z.string().min(1),
-    ANTHROPIC_API_KEY: z.string().min(1),
-    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+    OPENAI_API_KEY: z.string().optional(),
+    ANTHROPIC_API_KEY: z.string().optional(),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
   },
 } as const satisfies Preset;
 

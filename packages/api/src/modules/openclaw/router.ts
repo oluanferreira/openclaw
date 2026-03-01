@@ -24,22 +24,56 @@ import {
   validate,
   enforceInstance,
   enforceNoInstance,
+  enforceSubscription,
 } from "../../middleware";
+
+import { selectBestVps } from "../admin/vps-selector";
+import { getVpsById } from "../admin/vps-config";
 
 export const openclawRouter = new Hono()
   .use(enforceAuth)
   .post(
     "/",
     enforceNoInstance,
+    enforceSubscription,
     validate("json", deployInstanceSchema),
     async (c) => {
       const userId = c.var.user.id;
       const payload = c.req.valid("json");
 
-      const deployment = await deploy({ userId, ...payload });
+      // Seleciona a melhor VPS (menor uso de recursos)
+      const vpsId = await selectBestVps();
+      const vps = await getVpsById(vpsId);
+
+      let deployment: { id: string; token: string };
+
+      if (!vps || vps.endpoint === "local") {
+        // Deploy local (VPS principal)
+        deployment = await deploy({ userId, ...payload });
+      } else {
+        // Deploy remoto via agent HTTP
+        const res = await fetch(`${vps.endpoint}/deploy`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${vps.token ?? ""}`,
+          },
+          body: JSON.stringify({ userId, ...payload }),
+          signal: AbortSignal.timeout(120000),
+        });
+
+        if (!res.ok) {
+          const error = await res.text().catch(() => "Unknown error");
+          throw new Error(`Remote deploy failed on ${vps.name}: ${error}`);
+        }
+
+        deployment = await res.json() as { id: string; token: string };
+      }
+
       await createInstance({
         userId,
         communicationChannel: payload.communication.channel,
+        vpsId,
         ...deployment,
         ...payload,
       });

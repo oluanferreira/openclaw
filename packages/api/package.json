@@ -26,6 +26,7 @@
     "envin": "catalog:",
     "hono": "4.11.9",
     "hono-status-monitor": "1.0.7",
+    "stripe": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -72,7 +72,7 @@ const menu = [
       },
       {
         title: "subscription",
-        href: "#",
+        href: pathsConfig.dashboard.billing,
         icon: <Icons.CreditCard />,
       },
       {

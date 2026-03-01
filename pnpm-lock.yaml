@@ -33,6 +33,9 @@ catalogs:
     react-hook-form:
       specifier: 7.66.0
       version: 7.66.0
+    stripe:
+      specifier: 17.7.0
+      version: 17.7.0
     tailwindcss:
       specifier: 4.1.18
       version: 4.1.18
@@ -245,6 +248,9 @@ importers:
       hono-status-monitor:
         specifier: 1.0.7
         version: 1.0.7(hono@4.11.9)
+      stripe:
+        specifier: 'catalog:'
+        version: 17.7.0
       zod:
         specifier: 'catalog:'
         version: 4.1.13
@@ -6592,6 +6598,10 @@ packages:
     resolution: {integrity: sha512-Uu7ii+FQy4Qf82G4xu7ShHhjhGahEpCWc3x8UavY3CTcWV+ufmmCtwkr7ZKsX42jdL0kr1B5FKUeqJvAn51jzQ==}
     hasBin: true
 
+  qs@6.15.0:
+    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
+    engines: {node: '>=0.6'}
+
   query-string@7.1.3:
     resolution: {integrity: sha512-hh2WYhq4fi8+b+/2Kg9CEge4fDPvHS534aOOvOZeQ3+Vf2mCFsaFBYj0i+iXcAq6I9Vzp5fjMFBlONvayDC1qg==}
     engines: {node: '>=6'}
@@ -7179,6 +7189,10 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  stripe@17.7.0:
+    resolution: {integrity: sha512-aT2BU9KkizY9SATf14WhhYVv2uOapBWX0OFWF4xvcj1mPaNotlSc2CsxpS4DS46ZueSppmCF5BX1sNYBtwBvfw==}
+    engines: {node: '>=12.*'}
 
   structured-headers@0.4.1:
     resolution: {integrity: sha512-0MP/Cxx5SzeeZ10p/bZI0S6MpgD+yxAhi1BOQ34jgnMXsCq3j1t6tQnZu+KdlL7dvJTLT3g9xN8tl10TqgFMcg==}
@@ -14439,6 +14453,10 @@ snapshots:
   qrcode-terminal@0.11.0:
     optional: true
 
+  qs@6.15.0:
+    dependencies:
+      side-channel: 1.1.0
+
   query-string@7.1.3:
     dependencies:
       decode-uri-component: 0.2.2
@@ -15218,6 +15236,11 @@ snapshots:
     optional: true
 
   strip-json-comments@3.1.1: {}
+
+  stripe@17.7.0:
+    dependencies:
+      '@types/node': 25.2.3
+      qs: 6.15.0
 
   structured-headers@0.4.1:
     optional: true

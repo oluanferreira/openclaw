@@ -80,6 +80,7 @@ import {
   Lock,
   Slash,
   MoreHorizontal,
+  Pencil,
   Circle,
   Minus,
   Box,
@@ -88,9 +89,15 @@ import {
   Bell,
   Calculator,
   RotateCcw,
+  Server,
+  Cpu,
+  MemoryStick,
+  HardDrive,
+  Clock,
 } from "lucide-react";
 
-import { Icons as GlobalIcons } from "@workspace/ui/assets";
+import {
+  Icons as GlobalIcons } from "@workspace/ui/assets";
 
 export const Icons = {
   ...GlobalIcons,
@@ -103,6 +110,11 @@ export const Icons = {
   Eye,
   Square,
   RotateCcw,
+  Server,
+  Cpu,
+  MemoryStick,
+  HardDrive,
+  Clock,
   LaptopMinimalCheck,
   Slash,
   Code,
@@ -182,6 +194,7 @@ export const Icons = {
   HandCoins,
   TrendingUp,
   MoreHorizontal,
+  Pencil,
   Circle,
 };
 

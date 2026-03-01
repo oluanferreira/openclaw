@@ -9,6 +9,8 @@ import { getInstanceByUserId } from "@workspace/openclaw/server";
 import { HttpStatusCode, NodeEnv } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
+
+import { db } from "@workspace/db/server";
 import type { User } from "@workspace/auth";
 import type { TFunction } from "@workspace/i18n";
 import type { ValidationTargets } from "hono";
@@ -139,3 +141,24 @@ export const validate = <
       });
     }
   });
+
+/**
+ * Middleware that enforces the user has an active subscription
+ */
+export const enforceSubscription = createMiddleware<{
+  Variables: {
+    user: User;
+  };
+}>(async (c, next) => {
+  const sub = await db.query.subscription.findFirst({
+    where: (t, { eq: eqFn }) => eqFn(t.userId, c.var.user.id),
+  });
+
+  if (!sub || sub.status !== "active") {
+    throw new HttpException(HttpStatusCode.PAYMENT_REQUIRED, {
+      code: "billing:subscription.required",
+    });
+  }
+
+  await next();
+});
