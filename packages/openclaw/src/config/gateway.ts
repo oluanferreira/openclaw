@@ -1,10 +1,12 @@
 import { MODELS } from "./ai";
+import { env as aiEnv } from "./ai/env";
 import { CommunicatonChannel } from "./communication";
 
 import type { Model } from "./ai";
 import type { OpenclawConfig } from "./schema";
 
 const TRUSTED_PROXIES = ["127.0.0.1", "::1", "172.17.0.1"];
+const GATEWAY_PORT = 18789;
 
 const toAgentModelId = (model: Model) => {
   const modelInfo = MODELS.find((m) => m.id === model);
@@ -29,6 +31,7 @@ export const getGatewayConfig = ({
   gateway: {
     mode: "local",
     bind: "lan",
+    port: GATEWAY_PORT,
     trustedProxies: TRUSTED_PROXIES,
     controlUi: {
       enabled: true,
@@ -38,6 +41,11 @@ export const getGatewayConfig = ({
       mode: "token",
       token,
     },
+  },
+  env: {
+    OPENAI_API_KEY: aiEnv.OPENAI_API_KEY,
+    ANTHROPIC_API_KEY: aiEnv.ANTHROPIC_API_KEY,
+    GOOGLE_GENERATIVE_AI_API_KEY: aiEnv.GOOGLE_GENERATIVE_AI_API_KEY,
   },
   agents: {
     defaults: {

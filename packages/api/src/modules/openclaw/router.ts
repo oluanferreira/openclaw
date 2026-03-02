@@ -78,13 +78,13 @@ export const openclawRouter = new Hono()
       const instanceId = c.var.instanceId;
       const payload = c.req.valid("json");
 
-      const result = await manage(instanceId, payload.action);
+      await manage(instanceId, payload.action);
 
       if (payload.action === ManageInstanceAction.DESTROY) {
         await deleteInstance(instanceId);
       }
 
-      return c.json(result);
+      return c.json({ success: true });
     },
   )
   .post("/cli", enforceInstance, validate("json", commandSchema), async (c) => {

@@ -1,6 +1,8 @@
 import { logger } from "@workspace/shared/logger";
 
-import { execute, parseOutput, escapeShell } from "./sdk";
+import { escapeShell } from "../../utils";
+
+import { execute, parseOutput } from "./sdk";
 
 const getStatusScript = (instanceId: string) => `
 set -euo pipefail

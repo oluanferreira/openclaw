@@ -8,11 +8,11 @@ export interface OpenClawDeploymentProviderStrategy {
   cli: (
     id: string,
     commandArgs: readonly string[],
-  ) => Promise<{ stdout: string }>;
-  start: (id: string) => Promise<{ stdout: string }>;
-  stop: (id: string) => Promise<{ stdout: string }>;
-  restart: (id: string) => Promise<{ stdout: string }>;
-  destroy: (id: string) => Promise<{ stdout: string }>;
-  getLogs: (id: string) => Promise<{ stdout: string }>;
+  ) => Promise<{ stdout?: string; stderr?: string }>;
+  start: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
+  stop: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
+  restart: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
+  destroy: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
+  getLogs: (id: string) => Promise<{ stdout?: string; stderr?: string }>;
   getUrl: (id: string) => string;
 }

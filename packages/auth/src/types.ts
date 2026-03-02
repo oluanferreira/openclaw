@@ -55,6 +55,12 @@ const ERROR_MESSAGES = {
   ASYNC_VALIDATION_NOT_SUPPORTED: "auth:error.asyncValidationNotSupported",
   VALIDATION_ERROR: "auth:error.validationError",
   MISSING_FIELD: "auth:error.missingField",
+  INVALID_USER: "auth:error.user.invalid",
+  TOKEN_EXPIRED: "auth:error.token.expired",
+  METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED:
+    "auth:error.methodNotAllowedDeferSessionRequired",
+  BODY_MUST_BE_AN_OBJECT: "auth:error.bodyMustBeAnObject",
+  PASSWORD_ALREADY_SET: "auth:error.credentials.password.alreadySet",
 } as const satisfies Record<AuthErrorCode, TranslationKey>;
 
 export type { AuthErrorCode };

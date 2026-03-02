@@ -15,7 +15,7 @@ export const preset = {
     VPS_USER: z.string().min(1).default("root"),
     VPS_PRIVATE_KEY: z.string().min(1),
     VPS_PRIVATE_KEY_PASSPHRASE: z.string().min(1).optional(),
-    VPS_DEPLOY_ROOT: z.string().min(1).default("/opt/openclaw"),
+    VPS_OPENCLAW_STATE_DIR: z.string().min(1).default("/var/lib/openclaw"),
     VPS_OPENCLAW_IMAGE: z
       .string()
       .min(1)

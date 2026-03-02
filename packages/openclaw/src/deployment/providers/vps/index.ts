@@ -1,11 +1,14 @@
-import { createHash, randomBytes } from "node:crypto";
-
-import { env as aiEnv } from "../../../config/ai/env";
 import { getGatewayConfig } from "../../../config/gateway";
+import {
+  escapeShell,
+  getGatewayToken,
+  getInstanceId,
+  toEscapedCommand,
+} from "../../utils";
 
 import { getProvisionRouteScript } from "./caddy";
 import { env as vpsEnv } from "./env";
-import { execute, parseOutput, escapeShell } from "./sdk";
+import { execute, parseOutput } from "./sdk";
 import { getStatus } from "./status";
 
 import type { DeployInstanceSchemaInput } from "../../schema";
@@ -14,25 +17,16 @@ import type { OpenClawDeploymentProviderStrategy } from "../types";
 const PORT_RANGE_START = 20000;
 const PORT_RANGE_END = 40000;
 
-const toInstanceId = (userId: string) =>
-  createHash("sha256").update(userId).digest("hex").slice(0, 16);
-
-const toInitialPort = (instanceId: string) => {
-  const numeric = Number.parseInt(instanceId.slice(0, 8), 16);
+const toRandomPort = () => {
   const span = PORT_RANGE_END - PORT_RANGE_START + 1;
-  return PORT_RANGE_START + (numeric % span);
+  return PORT_RANGE_START + Math.floor(Math.random() * span);
 };
 
 const toStateDir = (instanceId: string) =>
-  `${vpsEnv.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  `${vpsEnv.VPS_OPENCLAW_STATE_DIR}/instances/${instanceId}`;
 
-const getUrl = (id: string, token?: string) =>
+export const getUrl = (id: string, token?: string) =>
   `https://${id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}${token ? `/#token=${encodeURIComponent(token)}` : ""}`;
-
-const getGatewayToken = () => randomBytes(32).toString("base64");
-
-const toEscapedCommand = (args: readonly string[]) =>
-  args.map((arg) => escapeShell(arg)).join(" ");
 
 const executeDocker = (args: readonly string[]) =>
   execute(`docker ${toEscapedCommand(args)}`);
@@ -46,32 +40,30 @@ const getDeploymentScript = (
   },
 ) => {
   const origin = getUrl(params.id);
+  const { gateway } = getGatewayConfig({ origin, ...params });
 
   return `
 set -euo pipefail
 
-DEPLOY_ROOT=${escapeShell(vpsEnv.VPS_DEPLOY_ROOT)}
 IMAGE=${escapeShell(vpsEnv.VPS_OPENCLAW_IMAGE)}
 INSTANCE_ID=${escapeShell(params.id)}
 CONTAINER_NAME=${escapeShell(params.id)}
+OPENCLAW_STATE_DIR=${escapeShell(vpsEnv.VPS_OPENCLAW_STATE_DIR)}
 STATE_DIR=${escapeShell(toStateDir(params.id))}
 INITIAL_PORT=${params.port}
 PORT_RANGE_START=${PORT_RANGE_START}
 PORT_RANGE_END=${PORT_RANGE_END}
 
 umask 077
-mkdir -p "$DEPLOY_ROOT/instances"
-chmod 700 "$DEPLOY_ROOT" "$DEPLOY_ROOT/instances"
 mkdir -p "$STATE_DIR"
-CONTAINER_UID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -u' 2>/dev/null || echo "1000")
-CONTAINER_GID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -g' 2>/dev/null || echo "1000")
-chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR"
+chown -R 1000:1000 "$STATE_DIR"
+chmod 700 "$OPENCLAW_STATE_DIR" "$OPENCLAW_STATE_DIR/instances"
 chmod 700 "$STATE_DIR"
 
 cat > "$STATE_DIR/openclaw.json" <<EOF
 ${JSON.stringify(getGatewayConfig({ origin, ...params }), null, 2)}
 EOF
-chown "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/openclaw.json"
+chown 1000:1000 "$STATE_DIR/openclaw.json"
 chmod 600 "$STATE_DIR/openclaw.json"
 
 PORT="$INITIAL_PORT"
@@ -106,18 +98,15 @@ CONTAINER_ID=$(docker run -d \
   --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-  -p "127.0.0.1:$PORT:18789" \
+  -p "127.0.0.1:$PORT:${gateway.port}" \
   -v "$STATE_DIR:/opt/openclaw" \
   -e NODE_OPTIONS=${escapeShell(
     `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
   )} \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
-  -e OPENAI_API_KEY=${escapeShell(aiEnv.OPENAI_API_KEY)} \
-  -e ANTHROPIC_API_KEY=${escapeShell(aiEnv.ANTHROPIC_API_KEY)} \
-  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(aiEnv.GOOGLE_GENERATIVE_AI_API_KEY)} \
   "$IMAGE")
-${getProvisionRouteScript(params.id, params.token)}
+${getProvisionRouteScript(params.id)}
 
 echo "container_id=$CONTAINER_ID"
 `;
@@ -128,8 +117,8 @@ export const strategy = {
     userId,
     ...input
   }: DeployInstanceSchemaInput & { userId: string }) => {
-    const id = toInstanceId(userId);
-    const port = toInitialPort(id);
+    const id = getInstanceId(userId);
+    const port = toRandomPort();
     const token = getGatewayToken();
     const script = getDeploymentScript({
       id,

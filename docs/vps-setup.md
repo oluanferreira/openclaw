@@ -107,7 +107,7 @@ What happens automatically:
 
 - API connects to VPS over SSH.
 - Writes instance config to:
-  - `<VPS_DEPLOY_ROOT>/instances/<instance-id>/openclaw.json`
+  - `<VPS_OPENCLAW_STATE_DIR>/instances/<instance-id>/openclaw.json`
 - Starts Docker container for that instance.
 - Generates Caddy route file in `/etc/caddy/routes`.
 - Validates and reloads Caddy.
@@ -128,7 +128,7 @@ cat /etc/caddy/routes/<instance-id>.<your-domain>.caddy
 Check instance config:
 
 ```bash
-cat /opt/openclaw/instances/<instance-id>/openclaw.json
+cat /var/lib/openclaw/instances/<instance-id>/openclaw.json
 ```
 
 ## 9) Validate in browser

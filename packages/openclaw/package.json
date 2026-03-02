@@ -17,14 +17,19 @@
   },
   "prettier": "@workspace/prettier-config",
   "dependencies": {
+    "@google-cloud/compute": "6.7.0",
+    "@google-cloud/os-login": "6.2.1",
     "@workspace/db": "workspace:*",
     "@workspace/shared": "workspace:*",
     "envin": "catalog:",
+    "google-auth-library": "10.1.0",
     "ssh2": "1.17.0",
+    "sshpk": "1.18.0",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/ssh2": "1.15.5",
+    "@types/sshpk": "1.17.4",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/prettier-config": "workspace:*",
     "@workspace/tsconfig": "workspace:*",

@@ -14,14 +14,19 @@ export const useInstance = () => {
   const queryClient = useQueryClient();
 
   const instance = useQuery(instanceApi.queries.get);
-  const status = useQuery(instanceApi.queries.status);
+  const status = useQuery({
+    ...instanceApi.queries.status,
+    enabled: !!instance.data?.id,
+  });
 
   const deploy = useMutation({
     ...instanceApi.mutations.deploy,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries(instanceApi.queries.status);
-      await queryClient.invalidateQueries(instanceApi.queries.logs);
-      await queryClient.invalidateQueries(instanceApi.queries.get);
+    onSuccess: () => {
+      void Promise.all([
+        queryClient.invalidateQueries(instanceApi.queries.status),
+        queryClient.invalidateQueries(instanceApi.queries.logs),
+        queryClient.invalidateQueries(instanceApi.queries.get),
+      ]);
       toast.success(t("instance.deploy.success"));
       router.refresh();
       router.replace(pathsConfig.dashboard.index);
@@ -30,10 +35,12 @@ export const useInstance = () => {
 
   const manage = useMutation({
     ...instanceApi.mutations.manage,
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries(instanceApi.queries.status);
-      await queryClient.invalidateQueries(instanceApi.queries.logs);
-      await queryClient.invalidateQueries(instanceApi.queries.get);
+    onSuccess: (_, variables) => {
+      void Promise.all([
+        queryClient.invalidateQueries(instanceApi.queries.status),
+        queryClient.invalidateQueries(instanceApi.queries.logs),
+        queryClient.invalidateQueries(instanceApi.queries.get),
+      ]);
       toast.success(t(`instance.manage.${variables.action}.success`));
     },
   });

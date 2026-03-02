@@ -37,7 +37,7 @@ docker logs --timestamps --details <instance_id>
 ### Check generated config
 
 ```bash
-cat /opt/openclaw/instances/<instance_id>/openclaw.json
+cat /var/lib/openclaw/instances/<instance_id>/openclaw.json
 ```
 
 ### Check Caddy routes
