@@ -2,7 +2,7 @@ import { eq } from "@workspace/db";
 import { instance } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 
-import type { InsertInstance } from "@workspace/db/schema";
+import type { InsertInstance, UpdateInstance } from "@workspace/db/schema";
 
 export const createInstance = async (data: InsertInstance) =>
   db.insert(instance).values(data).returning();
@@ -23,3 +23,8 @@ export const getInstanceByUserId = async (userId: string) =>
 
 export const deleteInstance = async (id: string) =>
   db.delete(instance).where(eq(instance.id, id));
+
+export const updateInstance = async (
+  id: string,
+  data: Partial<UpdateInstance>,
+) => db.update(instance).set(data).where(eq(instance.id, id));

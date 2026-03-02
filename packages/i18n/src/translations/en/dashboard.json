@@ -122,6 +122,14 @@
           "description": "After approving, you can already chat with your AI assistant through your chosen channel."
         }
       ]
+    },
+    "apiKeys": {
+      "description": "Manage the API keys used by your OpenClaw instance.",
+      "getKey": "Get your key",
+      "current": "Current",
+      "save": "Save",
+      "success": "API Keys updated successfully. The container is being recreated.",
+      "error": "Failed to update API Keys. Please try again."
     }
   },
   "billing": {

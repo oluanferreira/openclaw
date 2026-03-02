@@ -14,19 +14,6 @@ import { DashboardInset } from "~/modules/common/layout/dashboard/inset";
 import { DashboardSidebar } from "~/modules/common/layout/dashboard/sidebar/index";
 import { instance } from "~/modules/dashboard/instance/lib/api";
 
-const agents = [
-  "Alexander",
-  "Isabella",
-  "Benjamin",
-  "Gabriella",
-  "Nathaniel",
-  "Valentina",
-  "Sebastian",
-  "Anastasia",
-  "Christopher",
-  "Eleanor",
-];
-
 const menu = [
   {
     label: "yourInstance",
@@ -35,30 +22,6 @@ const menu = [
         title: "overview",
         href: pathsConfig.dashboard.index,
         icon: <Icons.Box />,
-      },
-    ],
-  },
-  {
-    label: "agents",
-    items: [
-      ...agents.map((agent) => ({
-        title: agent,
-        href: "#",
-        icon: (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={`https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${agent}`}
-            className="-ml-px size-4.5 rounded-md"
-            alt={agent}
-            width={16}
-            height={16}
-          />
-        ),
-      })),
-      {
-        title: "addNew",
-        href: "#",
-        icon: <Icons.Plus />,
       },
     ],
   },
@@ -77,7 +40,7 @@ const menu = [
       },
       {
         title: "apiKeys",
-        href: "#",
+        href: pathsConfig.dashboard.apiKeys,
         icon: <Icons.Webhook />,
       },
     ],

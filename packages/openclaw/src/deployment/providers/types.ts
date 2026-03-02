@@ -1,4 +1,4 @@
-import type { DeployInstanceSchemaInput } from "../schema";
+import type { DeployInstanceSchemaInput, AiKeysInput } from "../schema";
 
 export interface OpenClawDeploymentProviderStrategy {
   deploy: (
@@ -15,4 +15,5 @@ export interface OpenClawDeploymentProviderStrategy {
   destroy: (id: string) => Promise<{ stdout: string }>;
   getLogs: (id: string) => Promise<{ stdout: string }>;
   getUrl: (id: string) => string;
+  updateKeys: (id: string, aiKeys: AiKeysInput) => Promise<{ stdout: string }>;
 }

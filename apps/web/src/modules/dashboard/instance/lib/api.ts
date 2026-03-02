@@ -31,6 +31,10 @@ const queries = {
         schema: z.array(pairingRequestSchema),
       })(),
   }),
+  keys: queryOptions({
+    queryKey: [KEY, "keys"],
+    queryFn: () => handle(api.openclaw.keys.$get)(),
+  }),
 };
 
 const mutations = {
@@ -58,6 +62,15 @@ const mutations = {
       json: InferRequestType<(typeof api.openclaw.cli)["$post"]>["json"],
     ) =>
       handle(api.openclaw.cli.$post)({
+        json,
+      }),
+  }),
+  updateKeys: mutationOptions({
+    mutationKey: [KEY, "updateKeys"],
+    mutationFn: (
+      json: InferRequestType<(typeof api.openclaw.keys)["$put"]>["json"],
+    ) =>
+      handle(api.openclaw.keys.$put)({
         json,
       }),
   }),

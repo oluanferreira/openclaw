@@ -7,7 +7,7 @@ import { env as vpsEnv } from "./env";
 import { execute, parseOutput, escapeShell } from "./sdk";
 import { getStatus } from "./status";
 
-import type { DeployInstanceSchemaInput } from "../../schema";
+import type { DeployInstanceSchemaInput, AiKeysInput } from "../../schema";
 import type { OpenClawDeploymentProviderStrategy } from "../types";
 
 const PORT_RANGE_START = 20000;
@@ -35,6 +35,33 @@ const toEscapedCommand = (args: readonly string[]) =>
 
 const executeDocker = (args: readonly string[]) =>
   execute(`docker ${toEscapedCommand(args)}`);
+
+const getDockerRunCommand = (params: {
+  id: string;
+  port: number | string;
+  aiKeys?: AiKeysInput;
+}) => {
+  const stateDir = toStateDir(params.id);
+  return `docker run -d \
+  --name ${escapeShell(params.id)} \
+  --restart unless-stopped \
+  --memory=${escapeShell(vpsEnv.VPS_CONTAINER_MEMORY)} \
+  --pids-limit="512" \
+  --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  -p "127.0.0.1:${params.port}:18789" \
+  -v ${escapeShell(`${stateDir}:/opt/openclaw`)} \
+  -e NODE_OPTIONS=${escapeShell(
+    `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
+  )} \
+  -e OPENCLAW_HOME="/opt/openclaw" \
+  -e OPENCLAW_STATE_DIR="/opt/openclaw" \
+  -e OPENAI_API_KEY=${escapeShell(params.aiKeys?.openaiApiKey ?? "")} \
+  -e ANTHROPIC_API_KEY=${escapeShell(params.aiKeys?.anthropicApiKey ?? "")} \
+  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(params.aiKeys?.googleApiKey ?? "")} \
+  ${escapeShell(vpsEnv.VPS_OPENCLAW_IMAGE)}`;
+};
 
 const getDeploymentScript = (
   params: DeployInstanceSchemaInput & {
@@ -97,26 +124,31 @@ done
 
 docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
 
-CONTAINER_ID=$(docker run -d \
-  --name "$CONTAINER_NAME" \
-  --restart unless-stopped \
-  --memory=${escapeShell(vpsEnv.VPS_CONTAINER_MEMORY)} \
-  --pids-limit="512" \
-  --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
-  --read-only \
-  --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-  -p "127.0.0.1:$PORT:18789" \
-  -v "$STATE_DIR:/opt/openclaw" \
-  -e NODE_OPTIONS=${escapeShell(
-    `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
-  )} \
-  -e OPENCLAW_HOME="/opt/openclaw" \
-  -e OPENCLAW_STATE_DIR="/opt/openclaw" \
-  -e OPENAI_API_KEY=${escapeShell(params.aiKeys?.openaiApiKey ?? "")} \
-  -e ANTHROPIC_API_KEY=${escapeShell(params.aiKeys?.anthropicApiKey ?? "")} \
-  -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(params.aiKeys?.googleApiKey ?? "")} \
-  "$IMAGE")
+CONTAINER_ID=$(${getDockerRunCommand({ id: params.id, port: "$PORT", aiKeys: params.aiKeys })})
 ${getProvisionRouteScript(params.id, params.token)}
+
+echo "container_id=$CONTAINER_ID"
+`;
+};
+
+const getUpdateKeysScript = (id: string, aiKeys: AiKeysInput) => {
+  return `
+set -euo pipefail
+
+# Get the current host port from the running container
+PORT=$(docker inspect --format '{{range $p, $conf := .HostConfig.PortBindings}}{{(index $conf 0).HostPort}}{{end}}' ${escapeShell(id)})
+
+if [ -z "$PORT" ]; then
+  echo "ERROR: Could not determine container port" >&2
+  exit 1
+fi
+
+# Stop and remove the existing container
+docker stop ${escapeShell(id)}
+docker rm ${escapeShell(id)}
+
+# Recreate with new env vars (Caddy route and state dir stay intact)
+CONTAINER_ID=$(${getDockerRunCommand({ id, port: "$PORT", aiKeys })})
 
 echo "container_id=$CONTAINER_ID"
 `;
@@ -161,4 +193,8 @@ export const strategy = {
   getLogs: async (id) =>
     execute(`docker logs --timestamps --details ${escapeShell(id)} 2>&1`),
   getUrl,
+  updateKeys: async (id: string, aiKeys: AiKeysInput) => {
+    const script = getUpdateKeysScript(id, aiKeys);
+    return execute(script);
+  },
 } satisfies OpenClawDeploymentProviderStrategy;

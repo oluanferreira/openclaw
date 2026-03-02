@@ -20,6 +20,9 @@ export const instance = pgTable("instance", {
   communicationChannel: text().notNull(),
   token: text().notNull(),
   vpsId: text().notNull().default("vps-main"),
+  openaiApiKey: text(),
+  anthropicApiKey: text(),
+  googleApiKey: text(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -8,6 +8,7 @@ const pathsConfig = {
   dashboard: {
     index: DASHBOARD_PREFIX,
     billing: `${DASHBOARD_PREFIX}/billing`,
+    apiKeys: `${DASHBOARD_PREFIX}/api-keys`,
   },
   admin: {
     index: ADMIN_PREFIX,
@@ -15,6 +16,7 @@ const pathsConfig = {
     instances: `${ADMIN_PREFIX}/instances`,
     subscriptions: `${ADMIN_PREFIX}/subscriptions`,
   },
+  login: "/login",
 } as const;
 
 export { pathsConfig, DASHBOARD_PREFIX, ADMIN_PREFIX, API_PREFIX };
