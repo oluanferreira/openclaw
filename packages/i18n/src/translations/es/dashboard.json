@@ -110,5 +110,28 @@
       "alreadyExists": "Ya tienes una instancia desplegada. No puedes desplegar otra por ahora.",
       "notFound": "No tienes una instancia desplegada todavía. Por favor, despliega una primero."
     }
+  },
+  "agents": {
+    "description": "Esta característica es una de ejemplo que puedes construir con OpenClaw. Permite a los usuarios crear y gestionar sus propios agentes especializados.",
+    "cta": {
+      "primary": "Leer documentación",
+      "secondary": "Obtener AI Kit"
+    }
+  },
+  "settings": {
+    "account": {
+      "description": "Las configuraciones de la cuenta están incluidas en Core Kit, esta es solo una demostración.",
+      "cta": {
+        "primary": "Obtener Core Kit",
+        "secondary": "Leer documentación"
+      }
+    },
+    "apiKeys": {
+      "title": "API keys",
+      "description": "Las API keys con BYOK están próximamente. Síguenos para recibir notificaciones cuando estén disponibles.",
+      "cta": {
+        "primary": "Seguir actualizaciones"
+      }
+    }
   }
 }

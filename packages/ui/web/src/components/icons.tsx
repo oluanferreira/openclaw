@@ -88,6 +88,7 @@ import {
   Bell,
   Calculator,
   RotateCcw,
+  Bot,
 } from "lucide-react";
 
 import { Icons as GlobalIcons } from "@workspace/ui/assets";
@@ -96,6 +97,7 @@ export const Icons = {
   ...GlobalIcons,
   Minus,
   Box,
+  Bot,
   PanelLeft,
   Zap,
   Bell,

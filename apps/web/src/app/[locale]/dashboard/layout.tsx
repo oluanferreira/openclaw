@@ -43,7 +43,7 @@ const menu = [
     items: [
       ...agents.map((agent) => ({
         title: agent,
-        href: `#agent-${encodeURIComponent(agent)}`,
+        href: pathsConfig.dashboard.agents.agent(encodeURIComponent(agent)),
         icon: (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -57,7 +57,7 @@ const menu = [
       })),
       {
         title: "addNew",
-        href: "#add-new-agent",
+        href: pathsConfig.dashboard.agents.index,
         icon: <Icons.Plus />,
       },
     ],
@@ -67,17 +67,17 @@ const menu = [
     items: [
       {
         title: "account",
-        href: "#settings-account",
+        href: pathsConfig.dashboard.settings.account,
         icon: <Icons.UserRound />,
       },
       {
         title: "subscription",
-        href: "#settings-subscription",
+        href: pathsConfig.dashboard.settings.billing,
         icon: <Icons.CreditCard />,
       },
       {
         title: "apiKeys",
-        href: "#settings-apikeys",
+        href: pathsConfig.dashboard.settings.apiKeys,
         icon: <Icons.Webhook />,
       },
     ],

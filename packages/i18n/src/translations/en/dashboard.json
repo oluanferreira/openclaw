@@ -110,5 +110,28 @@
       "alreadyExists": "You already have an instance deployed. You can't deploy another one for now.",
       "notFound": "You don't have an instance deployed yet. Please deploy one first."
     }
+  },
+  "agents": {
+    "description": "Example feature you can build with OpenClaw. Allow users to create and manage their own, specialized agents.",
+    "cta": {
+      "primary": "Read docs",
+      "secondary": "Get AI Kit"
+    }
+  },
+  "settings": {
+    "account": {
+      "description": "Account settings are included in Core Kit, this is just a placeholder.",
+      "cta": {
+        "primary": "Get Core Kit",
+        "secondary": "Read docs"
+      }
+    },
+    "apiKeys": {
+      "title": "API keys",
+      "description": "API keys with BYOK are coming soon. Follow us to get notified when it's available.",
+      "cta": {
+        "primary": "Follow updates"
+      }
+    }
   }
 }
