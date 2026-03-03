@@ -56,20 +56,39 @@
       }
     },
     "status": {
+      "created": "Created",
+      "creating": "Creating",
+      "started": "Started",
       "stopped": "Stopped",
-      "running": "Running",
       "starting": "Starting",
+      "running": "Running",
       "stopping": "Stopping",
       "restarting": "Restarting",
+      "repairing": "Repairing",
       "removing": "Removing",
+      "destroying": "Destroying",
+      "updating": "Updating",
+      "replacing": "Replacing",
+      "launch_failed": "Launch failed",
+      "failed": "Failed",
       "paused": "Paused",
+      "suspending": "Suspending",
+      "suspended": "Suspended",
       "exited": "Exited",
-      "dead": "Dead"
+      "dead": "Dead",
+      "destroyed": "Destroyed",
+      "replaced": "Replaced",
+      "migrated": "Migrated",
+      "provisioning": "Provisioning",
+      "staging": "Staging",
+      "terminated": "Terminated",
+      "not_found": "Not found"
     },
     "logs": {
       "loading": "Waiting for logs..."
     },
     "pairing": {
+      "empty": "No pending pairing requests.",
       "device": {
         "approve": {
           "success": "Device approved successfully. You can now access dashboard from it."

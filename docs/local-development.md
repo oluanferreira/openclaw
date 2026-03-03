@@ -30,7 +30,7 @@ Root `.env` should contain only:
 - `URL`
 - `DEFAULT_LOCALE`
 
-Set all other runtime values (auth, VPS, AI keys, `NEXT_PUBLIC_*`) in:
+Set all other runtime values (auth, provider-specific vars, AI keys, `NEXT_PUBLIC_*`) in:
 
 - `apps/web/.env.local`
 

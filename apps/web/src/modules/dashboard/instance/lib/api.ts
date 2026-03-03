@@ -2,7 +2,10 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import * as z from "zod";
 
 import { handle } from "@workspace/api/utils";
-import { pairingRequestSchema } from "@workspace/openclaw/config";
+import {
+  channelRequestSchema,
+  deviceRequestSchema,
+} from "@workspace/openclaw/config";
 
 import { api } from "~/lib/api/client";
 
@@ -18,19 +21,29 @@ const queries = {
   status: queryOptions({
     queryKey: [KEY, "status"],
     queryFn: () => handle(api.openclaw.status.$get)(),
+    refetchInterval: 1000,
   }),
   logs: queryOptions({
     queryKey: [KEY, "logs"],
     queryFn: () => handle(api.openclaw.logs.$get)(),
     refetchInterval: 1000,
   }),
-  pairing: queryOptions({
-    queryKey: [KEY, "pairing"],
-    queryFn: () =>
-      handle(api.openclaw.pairing.$get, {
-        schema: z.array(pairingRequestSchema),
-      })(),
-  }),
+  pairing: {
+    devices: queryOptions({
+      queryKey: [KEY, "pairing", "devices"],
+      queryFn: () =>
+        handle(api.openclaw.pairing.devices.$get, {
+          schema: z.array(deviceRequestSchema),
+        })(),
+    }),
+    channels: queryOptions({
+      queryKey: [KEY, "pairing", "channels"],
+      queryFn: () =>
+        handle(api.openclaw.pairing.channels.$get, {
+          schema: z.array(channelRequestSchema),
+        })(),
+    }),
+  },
 };
 
 const mutations = {
@@ -52,15 +65,52 @@ const mutations = {
         json,
       }),
   }),
-  cli: mutationOptions({
-    mutationKey: [KEY, "cli"],
-    mutationFn: (
-      json: InferRequestType<(typeof api.openclaw.cli)["$post"]>["json"],
-    ) =>
-      handle(api.openclaw.cli.$post)({
-        json,
+  pairing: {
+    devices: {
+      approve: mutationOptions({
+        mutationKey: [KEY, "pairing", "devices", "approve"],
+        mutationFn: ({ id }: { id: string }) =>
+          handle(api.openclaw.pairing.devices[":id"].$post)({
+            param: { id },
+          }),
       }),
-  }),
+      reject: mutationOptions({
+        mutationKey: [KEY, "pairing", "devices", "reject"],
+        mutationFn: ({ id }: { id: string }) =>
+          handle(api.openclaw.pairing.devices[":id"].$delete)({
+            param: { id },
+          }),
+      }),
+    },
+    channels: {
+      approve: mutationOptions({
+        mutationKey: [KEY, "pairing", "channels", "approve"],
+        mutationFn: ({
+          channel,
+          ...json
+        }: InferRequestType<
+          (typeof api.openclaw.pairing.channels)[":channel"]["$post"]
+        >["json"] & { channel: string }) =>
+          handle(api.openclaw.pairing.channels[":channel"].$post)({
+            param: { channel },
+            json,
+          }),
+      }),
+      reject: mutationOptions({
+        mutationKey: [KEY, "pairing", "channels", "reject"],
+        mutationFn: ({
+          channel,
+          ...json
+        }: InferRequestType<
+          (typeof api.openclaw.pairing.channels)[":channel"]["$delete"]
+        >["json"] & { channel: string }) =>
+          handle(api.openclaw.pairing.channels[":channel"].$delete)({
+            param: { channel },
+            json,
+          }),
+      }),
+    },
+  },
 };
 
 export const instance = {

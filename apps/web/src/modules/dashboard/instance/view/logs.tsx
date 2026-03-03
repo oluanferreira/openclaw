@@ -9,38 +9,26 @@ import { Spinner } from "@workspace/ui-web/spinner";
 
 import { instance as instanceApi } from "../lib/api";
 
-interface ParsedLogLine {
-  raw: string;
-  time: string | null;
-  message: string;
-}
+const FRACTIONAL_SECONDS_PATTERN =
+  /\.(?<fraction>\d+)(?<suffix>Z|[+-]\d{2}:\d{2})?$/;
 
-const DOCKER_LOG_TIMESTAMP_PREFIX =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\s+/;
+const formatTimestamp = (timestamp: string) => {
+  const match = FRACTIONAL_SECONDS_PATTERN.exec(timestamp);
+  if (!match?.groups?.fraction) {
+    return timestamp;
+  }
 
-const parseLogs = (stdout: string) =>
-  stdout
-    .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line) => line.length > 0)
-    .map<ParsedLogLine>((line) => {
-      const normalizedLine = line.replace(DOCKER_LOG_TIMESTAMP_PREFIX, "");
-      const firstSpaceIndex = normalizedLine.indexOf(" ");
-      if (firstSpaceIndex <= 0) {
-        return { raw: line, time: null, message: normalizedLine };
-      }
+  const fraction = match.groups.fraction.slice(0, 3).padEnd(3, "0");
+  const suffix = match.groups.suffix ?? "";
 
-      const time = normalizedLine.slice(0, firstSpaceIndex);
-      const message = normalizedLine.slice(firstSpaceIndex + 1);
-
-      return { raw: line, time, message };
-    });
+  return timestamp.replace(FRACTIONAL_SECONDS_PATTERN, `.${fraction}${suffix}`);
+};
 
 export const InstanceLogs = () => {
   const { t } = useTranslation(["common", "dashboard"]);
 
   const logs = useQuery(instanceApi.queries.logs);
-  const entries = parseLogs(logs.data?.stdout ?? "");
+  const entries = logs.data ?? [];
 
   const status = logs.isLoading
     ? { label: t("connecting"), icon: Spinner }
@@ -70,12 +58,14 @@ export const InstanceLogs = () => {
           ) : (
             entries.map((entry, idx) => (
               <div
-                key={`${entry.raw}-${idx}`}
+                key={`${entry.timestamp ?? "no-ts"}-${entry.message}-${idx}`}
                 className="hover:bg-muted px-3 py-1 @md/dashboard:px-5"
               >
-                {entry.time ? (
+                {entry.timestamp ? (
                   <>
-                    <span className="text-muted-foreground">{entry.time} </span>
+                    <span className="text-muted-foreground">
+                      {formatTimestamp(entry.timestamp)}{" "}
+                    </span>
                     <span>{entry.message}</span>
                   </>
                 ) : (

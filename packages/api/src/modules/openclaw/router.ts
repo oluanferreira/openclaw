@@ -5,7 +5,6 @@ import {
   ManageInstanceAction,
   manageInstanceSchema,
 } from "@workspace/openclaw";
-import { getCommandToRun, commandSchema } from "@workspace/openclaw/cli";
 import {
   createInstance,
   deploy,
@@ -15,8 +14,6 @@ import {
   manage,
   deleteInstance,
   getUrl,
-  getPairingRequests,
-  cli,
 } from "@workspace/openclaw/server";
 
 import {
@@ -25,6 +22,8 @@ import {
   enforceInstance,
   enforceNoInstance,
 } from "../../middleware";
+
+import { pairingRouter } from "./pairing/router";
 
 export const openclawRouter = new Hono()
   .use(enforceAuth)
@@ -67,9 +66,6 @@ export const openclawRouter = new Hono()
   .get("/logs", enforceInstance, async (c) =>
     c.json(await getLogs(c.var.instanceId)),
   )
-  .get("/pairing", enforceInstance, async (c) =>
-    c.json(await getPairingRequests(c.var.instanceId)),
-  )
   .post(
     "/manage",
     enforceInstance,
@@ -87,11 +83,12 @@ export const openclawRouter = new Hono()
       return c.json({ success: true });
     },
   )
-  .post("/cli", enforceInstance, validate("json", commandSchema), async (c) => {
-    const instanceId = c.var.instanceId;
-    const payload = c.req.valid("json");
+  .route("/pairing", pairingRouter);
+// .post("/cli", enforceInstance, validate("json", commandSchema), async (c) => {
+//   const instanceId = c.var.instanceId;
+//   const payload = c.req.valid("json");
 
-    const command = getCommandToRun(payload);
+//   const command = getCommandToRun(payload);
 
-    return c.json(await cli(instanceId, command));
-  });
+//   return c.json(await cli(instanceId, command));
+// });

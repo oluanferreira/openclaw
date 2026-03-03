@@ -1,13 +1,18 @@
 "use client";
 
 import { useTranslation } from "@workspace/i18n";
-import { InstanceStatus, ManageInstanceAction } from "@workspace/openclaw";
+import { ManageInstanceAction } from "@workspace/openclaw";
 import { Button } from "@workspace/ui-web/button";
 import { Icons } from "@workspace/ui-web/icons";
 import { Skeleton } from "@workspace/ui-web/skeleton";
 import { Spinner } from "@workspace/ui-web/spinner";
 
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
+import {
+  canStartInstance,
+  canStopInstance,
+  canRestartInstance,
+} from "~/modules/dashboard/instance/lib/status";
 
 export const InstanceActions = () => {
   const { status } = useInstance();
@@ -25,22 +30,9 @@ export const InstanceActions = () => {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {[
-        InstanceStatus.STOPPED,
-        InstanceStatus.PAUSED,
-        InstanceStatus.EXITED,
-        InstanceStatus.DEAD,
-      ].includes(instanceStatus) && <Start />}
-      {[
-        InstanceStatus.RESTARTING,
-        InstanceStatus.STARTING,
-        InstanceStatus.RUNNING,
-      ].includes(instanceStatus) && (
-        <>
-          <Stop />
-          <Restart />
-        </>
-      )}
+      {canStartInstance(instanceStatus) && <Start />}
+      {canStopInstance(instanceStatus) && <Stop />}
+      {canRestartInstance(instanceStatus) && <Restart />}
       <Destroy />
     </div>
   );

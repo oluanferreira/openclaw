@@ -40,17 +40,13 @@ export type ExecuteInstanceCommandSchemaInput = z.input<
   typeof executeInstanceCommandSchema
 >;
 
-export const InstanceStatus = {
-  STOPPED: "stopped",
-  RUNNING: "running",
-  STARTING: "starting",
-  STOPPING: "stopping",
-  RESTARTING: "restarting",
-  REMOVING: "removing",
-  PAUSED: "paused",
-  EXITED: "exited",
-  DEAD: "dead",
-} as const;
+export const logEntrySchema = z.object({
+  timestamp: z.string().nullable(),
+  message: z.string(),
+});
 
-export type InstanceStatus =
-  (typeof InstanceStatus)[keyof typeof InstanceStatus];
+export type LogEntry = z.infer<typeof logEntrySchema>;
+
+export const logsSchema = z.array(logEntrySchema);
+
+export type Logs = z.infer<typeof logsSchema>;

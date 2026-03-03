@@ -19,10 +19,10 @@ packages/
 1. User deploys from dashboard.
 2. `apps/web` calls `packages/api` (`/api/openclaw`).
 3. `packages/api` calls `@workspace/openclaw` deployment strategy.
-4. VPS provider connects over SSH and:
-   - writes instance config
-   - starts/restarts Docker container
-   - writes Caddy route and reloads Caddy
+4. Active provider strategy executes deployment:
+   - Fly provider: app + volume + machine via Machines API
+   - VPS provider: SSH + Docker + Caddy route provisioning
+   - GCP provider: Compute Engine instance from template + startup script
 5. Instance metadata is stored in DB table `instance`.
 
 ## Instance identity
@@ -35,24 +35,26 @@ packages/
 - Deployment generates a token per instance deploy.
 - Token is stored in DB (`instance.token`).
 - API exposes instance URL including hash fragment token:
-  - `https://<instance-id>.<suffix>/#token=<token>`
+  - Fly: `https://<instance-id>.fly.dev/#token=<token>`
+  - VPS/GCP: `https://<instance-id>.<suffix>/#token=<token>`
 
 ## Runtime management
 
-- Status and logs are retrieved via SSH + Docker commands.
-- Manage actions map to Docker lifecycle commands (`start`, `stop`, `restart`, `rm -f`).
+- Status, lifecycle actions, and logs are provider-specific (Fly Machines API or SSH/Docker/GCP APIs).
 - CLI actions are allowlisted in `packages/openclaw/src/cli/schema.ts` and executed via:
-  - `docker exec <instance_id> node dist/index.js <command>`
+  - Fly: `POST /apps/{app_name}/machines/{machine_id}/exec`
+  - VPS/GCP: remote command execution on the target runtime
 
 ## Services in production
 
 - `Postgres`: app data and instance metadata
 - `API (Hono)`: deployment and management control plane
 - `Web (Next.js)`: customer dashboard
-- `Docker`: runs one OpenClaw container per user instance
-- `Caddy`: TLS termination and host-based routing to instance containers
+- `Fly.io`: machine + persistent volume per user instance
+- `VPS`: Docker + Caddy routing per user instance
+- `GCP`: VM-per-user based on instance templates
 
 ## Current security posture
 
-- Gateway access currently relies on tokenized URL usage (`#token=...`) and direct Caddy proxying.
-- If you need stricter gateway access controls, add an auth layer at the proxy and/or remove direct token exposure in URLs.
+- Gateway access currently relies on tokenized URL usage (`#token=...`) and provider ingress.
+- If you need stricter gateway access controls, add an upstream auth layer and/or remove direct token exposure in URLs.

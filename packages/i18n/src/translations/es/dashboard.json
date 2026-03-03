@@ -56,20 +56,39 @@
       }
     },
     "status": {
+      "created": "Creado",
+      "creating": "Creando",
+      "started": "Iniciado",
       "stopped": "Detenido",
-      "running": "En ejecución",
       "starting": "Iniciando",
+      "running": "En ejecución",
       "stopping": "Deteniendo",
       "restarting": "Reiniciando",
+      "repairing": "Reparando",
       "removing": "Eliminando",
+      "destroying": "Destruyendo",
+      "updating": "Actualizando",
+      "replacing": "Reemplazando",
+      "launch_failed": "Error al iniciar",
+      "failed": "Fallido",
       "paused": "Pausado",
+      "suspending": "Suspendiendo",
+      "suspended": "Suspendido",
       "exited": "Finalizado",
-      "dead": "Muerto"
+      "dead": "Muerto",
+      "destroyed": "Destruido",
+      "replaced": "Reemplazado",
+      "migrated": "Migrado",
+      "provisioning": "Aprovisionando",
+      "staging": "Preparando",
+      "terminated": "Terminado",
+      "not_found": "No encontrado"
     },
     "logs": {
       "loading": "Esperando logs..."
     },
     "pairing": {
+      "empty": "No hay solicitudes de emparejamiento pendientes.",
       "device": {
         "approve": {
           "success": "Dispositivo aprobado correctamente. Ahora puedes acceder al dashboard desde él."

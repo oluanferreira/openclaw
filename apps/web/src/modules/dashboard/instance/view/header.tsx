@@ -1,5 +1,4 @@
 import { isKey, useTranslation } from "@workspace/i18n";
-import { InstanceStatus } from "@workspace/openclaw";
 import { Badge } from "@workspace/ui-web/badge";
 import { Icons } from "@workspace/ui-web/icons";
 import { Skeleton } from "@workspace/ui-web/skeleton";
@@ -9,30 +8,19 @@ import {
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
+import {
+  getInstanceStatusBadgeVariant,
+  toRawStatusKey,
+} from "~/modules/dashboard/instance/lib/status";
 
 import { InstanceActions } from "./actions";
-
-const statusToVariant = {
-  [InstanceStatus.STOPPED]: "secondary",
-  [InstanceStatus.RUNNING]: "success",
-  [InstanceStatus.STARTING]: "warning",
-  [InstanceStatus.STOPPING]: "warning",
-  [InstanceStatus.RESTARTING]: "warning",
-  [InstanceStatus.REMOVING]: "warning",
-  [InstanceStatus.PAUSED]: "warning",
-  [InstanceStatus.EXITED]: "destructive",
-  [InstanceStatus.DEAD]: "destructive",
-} as const;
 
 export const InstanceHeader = () => {
   const { t, i18n } = useTranslation(["common", "dashboard"]);
   const { instance, status } = useInstance();
 
-  const key = `dashboard.instance.status.${status.data?.status}`;
-  const variant =
-    status.data?.status && status.data.status in statusToVariant
-      ? statusToVariant[status.data.status as InstanceStatus]
-      : "secondary";
+  const rawStatus = toRawStatusKey(status.data?.status);
+  const key = rawStatus ? `dashboard.instance.status.${rawStatus}` : null;
 
   return (
     <DashboardHeader>
@@ -42,8 +30,11 @@ export const InstanceHeader = () => {
           <div className="flex items-center gap-2">
             <DashboardHeaderTitle>{t("yourInstance")}</DashboardHeaderTitle>
             {status.data ? (
-              <Badge variant={variant} className="capitalize">
-                {isKey(key, i18n, "dashboard") ? t(key) : status.data.status}
+              <Badge
+                variant={getInstanceStatusBadgeVariant(rawStatus)}
+                className="capitalize"
+              >
+                {key && isKey(key, i18n, "dashboard") ? t(key) : rawStatus}
               </Badge>
             ) : (
               <Skeleton className="h-5.5 w-16" />

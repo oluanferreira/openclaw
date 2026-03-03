@@ -417,6 +417,9 @@ importers:
 
   packages/openclaw:
     dependencies:
+      '@better-fetch/fetch':
+        specifier: 1.1.21
+        version: 1.1.21
       '@google-cloud/compute':
         specifier: 6.7.0
         version: 6.7.0

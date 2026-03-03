@@ -1,4 +1,5 @@
 import { getGatewayConfig } from "../../../config/gateway";
+import { mergeLogStreamsToEntries } from "../../logs";
 import {
   escapeShell,
   getGatewayToken,
@@ -100,9 +101,7 @@ CONTAINER_ID=$(docker run -d \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
   -p "127.0.0.1:$PORT:${gateway.port}" \
   -v "$STATE_DIR:/opt/openclaw" \
-  -e NODE_OPTIONS=${escapeShell(
-    `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
-  )} \
+  -e NODE_OPTIONS=${escapeShell("--max-old-space-size=1536")} \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
   "$IMAGE")
@@ -148,7 +147,12 @@ export const strategy = {
   stop: async (id) => executeDocker(["stop", id]),
   restart: async (id) => executeDocker(["restart", id]),
   destroy: async (id) => executeDocker(["rm", "-f", id]),
-  getLogs: async (id) =>
-    execute(`docker logs --timestamps --details ${escapeShell(id)} 2>&1`),
+  getLogs: async (id) => {
+    const result = await execute(
+      `docker logs --timestamps --details ${escapeShell(id)} 2>&1`,
+    );
+
+    return mergeLogStreamsToEntries([result.stdout, result.stderr]);
+  },
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

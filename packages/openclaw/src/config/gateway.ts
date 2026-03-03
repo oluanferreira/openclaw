@@ -5,7 +5,6 @@ import { CommunicatonChannel } from "./communication";
 import type { Model } from "./ai";
 import type { OpenclawConfig } from "./schema";
 
-const TRUSTED_PROXIES = ["127.0.0.1", "::1", "172.17.0.1"];
 const GATEWAY_PORT = 18789;
 
 const toAgentModelId = (model: Model) => {
@@ -32,7 +31,6 @@ export const getGatewayConfig = ({
     mode: "local",
     bind: "lan",
     port: GATEWAY_PORT,
-    trustedProxies: TRUSTED_PROXIES,
     controlUi: {
       enabled: true,
       allowedOrigins: [origin],
@@ -59,6 +57,7 @@ export const getGatewayConfig = ({
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       enabled: config.communication.channel === CommunicatonChannel.TELEGRAM,
       botToken: config.communication.token,
+      groupPolicy: "disabled",
     },
   },
 });

@@ -17,6 +17,7 @@
   },
   "prettier": "@workspace/prettier-config",
   "dependencies": {
+    "@better-fetch/fetch": "1.1.21",
     "@google-cloud/compute": "6.7.0",
     "@google-cloud/os-login": "6.2.1",
     "@workspace/db": "workspace:*",

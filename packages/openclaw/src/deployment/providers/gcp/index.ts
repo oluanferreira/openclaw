@@ -1,4 +1,5 @@
 import { getGatewayConfig } from "../../../config/gateway";
+import { mergeLogStreamsToEntries } from "../../logs";
 import { escapeShell, getGatewayToken, getInstanceId } from "../../utils";
 
 import { env as gcpEnv } from "./env";
@@ -33,6 +34,7 @@ chmod 644 "$OPENCLAW_STATE_DIR/openclaw.json"
 
 pkill -f "openclaw gateway" 2>/dev/null || true
 export OPENCLAW_STATE_DIR
+export NODE_OPTIONS="--max-old-space-size=1536"
 nohup openclaw gateway &
 `;
 };
@@ -115,6 +117,9 @@ export const strategy = {
       instance: id,
     });
   },
-  getLogs: async (id) => executeOnInstance(id, ["logs", "--limit", "500"]),
+  getLogs: async (id) => {
+    const result = await executeOnInstance(id, ["logs", "--limit", "500"]);
+    return mergeLogStreamsToEntries([result.stdout, result.stderr]);
+  },
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;
