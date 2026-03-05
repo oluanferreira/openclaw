@@ -1,34 +1,20 @@
 {
-  "name": "@workspace/auth",
+  "name": "@workspace/billing",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./env": "./src/env.ts",
-    "./server": "./src/server.ts",
-    "./client/*": "./src/client/*.ts"
+    "./server": "./src/server.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "db:generate": "cross-env SKIP_ENV_VALIDATION=1 pnpm dlx auth generate --config src/server.ts --output ../db/src/schema/auth.ts --y",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
   "prettier": "@workspace/prettier-config",
-  "dependencies": {
-    "@better-auth/drizzle-adapter": "1.5.3",
-    "@better-auth/expo": "1.5.3",
-    "@better-auth/passkey": "1.5.3",
-    "@workspace/billing": "workspace:*",
-    "@workspace/db": "workspace:*",
-    "@workspace/i18n": "workspace:*",
-    "@workspace/shared": "workspace:*",
-    "better-auth": "1.5.3",
-    "envin": "catalog:",
-    "zod": "catalog:"
-  },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
     "@workspace/prettier-config": "workspace:*",
@@ -36,5 +22,12 @@
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@better-auth/stripe": "^1.5.3",
+    "@workspace/openclaw": "workspace:*",
+    "@workspace/shared": "workspace:*",
+    "envin": "catalog:",
+    "stripe": "^20.4.0"
   }
 }

@@ -63,8 +63,12 @@ Then redeploy instances.
 
 - Status: `GET /api/openclaw/status`
 - Logs: `GET /api/openclaw/logs`
-- Pairing requests: `GET /api/openclaw/pairing`
+- Pairing devices list: `GET /api/openclaw/pairing/devices`
+- Pairing device approve: `POST /api/openclaw/pairing/devices/:id`
+- Pairing device reject: `DELETE /api/openclaw/pairing/devices/:id`
+- Pairing channels list: `GET /api/openclaw/pairing/channels`
+- Pairing channel approve: `POST /api/openclaw/pairing/channels/:channel`
+- Pairing channel reject: `DELETE /api/openclaw/pairing/channels/:channel`
 - Instance lifecycle: `POST /api/openclaw/manage`
-- CLI commands: `POST /api/openclaw/cli`
 
-CLI endpoint commands are validated by Zod in `@workspace/openclaw/cli`.
+Pairing routes invoke internal CLI actions in `@workspace/openclaw`.

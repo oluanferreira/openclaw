@@ -1,11 +1,12 @@
 # TurboClaw Docs
 
 1. [Environment Reference](./environment.md)
-2. [VPS Setup and Deployment](./vps-setup.md)
-3. [Google Cloud Deployment](./google-cloud.md)
-4. [Local Development Setup](./local-development.md)
-5. [Operations Runbook](./operations.md)
-6. [Architecture Overview](./architecture.md)
+2. [Billing Configuration (Stripe)](./billing.md)
+3. [VPS Setup and Deployment](./vps-setup.md)
+4. [Google Cloud Deployment](./google-cloud.md)
+5. [Local Development Setup](./local-development.md)
+6. [Operations Runbook](./operations.md)
+7. [Architecture Overview](./architecture.md)
 
 ## What's inside?
 

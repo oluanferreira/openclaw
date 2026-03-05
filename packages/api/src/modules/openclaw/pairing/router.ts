@@ -7,10 +7,18 @@ import {
   cli,
 } from "@workspace/openclaw/server";
 
-import { enforceAuth, enforceInstance, validate } from "../../../middleware";
+import {
+  enforceAuth,
+  enforceActiveSubscription,
+  enforceInstance,
+  validate,
+} from "../../../middleware";
 
-const pairingDevicesRouter = new Hono()
-  .use(enforceInstance)
+const pairingDevicesRouter = new Hono<{
+  Variables: {
+    instanceId: string;
+  };
+}>()
   .get("/", async (c) => c.json(await getDevicePairingList(c.var.instanceId)))
   .post("/:id", async (c) =>
     c.json(
@@ -23,8 +31,11 @@ const pairingDevicesRouter = new Hono()
     ),
   );
 
-const pairingChannelsRouter = new Hono()
-  .use(enforceInstance)
+const pairingChannelsRouter = new Hono<{
+  Variables: {
+    instanceId: string;
+  };
+}>()
   .get("/", async (c) => c.json(await getChannelPairingList(c.var.instanceId)))
   .post(
     "/:channel",
@@ -65,5 +76,7 @@ const pairingChannelsRouter = new Hono()
 
 export const pairingRouter = new Hono()
   .use(enforceAuth)
+  .use(enforceInstance)
+  .use(enforceActiveSubscription)
   .route("/devices", pairingDevicesRouter)
   .route("/channels", pairingChannelsRouter);

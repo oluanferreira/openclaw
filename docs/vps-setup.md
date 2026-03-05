@@ -83,7 +83,7 @@ On the app server (where this repo runs), configure both files from [environment
 - `URL`
 - `DEFAULT_LOCALE`
 
-2. `apps/web/.env.local` with all VPS, auth, AI, and `NEXT_PUBLIC_*` variables.
+2. `apps/web/.env.local` with all VPS, auth, billing, AI, and `NEXT_PUBLIC_*` variables.
 
 ## 6) Start the app stack
 

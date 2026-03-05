@@ -7,7 +7,14 @@ import type { InitOptions, Namespace } from "i18next";
 export const config = {
   locales: ["en", "es"],
   defaultLocale: env.NEXT_PUBLIC_DEFAULT_LOCALE,
-  namespaces: ["common", "dashboard", "auth", "marketing", "validation"],
+  namespaces: [
+    "common",
+    "dashboard",
+    "auth",
+    "marketing",
+    "validation",
+    "billing",
+  ],
   cookie: "locale",
 } as const;
 

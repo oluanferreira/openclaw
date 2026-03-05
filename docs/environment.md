@@ -40,7 +40,8 @@ Then configure:
   - `NEXT_PUBLIC_URL="${URL}"`
   - `NEXT_PUBLIC_DEFAULT_LOCALE="${DEFAULT_LOCALE}"`
 - auth variables (`BETTER_AUTH_SECRET`, OAuth client IDs/secrets)
-- deployment provider variables (`FLY_*` or `VPS_*` or `GCP_*`)
+- deployment provider variables (`FLY_*`; `VPS_*`/`GCP_*` only if those providers are enabled)
+- billing variables (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`)
 - AI provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`)
 
 ## Required variables in `apps/web/.env.local`
@@ -53,6 +54,13 @@ Then configure:
   - `GOOGLE_CLIENT_SECRET`
   - `GITHUB_CLIENT_ID`
   - `GITHUB_CLIENT_SECRET`
+
+### Billing (Stripe)
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+See [billing.md](./billing.md) for full Stripe product/price and webhook setup.
 
 ### Fly deploy
 
@@ -100,4 +108,6 @@ Then configure:
 - Keep `.env` and `apps/web/.env.local` out of version control.
 - `NEXT_PUBLIC_*` variables are exposed to browser code.
 - Instance URLs are provided by Fly directly as `https://<instance-id>.fly.dev`.
-- Use only one provider config at a time in runtime, based on the active provider export.
+- This repo exports the Fly provider by default. VPS/GCP implementations exist but are not exported unless you enable them in:
+  - `packages/openclaw/src/deployment/providers/index.ts`
+  - `packages/openclaw/src/deployment/providers/env.ts`

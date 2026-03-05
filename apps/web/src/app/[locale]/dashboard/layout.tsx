@@ -1,14 +1,17 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { handle } from "@workspace/api/utils";
+import { ExecutionSide, Platform } from "@workspace/shared/constants";
 import { Icons } from "@workspace/ui-web/icons";
 import { SidebarInset, SidebarProvider } from "@workspace/ui-web/sidebar";
 
 import { pathsConfig } from "~/config/paths";
 import { api } from "~/lib/api/server";
-import { getSession } from "~/lib/auth/server";
+import { getActiveSubscriptions, getSession } from "~/lib/auth/server";
 import { getQueryClient } from "~/lib/query/server";
+import { billing } from "~/modules/billing/lib/api";
 import { DashboardActionBar } from "~/modules/common/layout/dashboard/action-bar";
 import { DashboardInset } from "~/modules/common/layout/dashboard/inset";
 import { DashboardSidebar } from "~/modules/common/layout/dashboard/sidebar/index";
@@ -96,10 +99,23 @@ export default async function DashboardLayout({
   }
 
   const queryClient = getQueryClient();
-  await queryClient.prefetchQuery({
-    ...instance.queries.get,
-    queryFn: handle(api.openclaw.$get),
-  });
+
+  const requestHeaders = new Headers(await headers());
+  requestHeaders.set(
+    "x-client-platform",
+    `${Platform.WEB}-${ExecutionSide.SERVER}`,
+  );
+
+  await Promise.all([
+    queryClient.prefetchQuery({
+      ...instance.queries.get,
+      queryFn: handle(api.openclaw.$get),
+    }),
+    queryClient.prefetchQuery({
+      ...billing.queries.active,
+      queryFn: getActiveSubscriptions,
+    }),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

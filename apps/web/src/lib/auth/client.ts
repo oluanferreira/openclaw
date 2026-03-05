@@ -1,4 +1,5 @@
 import { createAuthClient } from "@workspace/auth/client/web";
+import { plugin as billing } from "@workspace/billing";
 import { ExecutionSide, Platform } from "@workspace/shared/constants";
 
 export const authClient = createAuthClient({
@@ -8,5 +9,5 @@ export const authClient = createAuthClient({
     },
     throw: true,
   },
-  plugins: [],
+  plugins: [billing()],
 });

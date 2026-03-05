@@ -20,9 +20,8 @@ packages/
 2. `apps/web` calls `packages/api` (`/api/openclaw`).
 3. `packages/api` calls `@workspace/openclaw` deployment strategy.
 4. Active provider strategy executes deployment:
-   - Fly provider: app + volume + machine via Machines API
-   - VPS provider: SSH + Docker + Caddy route provisioning
-   - GCP provider: Compute Engine instance from template + startup script
+   - Current default export: Fly provider (app + volume + machine via Machines API)
+   - Optional implementations in repo: VPS (SSH + Docker + Caddy) and GCP (Compute Engine instance template + startup script)
 5. Instance metadata is stored in DB table `instance`.
 
 ## Instance identity
@@ -45,14 +44,14 @@ packages/
   - Fly: `POST /apps/{app_name}/machines/{machine_id}/exec`
   - VPS/GCP: remote command execution on the target runtime
 
-## Services in production
+## Runtime dependencies
 
 - `Postgres`: app data and instance metadata
 - `API (Hono)`: deployment and management control plane
 - `Web (Next.js)`: customer dashboard
-- `Fly.io`: machine + persistent volume per user instance
-- `VPS`: Docker + Caddy routing per user instance
-- `GCP`: VM-per-user based on instance templates
+- Provider-specific runtime:
+  - default: `Fly.io` machine + persistent volume per user instance
+  - optional (if enabled): VPS Docker + Caddy routing, or GCP VM-per-user from instance templates
 
 ## Current security posture
 

@@ -4,7 +4,7 @@ This runbook describes the production GCP flow implemented in `@workspace/opencl
 
 - One VM per user
 - VM created from a prebuilt instance template
-- Startup script only writes per-user OpenClaw config and starts the gateway via systemd
+- Startup script only writes per-user OpenClaw config and starts the gateway in background via `nohup`
 - OpenClaw runs natively (no Docker); no package install/bootstrap at runtime
 
 ## 1) Prerequisites
@@ -114,7 +114,7 @@ GCP_INSTANCE_DOMAIN_SUFFIX="openclaw.your-domain.com"
 
 Important:
 
-- If using wildcard DNS for URLs, also set `GCP_INSTANCE_DOMAIN_SUFFIX` and `GCP_URL_SCHEME`.
+- If using wildcard DNS for URLs, also set `GCP_INSTANCE_DOMAIN_SUFFIX`.
 
 ### CLI execution (pairing approve, devices list, etc.)
 

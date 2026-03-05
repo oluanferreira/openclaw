@@ -1,0 +1,83 @@
+{
+  "title": "Subscription",
+  "description": "Manage your plan, billing status, and renewal settings.",
+  "overview": {
+    "title": "Current subscription",
+    "description": "Your active plan and billing cycle details.",
+    "empty": {
+      "title": "No active subscription",
+      "description": "Start a subscription to deploy and keep your instance running."
+    },
+    "field": {
+      "plan": "Plan",
+      "status": "Status",
+      "periodEnd": "Current period ends",
+      "trialEnd": "Trial ends",
+      "cancelAt": "Cancellation date"
+    },
+    "status": {
+      "active": "Active",
+      "trialing": "Trialing",
+      "canceled": "Canceled",
+      "incomplete": "Incomplete",
+      "incomplete_expired": "Incomplete expired",
+      "past_due": "Past due",
+      "paused": "Paused",
+      "unpaid": "Unpaid"
+    },
+    "value": {
+      "unknown": "Unknown"
+    },
+    "note": {
+      "cancelAtPeriodEnd": "Your subscription is scheduled to cancel at the end of the current period."
+    }
+  },
+  "action": {
+    "subscribe": "Start subscription",
+    "portal": "Open billing portal",
+    "restore": "Undo cancellation",
+    "refresh": "Refresh"
+  },
+  "error": {
+    "stripe": {
+      "unauthorized": "You are not authorized to perform this billing action.",
+      "invalidRequestBody": "Invalid billing request payload.",
+      "signatureNotFound": "Stripe signature header is missing.",
+      "webhookSecretNotFound": "Stripe webhook secret is not configured.",
+      "webhookError": "Stripe webhook processing failed.",
+      "failedToConstructEvent": "Failed to construct Stripe event.",
+      "failedToFetchPlans": "Failed to fetch billing plans."
+    },
+    "subscription": {
+      "required": "You need an active subscription to deploy an instance.",
+      "notFound": "Subscription not found.",
+      "planNotFound": "Subscription plan not found.",
+      "alreadySubscribed": "You are already subscribed to this plan.",
+      "notActive": "Subscription is not active.",
+      "notScheduledForCancellation": "Subscription is not scheduled for cancellation.",
+      "notPendingChange": "Subscription has no pending change."
+    },
+    "checkout": {
+      "referenceIdNotAllowed": "Reference ID is not allowed for this checkout."
+    },
+    "customer": {
+      "notFound": "Customer not found.",
+      "unableToCreate": "Unable to create customer."
+    },
+    "portal": {
+      "unableToCreate": "Unable to create billing portal session."
+    },
+    "email": {
+      "verificationRequired": "Email verification is required before starting a subscription."
+    },
+    "organization": {
+      "notFound": "Organization not found.",
+      "subscriptionNotEnabled": "Organization subscriptions are not enabled.",
+      "hasActiveSubscription": "Organization already has an active subscription.",
+      "referenceIdRequired": "Organization reference ID is required."
+    },
+    "authorization": {
+      "referenceRequired": "Reference is required to authorize this billing action."
+    }
+  }
+}

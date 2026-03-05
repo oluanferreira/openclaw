@@ -23,3 +23,9 @@ export const getSession = cache(async () => {
     user: data?.user ?? null,
   };
 });
+
+export const getActiveSubscriptions = cache(async () => {
+  return auth.api.listActiveSubscriptions({
+    headers: await getHeaders(),
+  });
+});

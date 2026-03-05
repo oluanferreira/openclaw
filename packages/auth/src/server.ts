@@ -1,6 +1,7 @@
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
 
+import { plugin as billing } from "@workspace/billing/server";
 import * as schema from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import { NodeEnv } from "@workspace/shared/constants";
@@ -50,6 +51,7 @@ export const auth = betterAuth({
   logger: {
     log: (level, ...args) => logger[level](...args),
   },
+  plugins: [billing()],
 });
 
 export type AuthErrorCode = keyof typeof auth.$ERROR_CODES;

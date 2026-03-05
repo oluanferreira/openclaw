@@ -21,6 +21,7 @@ import {
   validate,
   enforceInstance,
   enforceNoInstance,
+  enforceActiveSubscription,
 } from "../../middleware";
 
 import { pairingRouter } from "./pairing/router";
@@ -30,6 +31,7 @@ export const openclawRouter = new Hono()
   .post(
     "/",
     enforceNoInstance,
+    enforceActiveSubscription,
     validate("json", deployInstanceSchema),
     async (c) => {
       const userId = c.var.user.id;
@@ -60,10 +62,10 @@ export const openclawRouter = new Hono()
       url,
     });
   })
-  .get("/status", enforceInstance, async (c) =>
+  .get("/status", enforceInstance, enforceActiveSubscription, async (c) =>
     c.json(await getStatus(c.var.instanceId)),
   )
-  .get("/logs", enforceInstance, async (c) =>
+  .get("/logs", enforceInstance, enforceActiveSubscription, async (c) =>
     c.json(await getLogs(c.var.instanceId)),
   )
   .post(
@@ -84,11 +86,3 @@ export const openclawRouter = new Hono()
     },
   )
   .route("/pairing", pairingRouter);
-// .post("/cli", enforceInstance, validate("json", commandSchema), async (c) => {
-//   const instanceId = c.var.instanceId;
-//   const payload = c.req.valid("json");
-
-//   const command = getCommandToRun(payload);
-
-//   return c.json(await cli(instanceId, command));
-// });

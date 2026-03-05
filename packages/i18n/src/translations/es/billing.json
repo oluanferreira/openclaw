@@ -1,0 +1,83 @@
+{
+  "title": "Suscripción",
+  "description": "Gestiona tu plan, estado de facturación y renovación.",
+  "overview": {
+    "title": "Suscripción actual",
+    "description": "Tu plan activo y detalles del ciclo de facturación.",
+    "empty": {
+      "title": "No tienes una suscripción activa",
+      "description": "Inicia una suscripción para desplegar y mantener tu instancia en funcionamiento."
+    },
+    "field": {
+      "plan": "Plan",
+      "status": "Estado",
+      "periodEnd": "Fin del periodo actual",
+      "trialEnd": "Fin de prueba",
+      "cancelAt": "Fecha de cancelación"
+    },
+    "status": {
+      "active": "Activa",
+      "trialing": "En prueba",
+      "canceled": "Cancelada",
+      "incomplete": "Incompleta",
+      "incomplete_expired": "Incompleta expirada",
+      "past_due": "Pago vencido",
+      "paused": "Pausada",
+      "unpaid": "Impaga"
+    },
+    "value": {
+      "unknown": "Desconocido"
+    },
+    "note": {
+      "cancelAtPeriodEnd": "Tu suscripción está programada para cancelarse al final del periodo actual."
+    }
+  },
+  "action": {
+    "subscribe": "Iniciar suscripción",
+    "portal": "Abrir portal de facturación",
+    "restore": "Deshacer cancelación",
+    "refresh": "Actualizar"
+  },
+  "error": {
+    "stripe": {
+      "unauthorized": "No estás autorizado para realizar esta acción de facturación.",
+      "invalidRequestBody": "El cuerpo de la solicitud de facturación es inválido.",
+      "signatureNotFound": "Falta la cabecera de firma de Stripe.",
+      "webhookSecretNotFound": "La clave secreta del webhook de Stripe no está configurada.",
+      "webhookError": "Falló el procesamiento del webhook de Stripe.",
+      "failedToConstructEvent": "No se pudo construir el evento de Stripe.",
+      "failedToFetchPlans": "No se pudieron obtener los planes de facturación."
+    },
+    "subscription": {
+      "required": "Necesitas una suscripción activa para desplegar una instancia.",
+      "notFound": "No se encontró la suscripción.",
+      "planNotFound": "No se encontró el plan de suscripción.",
+      "alreadySubscribed": "Ya estás suscrito a este plan.",
+      "notActive": "La suscripción no está activa.",
+      "notScheduledForCancellation": "La suscripción no está programada para cancelación.",
+      "notPendingChange": "La suscripción no tiene cambios pendientes."
+    },
+    "checkout": {
+      "referenceIdNotAllowed": "El ID de referencia no está permitido para este checkout."
+    },
+    "customer": {
+      "notFound": "No se encontró el cliente.",
+      "unableToCreate": "No se pudo crear el cliente."
+    },
+    "portal": {
+      "unableToCreate": "No se pudo crear la sesión del portal de facturación."
+    },
+    "email": {
+      "verificationRequired": "La verificación de correo es obligatoria antes de iniciar una suscripción."
+    },
+    "organization": {
+      "notFound": "No se encontró la organización.",
+      "subscriptionNotEnabled": "Las suscripciones para organizaciones no están habilitadas.",
+      "hasActiveSubscription": "La organización ya tiene una suscripción activa.",
+      "referenceIdRequired": "El ID de referencia de la organización es obligatorio."
+    },
+    "authorization": {
+      "referenceRequired": "Se requiere una referencia para autorizar esta acción de facturación."
+    }
+  }
+}

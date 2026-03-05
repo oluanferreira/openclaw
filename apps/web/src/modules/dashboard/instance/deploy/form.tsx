@@ -1,6 +1,8 @@
 "use client";
 
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 import {
   Controller,
   FormProvider,
@@ -21,6 +23,8 @@ import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
 import { Spinner } from "@workspace/ui-web/spinner";
 
+import { pathsConfig } from "~/config/paths";
+import { billing as billingApi } from "~/modules/billing/lib/api";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
 import { ModelIcon } from "../icons";
@@ -50,7 +54,25 @@ export const DeployInstanceForm = ({
     },
   });
 
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const checkout = useMutation(billingApi.mutations.checkout);
   const { deploy } = useInstance();
+
+  const handleDeploy = async (data: DeployInstanceSchemaInput) => {
+    const activeSubscriptions = await queryClient.fetchQuery(
+      billingApi.queries.active,
+    );
+
+    if (!activeSubscriptions.length) {
+      return checkout.mutateAsync({
+        successUrl: pathsConfig.dashboard.index,
+        cancelUrl: pathname,
+      });
+    }
+
+    await deploy.mutateAsync(data);
+  };
 
   return (
     <FormProvider {...form}>
@@ -59,7 +81,7 @@ export const DeployInstanceForm = ({
           "flex min-h-[200px] w-full min-w-[280px] flex-col gap-6 overflow-hidden rounded-2xl border p-4 sm:gap-8 sm:p-6 md:gap-10 md:p-8",
           className,
         )}
-        onSubmit={form.handleSubmit((data) => deploy.mutateAsync(data))}
+        onSubmit={form.handleSubmit(handleDeploy)}
         {...props}
       >
         <Controller

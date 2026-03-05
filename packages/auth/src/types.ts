@@ -61,6 +61,35 @@ const ERROR_MESSAGES = {
     "auth:error.methodNotAllowedDeferSessionRequired",
   BODY_MUST_BE_AN_OBJECT: "auth:error.bodyMustBeAnObject",
   PASSWORD_ALREADY_SET: "auth:error.credentials.password.alreadySet",
+  UNAUTHORIZED: "billing:error.stripe.unauthorized",
+  INVALID_REQUEST_BODY: "billing:error.stripe.invalidRequestBody",
+  SUBSCRIPTION_NOT_FOUND: "billing:error.subscription.notFound",
+  SUBSCRIPTION_PLAN_NOT_FOUND: "billing:error.subscription.planNotFound",
+  ALREADY_SUBSCRIBED_PLAN: "billing:error.subscription.alreadySubscribed",
+  REFERENCE_ID_NOT_ALLOWED: "billing:error.checkout.referenceIdNotAllowed",
+  CUSTOMER_NOT_FOUND: "billing:error.customer.notFound",
+  UNABLE_TO_CREATE_CUSTOMER: "billing:error.customer.unableToCreate",
+  UNABLE_TO_CREATE_BILLING_PORTAL: "billing:error.portal.unableToCreate",
+  STRIPE_SIGNATURE_NOT_FOUND: "billing:error.stripe.signatureNotFound",
+  STRIPE_WEBHOOK_SECRET_NOT_FOUND: "billing:error.stripe.webhookSecretNotFound",
+  STRIPE_WEBHOOK_ERROR: "billing:error.stripe.webhookError",
+  FAILED_TO_CONSTRUCT_STRIPE_EVENT:
+    "billing:error.stripe.failedToConstructEvent",
+  FAILED_TO_FETCH_PLANS: "billing:error.stripe.failedToFetchPlans",
+  EMAIL_VERIFICATION_REQUIRED: "billing:error.email.verificationRequired",
+  SUBSCRIPTION_NOT_ACTIVE: "billing:error.subscription.notActive",
+  SUBSCRIPTION_NOT_SCHEDULED_FOR_CANCELLATION:
+    "billing:error.subscription.notScheduledForCancellation",
+  SUBSCRIPTION_NOT_PENDING_CHANGE:
+    "billing:error.subscription.notPendingChange",
+  ORGANIZATION_NOT_FOUND: "billing:error.organization.notFound",
+  ORGANIZATION_SUBSCRIPTION_NOT_ENABLED:
+    "billing:error.organization.subscriptionNotEnabled",
+  AUTHORIZE_REFERENCE_REQUIRED: "billing:error.authorization.referenceRequired",
+  ORGANIZATION_HAS_ACTIVE_SUBSCRIPTION:
+    "billing:error.organization.hasActiveSubscription",
+  ORGANIZATION_REFERENCE_ID_REQUIRED:
+    "billing:error.organization.referenceIdRequired",
 } as const satisfies Record<AuthErrorCode, TranslationKey>;
 
 export type { AuthErrorCode };

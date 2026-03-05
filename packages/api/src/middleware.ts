@@ -72,6 +72,24 @@ export const enforceNoInstance = createMiddleware<{
   await next();
 });
 
+export const enforceActiveSubscription = createMiddleware<{
+  Variables: {
+    user: User;
+  };
+}>(async (c, next) => {
+  const subscriptions = await auth.api.listActiveSubscriptions({
+    headers: c.req.raw.headers,
+  });
+
+  if (!subscriptions.length) {
+    throw new HttpException(HttpStatusCode.PAYMENT_REQUIRED, {
+      code: "billing:error.subscription.required",
+    });
+  }
+
+  await next();
+});
+
 /**
  * Middleware for adding an articifial delay in development.
  *
