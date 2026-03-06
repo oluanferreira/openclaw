@@ -33,7 +33,7 @@ const toBootstrapGatewayConfigPath = () => "/tmp/openclaw.json";
 
 const getInitExecScript = (gatewayPort: number) => `set -eu
 cp ${escapeShell(toBootstrapGatewayConfigPath())} ${escapeShell(toGatewayConfigPath())}
-exec node dist/index.js gateway --port ${gatewayPort} --bind lan`;
+exec node /app/dist/index.js gateway --port ${gatewayPort} --bind lan`;
 
 const getUrl = (id: string, token?: string) =>
   `https://${id}.fly.dev${token ? `/#token=${encodeURIComponent(token)}` : ""}`;
@@ -232,9 +232,9 @@ export const strategy = {
   destroy: async (id) => {
     await deleteApp(id, true);
   },
-  getLogs: async (id) => {
+  getLogs: async (id, params) => {
     const machine = await getMachineOrThrow(id);
-    return getMachineLogs(id, machine.id);
+    return getMachineLogs(id, machine.id, params);
   },
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

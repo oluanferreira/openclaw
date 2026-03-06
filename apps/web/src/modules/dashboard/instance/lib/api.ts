@@ -1,4 +1,8 @@
-import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  mutationOptions,
+  queryOptions,
+} from "@tanstack/react-query";
 import * as z from "zod";
 
 import { handle } from "@workspace/api/utils";
@@ -21,12 +25,20 @@ const queries = {
   status: queryOptions({
     queryKey: [KEY, "status"],
     queryFn: () => handle(api.openclaw.status.$get)(),
-    refetchInterval: 1000,
+    refetchInterval: 2000,
   }),
-  logs: queryOptions({
+  logs: infiniteQueryOptions({
     queryKey: [KEY, "logs"],
-    queryFn: () => handle(api.openclaw.logs.$get)(),
-    refetchInterval: 1000,
+    queryFn: async ({ pageParam }) =>
+      handle(api.openclaw.logs.$get)({
+        query: {
+          cursor: pageParam,
+          limit: "50",
+        },
+      }),
+    initialPageParam: undefined as string | undefined,
+    refetchInterval: 2000,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   }),
   pairing: {
     devices: queryOptions({

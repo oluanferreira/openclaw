@@ -52,7 +52,11 @@
         "success": "Instancia reiniciada correctamente."
       },
       "destroy": {
-        "success": "Instancia eliminada correctamente."
+        "success": "Instancia eliminada correctamente.",
+        "confirm": {
+          "title": "¿Estás seguro?",
+          "description": "Esta acción eliminará tu instancia y todos sus datos. Es <b>irreversible</b>.\n\nTambién, esta <b>no</b> cancelará tu suscripción - para hacerlo necesitas cancelarla desde tu portal de facturación.\n\n¿Quieres continuar?"
+        }
       }
     },
     "status": {

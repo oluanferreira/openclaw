@@ -5,7 +5,7 @@ import { parseTextLogLine, stripAnsi } from "../../logs";
 
 import { env } from "./env";
 
-import type { LogEntry, Logs } from "../../schema";
+import type { LogEntry, LogsPageParams } from "../../schema";
 
 const API_BASE_URL = "https://api.machines.dev/v1";
 const LOGS_API_BASE_URL = "https://api.fly.io/api/v1";
@@ -320,7 +320,7 @@ const logEnvelopeSchema = z.looseObject({
   attributes: logPayloadSchema,
 });
 
-const logRecordSchema = z.union([logPayloadSchema, logEnvelopeSchema]);
+const logRecordSchema = z.union([logEnvelopeSchema, logPayloadSchema]);
 
 const logsJsonResponseSchema = z.union([
   z.array(logRecordSchema),
@@ -332,13 +332,22 @@ const logsJsonResponseSchema = z.union([
 type LogPayload = z.infer<typeof logPayloadSchema>;
 type LogRecord = z.infer<typeof logRecordSchema>;
 
+const MESSAGE_TIMESTAMP_PREFIX =
+  /^(?:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?|\d{4}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+/;
+
 const toPayload = (record: LogRecord): LogPayload =>
   "attributes" in record ? record.attributes : record;
 
 const toLogMessage = (record: LogPayload) => {
-  return stripAnsi(
+  const message = stripAnsi(
     record.message ?? record.msg ?? record.text ?? record.event?.message ?? "",
   );
+
+  if (!record.timestamp) {
+    return message;
+  }
+
+  return message.replace(MESSAGE_TIMESTAMP_PREFIX, "");
 };
 
 const toLogEntry = (record: LogPayload): LogEntry | null => {
@@ -364,8 +373,7 @@ const parseJsonLogsOutput = (raw: string): LogEntry[] | null => {
 
     return records
       .map((record) => toLogEntry(toPayload(record)))
-      .filter((entry): entry is LogEntry => entry !== null)
-      .slice(-500);
+      .filter((entry): entry is LogEntry => entry !== null);
   } catch {
     return null;
   }
@@ -392,20 +400,31 @@ const parseNdjsonLogsOutput = (raw: string): LogEntry[] =>
       } catch {
         return parseTextLogLine(line);
       }
-    })
-    .slice(-500);
+    });
 
 const parseLogsOutput = (raw: string): LogEntry[] =>
   parseJsonLogsOutput(raw) ?? parseNdjsonLogsOutput(raw);
 
+const toStartTime = (cursor: string, hoursBack = 24): string => {
+  const d = new Date(cursor);
+  d.setHours(d.getHours() - hoursBack);
+  return d.toISOString();
+};
+
 export const getMachineLogs = async (
   appName: string,
   machineId: string,
-): Promise<Logs> => {
+  params?: LogsPageParams,
+) => {
+  const limit = params?.limit ?? 50;
   const query = new URLSearchParams({
     instance: machineId,
     no_tail: "true",
   });
+
+  if (params?.cursor) {
+    query.set("start_time", toStartTime(params.cursor));
+  }
 
   const response = await fetch(
     `${LOGS_API_BASE_URL}/apps/${encodeURIComponent(appName)}/logs?${query.toString()}`,
@@ -424,6 +443,21 @@ export const getMachineLogs = async (
   }
 
   const raw = await response.text();
+  let entries = parseLogsOutput(raw);
 
-  return parseLogsOutput(raw);
+  if (params?.cursor) {
+    const cursor = params.cursor;
+    entries = entries
+      .filter((e): e is LogEntry & { timestamp: string } =>
+        Boolean(e.timestamp && e.timestamp < cursor),
+      )
+      .slice(-limit);
+  } else {
+    entries = entries.slice(-limit);
+  }
+
+  const nextCursor =
+    entries.length > 0 && entries[0]?.timestamp ? entries[0].timestamp : null;
+
+  return { entries, nextCursor };
 };

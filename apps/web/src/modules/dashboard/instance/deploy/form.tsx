@@ -3,12 +3,16 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
+import { parseAsBoolean, useQueryState } from "nuqs";
+import { useCallback, useEffect, useRef } from "react";
 import {
   Controller,
   FormProvider,
   useForm,
   useFormContext,
 } from "react-hook-form";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 import { Trans, useTranslation } from "@workspace/i18n";
 import { deployInstanceSchema } from "@workspace/openclaw";
@@ -34,11 +38,35 @@ import { TelegramConfiguration } from "./communication/telegram";
 
 import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
 
+const useDeploymentOptionsStore = create(
+  persist<{
+    options: DeployInstanceSchemaInput;
+    setOptions: (options: DeployInstanceSchemaInput) => void;
+  }>(
+    (set) => ({
+      options: {
+        model: MODELS[0].id,
+        communication: {
+          channel: CommunicatonChannel.TELEGRAM,
+          token: "",
+        },
+      },
+      setOptions: (options) => set({ options }),
+    }),
+    {
+      name: "deployment-options",
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+);
+
 const ChannelConfiguration = {
   [CommunicatonChannel.TELEGRAM]: TelegramConfiguration,
   [CommunicatonChannel.DISCORD]: null,
   [CommunicatonChannel.WHATSAPP]: null,
 } as const;
+
+const AUTO_DEPLOY_PARAM = "autodeploy";
 
 export const DeployInstanceForm = ({
   className,
@@ -46,33 +74,68 @@ export const DeployInstanceForm = ({
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) => {
   const { t } = useTranslation("dashboard");
+
+  const { options, setOptions } = useDeploymentOptionsStore();
   const form = useForm({
     resolver: standardSchemaResolver(deployInstanceSchema),
-    defaultValues: {
-      model: MODELS[0].id,
-      communication: {},
-    },
+    defaultValues: options,
   });
 
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const [shouldAutoDeploy, setShouldAutoDeploy] = useQueryState(
+    AUTO_DEPLOY_PARAM,
+    parseAsBoolean.withDefault(false),
+  );
+  const hasAutoSubmittedRef = useRef(false);
   const checkout = useMutation(billingApi.mutations.checkout);
   const { deploy } = useInstance();
 
-  const handleDeploy = async (data: DeployInstanceSchemaInput) => {
-    const activeSubscriptions = await queryClient.fetchQuery(
-      billingApi.queries.active,
-    );
+  const { mutateAsync: checkoutAsync } = checkout;
+  const { mutateAsync: deployAsync } = deploy;
 
-    if (!activeSubscriptions.length) {
-      return checkout.mutateAsync({
-        successUrl: pathsConfig.dashboard.index,
-        cancelUrl: pathname,
-      });
+  const handleDeploy = useCallback(
+    async (data: DeployInstanceSchemaInput) => {
+      const activeSubscriptions = await queryClient.fetchQuery(
+        billingApi.queries.active,
+      );
+
+      if (!activeSubscriptions.length) {
+        const currentPath = pathname || pathsConfig.dashboard.index;
+        return checkoutAsync({
+          successUrl: `${currentPath}?${AUTO_DEPLOY_PARAM}=true`,
+          cancelUrl: currentPath,
+        });
+      }
+
+      await deployAsync(data);
+      form.reset(options);
+    },
+    [checkoutAsync, deployAsync, options, form, pathname, queryClient],
+  );
+
+  useEffect(() => {
+    const callback = form.subscribe({
+      formState: {
+        values: true,
+      },
+      callback: ({ values }) => {
+        setOptions(values);
+      },
+    });
+
+    return () => callback();
+  }, [form, setOptions]);
+
+  useEffect(() => {
+    if (!shouldAutoDeploy || hasAutoSubmittedRef.current) {
+      return;
     }
 
-    await deploy.mutateAsync(data);
-  };
+    hasAutoSubmittedRef.current = true;
+    void setShouldAutoDeploy(null, { history: "replace" });
+    void form.handleSubmit(handleDeploy)();
+  }, [form, handleDeploy, setShouldAutoDeploy, shouldAutoDeploy]);
 
   return (
     <FormProvider {...form}>
@@ -145,29 +208,27 @@ export const DeployInstanceForm = ({
                       type="button"
                       className={cn("relative justify-start px-4 py-3", {
                         "border-primary dark:border-primary shadow-primary":
-                          field.value.channel === channel.id,
+                          field.value.channel === channel.id &&
+                          !!field.value.token,
                       })}
                       disabled={channel.disabled}
                       key={channel.id}
                     >
                       <Icon className="size-5" />
                       <span>{channel.name}</span>
-                      {field.value.channel === channel.id && (
-                        <Icons.Check
-                          className="ml-auto size-5"
-                          strokeWidth={1.5}
-                        />
-                      )}
+                      {field.value.channel === channel.id &&
+                        !!field.value.token && (
+                          <Icons.Check
+                            className="ml-auto size-5"
+                            strokeWidth={1.5}
+                          />
+                        )}
                     </Button>
                   );
 
                   if (Configuration) {
                     return (
-                      <Configuration
-                        defaultValues={field.value}
-                        onSubmit={field.onChange}
-                        key={channel.id}
-                      >
+                      <Configuration control={form.control} key={channel.id}>
                         {trigger}
                       </Configuration>
                     );

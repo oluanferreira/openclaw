@@ -1,6 +1,9 @@
 @import "@workspace/ui/globals.css";
 @import "./animations.css";
 
+@custom-variant data-vertical (&[data-orientation="vertical"]);
+@custom-variant data-horizontal (&[data-orientation="horizontal"]);
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

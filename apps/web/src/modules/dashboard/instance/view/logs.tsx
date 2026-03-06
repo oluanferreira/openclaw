@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useTranslation } from "@workspace/i18n";
 import { Icons } from "@workspace/ui-web/icons";
@@ -26,17 +27,82 @@ const formatTimestamp = (timestamp: string) => {
 
 export const InstanceLogs = () => {
   const { t } = useTranslation(["common", "dashboard"]);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
-  const logs = useQuery(instanceApi.queries.logs);
-  const entries = logs.data ?? [];
+  const {
+    data,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isLoading,
+    isError,
+    isRefetching,
+  } = useInfiniteQuery(instanceApi.queries.logs);
 
-  const status = logs.isLoading
+  const entries =
+    data?.pages
+      .slice()
+      .reverse()
+      .flatMap((p) => p.entries) ?? [];
+
+  const status = isLoading
     ? { label: t("connecting"), icon: Spinner }
-    : logs.isError
-      ? logs.isRefetching
+    : isError
+      ? isRefetching
         ? { label: t("reconnecting"), icon: Spinner }
         : { label: t("disconnected"), icon: Icons.X }
       : { label: t("connected"), icon: Icons.Check };
+
+  const getViewportElement = useCallback(() => {
+    return scrollAreaRef.current?.querySelector<HTMLElement>(
+      '[data-slot="scroll-area-viewport"]',
+    );
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    const viewport = getViewportElement();
+    if (!viewport) {
+      return;
+    }
+
+    viewport.scrollTop = viewport.scrollHeight;
+  }, [getViewportElement]);
+
+  useEffect(() => {
+    const viewport = getViewportElement();
+    if (!viewport) {
+      return;
+    }
+
+    const threshold = 24;
+    const handleScroll = () => {
+      const distanceToBottom =
+        viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      const nextIsAtBottom = distanceToBottom <= threshold;
+      setIsAtBottom((current) =>
+        current === nextIsAtBottom ? current : nextIsAtBottom,
+      );
+
+      if (
+        viewport.scrollTop <= threshold &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        void fetchNextPage();
+      }
+    };
+
+    viewport.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => viewport.removeEventListener("scroll", handleScroll);
+  }, [getViewportElement, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    if (isAtBottom) {
+      scrollToBottom();
+    }
+  }, [entries.length, isAtBottom, scrollToBottom]);
 
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col gap-4">
@@ -49,7 +115,10 @@ export const InstanceLogs = () => {
           <status.icon className="size-3" />
         </div>
       </div>
-      <ScrollArea className="bg-card min-h-0 w-full flex-1 rounded-2xl border p-0">
+      <ScrollArea
+        ref={scrollAreaRef}
+        className="bg-card h-[500px] w-full overflow-hidden rounded-2xl border p-0"
+      >
         <pre className="py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap @md/dashboard:py-4 @lg/dashboard:text-sm">
           {!entries.length ? (
             <div className="text-muted-foreground px-3 py-1 @md/dashboard:px-5">

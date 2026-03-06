@@ -1,9 +1,19 @@
 "use client";
 
-import { useTranslation } from "@workspace/i18n";
+import { Trans, useTranslation } from "@workspace/i18n";
 import { ManageInstanceAction } from "@workspace/openclaw";
 import { Button } from "@workspace/ui-web/button";
 import { Icons } from "@workspace/ui-web/icons";
+import {
+  Modal,
+  ModalTrigger,
+  ModalContent,
+  ModalClose,
+  ModalHeader,
+  ModalFooter,
+  ModalDescription,
+  ModalTitle,
+} from "@workspace/ui-web/modal";
 import { Skeleton } from "@workspace/ui-web/skeleton";
 import { Spinner } from "@workspace/ui-web/spinner";
 
@@ -71,18 +81,53 @@ const Restart = () => {
 };
 
 const Destroy = () => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation(["common", "dashboard"]);
   const { manage } = useInstance();
 
   return (
-    <Button
-      variant="destructive"
-      onClick={() => manage.mutate({ action: ManageInstanceAction.DESTROY })}
-      disabled={manage.isPending}
-    >
-      {manage.isPending ? <Spinner /> : <Icons.Trash />}
-      {t("delete")}
-    </Button>
+    <Modal>
+      <ModalTrigger
+        render={
+          <Button variant="destructive" disabled={manage.isPending}>
+            {manage.isPending ? <Spinner /> : <Icons.Trash />}
+            {t("destroy")}
+          </Button>
+        }
+      />
+      <ModalContent>
+        <ModalHeader>
+          <ModalTitle>{t("instance.manage.destroy.confirm.title")}</ModalTitle>
+          <ModalDescription className="whitespace-pre-line">
+            <Trans
+              i18nKey="instance.manage.destroy.confirm.description"
+              t={t}
+              components={{
+                b: <span className="font-semibold" />,
+              }}
+            />
+          </ModalDescription>
+        </ModalHeader>
+
+        <ModalFooter>
+          <ModalClose
+            render={<Button variant="outline">{t("cancel")}</Button>}
+          />
+          <ModalClose
+            render={
+              <Button
+                variant="destructive"
+                onClick={() =>
+                  manage.mutate({ action: ManageInstanceAction.DESTROY })
+                }
+                disabled={manage.isPending}
+              >
+                {t("destroy")}
+              </Button>
+            }
+          />
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

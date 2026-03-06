@@ -89,7 +89,7 @@ gcloud compute images create openclaw-gateway-2026-02-28 \
 ```bash
 gcloud compute instance-templates create openclaw-gateway-template \
   --project=<PROJECT_ID> \
-  --machine-type=e2-small \
+  --machine-type=e2-custom-2-3072 \
   --network=default \
   --tags=openclaw-gateway \
   --image-family=openclaw-gateway \

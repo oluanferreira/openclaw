@@ -69,7 +69,7 @@ See [billing.md](./billing.md) for full Stripe product/price and webhook setup.
 - `FLY_REGION` (default `iad`)
 - `FLY_OPENCLAW_IMAGE` (default `ghcr.io/openclaw/openclaw:2026.3.2`)
 - `FLY_MACHINE_CPUS` (default `2`)
-- `FLY_MACHINE_MEMORY_MB` (default `2048`)
+- `FLY_MACHINE_MEMORY_MB` (default `3072`)
 - `FLY_VOLUME_SIZE_GB` (default `1`)
 - `FLY_OPENCLAW_STATE_DIR` (default `/data`)
 
@@ -82,7 +82,7 @@ See [billing.md](./billing.md) for full Stripe product/price and webhook setup.
 - `VPS_PRIVATE_KEY_PASSPHRASE` (optional)
 - `VPS_OPENCLAW_STATE_DIR` (default `/var/lib/openclaw`)
 - `VPS_OPENCLAW_IMAGE` (default `ghcr.io/openclaw/openclaw:2026.3.2`)
-- `VPS_CONTAINER_MEMORY` (default `2g`)
+- `VPS_CONTAINER_MEMORY` (default `3g`)
 - `VPS_CONTAINER_CPUS` (default `1.5`)
 - `VPS_INSTANCE_DOMAIN_SUFFIX`
 - `VPS_CADDY_ROUTES_DIR` (default `/etc/caddy/routes`)

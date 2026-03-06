@@ -117,9 +117,32 @@ export const strategy = {
       instance: id,
     });
   },
-  getLogs: async (id) => {
-    const result = await executeOnInstance(id, ["logs", "--limit", "500"]);
-    return mergeLogStreamsToEntries([result.stdout, result.stderr]);
+  getLogs: async (id, params) => {
+    const limit = params?.limit ?? 50;
+    const cursor = params?.cursor;
+
+    const fetchLimit = cursor ? 500 : limit;
+    const result = await executeOnInstance(id, [
+      "logs",
+      "--limit",
+      String(fetchLimit),
+    ]);
+    let entries = mergeLogStreamsToEntries(
+      [result.stdout, result.stderr],
+      fetchLimit,
+    );
+
+    if (cursor) {
+      entries = entries
+        .filter((e): e is typeof e & { timestamp: string } =>
+          Boolean(e.timestamp && e.timestamp < cursor),
+        )
+        .slice(-limit);
+    }
+
+    const nextCursor =
+      entries.length > 0 && entries[0]?.timestamp ? entries[0].timestamp : null;
+    return { entries, nextCursor };
   },
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

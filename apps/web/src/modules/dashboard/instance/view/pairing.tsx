@@ -126,7 +126,7 @@ const DevicePairing = ({
       </div>
 
       <div className="ml-auto flex items-center justify-end gap-4">
-        <span className="text-muted-foreground truncate text-right text-xs">
+        <span className="text-muted-foreground hidden truncate text-right text-xs sm:inline">
           {formatRelativeToNow(request.createdAt)}
         </span>
 
@@ -225,7 +225,7 @@ export const InstancePairing = () => {
           </div>
         ))
       ) : (
-        <div className="flex items-center justify-center rounded-2xl border p-4 py-10">
+        <div className="flex items-center justify-center rounded-2xl border p-4 py-6">
           <span className="text-muted-foreground text-sm">
             {t("instance.pairing.empty")}
           </span>

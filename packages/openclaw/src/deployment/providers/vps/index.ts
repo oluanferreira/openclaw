@@ -147,12 +147,22 @@ export const strategy = {
   stop: async (id) => executeDocker(["stop", id]),
   restart: async (id) => executeDocker(["restart", id]),
   destroy: async (id) => executeDocker(["rm", "-f", id]),
-  getLogs: async (id) => {
+  getLogs: async (id, params) => {
+    const limit = params?.limit ?? 50;
+    const untilArg = params?.cursor
+      ? `--until ${escapeShell(params.cursor)} `
+      : "";
     const result = await execute(
-      `docker logs --timestamps --details ${escapeShell(id)} 2>&1`,
+      `docker logs --timestamps --details ${untilArg}--tail ${limit} ${escapeShell(id)} 2>&1`,
     );
 
-    return mergeLogStreamsToEntries([result.stdout, result.stderr]);
+    const entries = mergeLogStreamsToEntries(
+      [result.stdout, result.stderr],
+      limit,
+    );
+    const nextCursor =
+      entries.length > 0 && entries[0]?.timestamp ? entries[0].timestamp : null;
+    return { entries, nextCursor };
   },
   getUrl,
 } satisfies OpenClawDeploymentProviderStrategy;

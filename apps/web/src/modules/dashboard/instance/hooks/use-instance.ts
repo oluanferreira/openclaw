@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useTranslation } from "@workspace/i18n";
+import { ManageInstanceAction } from "@workspace/openclaw";
 
 import { pathsConfig } from "~/config/paths";
 
@@ -21,11 +22,13 @@ export const useInstance = () => {
 
   const deploy = useMutation({
     ...instanceApi.mutations.deploy,
-    onSuccess: () => {
-      void Promise.all([
-        queryClient.invalidateQueries(instanceApi.queries.status),
-        queryClient.invalidateQueries(instanceApi.queries.logs),
+    onSuccess: async () => {
+      queryClient.removeQueries({
+        queryKey: instanceApi.queries.logs.queryKey,
+      });
+      await Promise.all([
         queryClient.invalidateQueries(instanceApi.queries.get),
+        queryClient.invalidateQueries(instanceApi.queries.status),
       ]);
       toast.success(t("instance.deploy.success"));
       router.refresh();
@@ -35,12 +38,21 @@ export const useInstance = () => {
 
   const manage = useMutation({
     ...instanceApi.mutations.manage,
-    onSuccess: (_, variables) => {
-      void Promise.all([
+    onSuccess: async (_, variables) => {
+      const isDestroy = variables.action === ManageInstanceAction.DESTROY;
+
+      if (isDestroy) {
+        queryClient.removeQueries({
+          queryKey: instanceApi.queries.logs.queryKey,
+        });
+        await queryClient.invalidateQueries(instanceApi.queries.get);
+      }
+
+      await Promise.all([
         queryClient.invalidateQueries(instanceApi.queries.status),
         queryClient.invalidateQueries(instanceApi.queries.logs),
-        queryClient.invalidateQueries(instanceApi.queries.get),
       ]);
+
       toast.success(t(`instance.manage.${variables.action}.success`));
     },
   });

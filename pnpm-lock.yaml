@@ -333,7 +333,7 @@ importers:
     dependencies:
       '@better-auth/stripe':
         specifier: ^1.5.3
-        version: 1.5.3(@better-auth/core@1.5.3(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(better-auth@1.5.3(99bd1fb91b1a372e63aa4af181559ee3))(better-call@1.3.2(zod@4.3.6))(stripe@20.4.0(@types/node@25.2.3))
+        version: 1.5.3(@better-auth/core@1.5.3(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(better-auth@1.5.3(99bd1fb91b1a372e63aa4af181559ee3))(better-call@1.3.2(zod@4.3.6))(stripe@20.5.0-alpha.2(@types/node@25.2.3))
       '@workspace/openclaw':
         specifier: workspace:*
         version: link:../openclaw
@@ -344,8 +344,8 @@ importers:
         specifier: 'catalog:'
         version: 1.1.12(arktype@2.1.29)(typescript@5.9.3)(valibot@1.2.0(typescript@5.9.3))(zod@4.3.6)
       stripe:
-        specifier: ^20.4.0
-        version: 20.4.0(@types/node@25.2.3)
+        specifier: 20.5.0-alpha.2
+        version: 20.5.0-alpha.2(@types/node@25.2.3)
     devDependencies:
       '@workspace/eslint-config':
         specifier: workspace:*
@@ -8015,8 +8015,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  stripe@20.4.0:
-    resolution: {integrity: sha512-F/aN1IQ9vHmlyLNi3DkiIbyzQb6gyBG0uYFd/VrEVQSc9BLtlgknPUx0EvzZdBMRLFuRaPFIFd7Mxwtg7Pbwzw==}
+  stripe@20.5.0-alpha.2:
+    resolution: {integrity: sha512-vgBG+sy9KIjaKr7qoHAjgnIETNFIQH6jbWZW5v/tCXs2C35bZz5QKoD8ZWyS0CurOIcEP3oQQFh+gHCWZw65Kw==}
     engines: {node: '>=16'}
     peerDependencies:
       '@types/node': '>=16'
@@ -9759,13 +9759,13 @@ snapshots:
       nanostores: 1.1.1
       zod: 4.3.6
 
-  '@better-auth/stripe@1.5.3(@better-auth/core@1.5.3(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(better-auth@1.5.3(99bd1fb91b1a372e63aa4af181559ee3))(better-call@1.3.2(zod@4.3.6))(stripe@20.4.0(@types/node@25.2.3))':
+  '@better-auth/stripe@1.5.3(@better-auth/core@1.5.3(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(better-auth@1.5.3(99bd1fb91b1a372e63aa4af181559ee3))(better-call@1.3.2(zod@4.3.6))(stripe@20.5.0-alpha.2(@types/node@25.2.3))':
     dependencies:
       '@better-auth/core': 1.5.3(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1)
       better-auth: 1.5.3(99bd1fb91b1a372e63aa4af181559ee3)
       better-call: 1.3.2(zod@4.3.6)
       defu: 6.1.4
-      stripe: 20.4.0(@types/node@25.2.3)
+      stripe: 20.5.0-alpha.2(@types/node@25.2.3)
       zod: 4.3.6
 
   '@better-auth/telemetry@1.5.3(@better-auth/core@1.5.3(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.1.13))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))':
@@ -17142,7 +17142,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  stripe@20.4.0(@types/node@25.2.3):
+  stripe@20.5.0-alpha.2(@types/node@25.2.3):
     optionalDependencies:
       '@types/node': 25.2.3
 

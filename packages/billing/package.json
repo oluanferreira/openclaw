@@ -28,6 +28,6 @@
     "@workspace/openclaw": "workspace:*",
     "@workspace/shared": "workspace:*",
     "envin": "catalog:",
-    "stripe": "^20.4.0"
+    "stripe": "20.5.0-alpha.2"
   }
 }

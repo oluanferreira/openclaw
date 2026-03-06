@@ -2,6 +2,7 @@ import { Hono } from "hono";
 
 import {
   deployInstanceSchema,
+  logsPageParamsSchema,
   ManageInstanceAction,
   manageInstanceSchema,
 } from "@workspace/openclaw";
@@ -65,8 +66,12 @@ export const openclawRouter = new Hono()
   .get("/status", enforceInstance, enforceActiveSubscription, async (c) =>
     c.json(await getStatus(c.var.instanceId)),
   )
-  .get("/logs", enforceInstance, enforceActiveSubscription, async (c) =>
-    c.json(await getLogs(c.var.instanceId)),
+  .get(
+    "/logs",
+    enforceInstance,
+    enforceActiveSubscription,
+    validate("query", logsPageParamsSchema),
+    async (c) => c.json(await getLogs(c.var.instanceId, c.req.valid("query"))),
   )
   .post(
     "/manage",

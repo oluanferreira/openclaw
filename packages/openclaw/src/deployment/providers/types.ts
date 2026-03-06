@@ -1,4 +1,8 @@
-import type { DeployInstanceSchemaInput, Logs } from "../schema";
+import type {
+  DeployInstanceSchemaInput,
+  LogsPageParams,
+  LogsPageResponse,
+} from "../schema";
 
 export interface OpenClawDeploymentProviderStrategy {
   deploy: (
@@ -13,6 +17,6 @@ export interface OpenClawDeploymentProviderStrategy {
   stop: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
   restart: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
   destroy: (id: string) => Promise<{ stdout?: string; stderr?: string } | void>;
-  getLogs: (id: string) => Promise<Logs>;
+  getLogs: (id: string, params?: LogsPageParams) => Promise<LogsPageResponse>;
   getUrl: (id: string) => string;
 }

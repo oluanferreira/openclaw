@@ -52,7 +52,11 @@
         "success": "Instance restarted successfully."
       },
       "destroy": {
-        "success": "Instance destroyed successfully."
+        "success": "Instance destroyed successfully.",
+        "confirm": {
+          "title": "Are you sure?",
+          "description": "This action will destroy your instance and all its data. It's <b>irreversible</b>.\n\nAlso, this <b>won't</b> cancel your subscription - to do this you need to cancel it from your billing portal.\n\nDo you want to continue?"
+        }
       }
     },
     "status": {

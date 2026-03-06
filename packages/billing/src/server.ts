@@ -34,20 +34,22 @@ export const plugin = () =>
       plans: [
         {
           name: Plan.PRO,
-          priceId: "price_1Sj3ZjJx7izQuNNxcfUgt149",
+          priceId: "price_1T7ttCFQH4McJDTlBFD4HFJk",
           limits: {
             instances: 1,
           },
           freeTrial: {
-            days: 3,
-            onTrialExpired: async (subscription: { referenceId: string }) => {
-              await cleanupInstanceForReferenceId(subscription.referenceId);
-            },
+            days: 1,
           },
         },
       ],
       onSubscriptionDeleted: async ({ subscription }) => {
         await cleanupInstanceForReferenceId(subscription.referenceId);
       },
+      getCheckoutSessionParams: () => ({
+        params: {
+          managed_payments: { enabled: true },
+        },
+      }),
     },
   });

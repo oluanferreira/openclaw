@@ -50,3 +50,17 @@ export type LogEntry = z.infer<typeof logEntrySchema>;
 export const logsSchema = z.array(logEntrySchema);
 
 export type Logs = z.infer<typeof logsSchema>;
+
+export const logsPageParamsSchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
+export type LogsPageParams = z.infer<typeof logsPageParamsSchema>;
+
+export const logsPageResponseSchema = z.object({
+  entries: z.array(logEntrySchema),
+  nextCursor: z.string().nullable(),
+});
+
+export type LogsPageResponse = z.infer<typeof logsPageResponseSchema>;

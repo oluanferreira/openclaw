@@ -1,12 +1,8 @@
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 import { Trans, useTranslation } from "@workspace/i18n";
-import {
-  telegramSchema,
-  CommunicatonChannel,
-} from "@workspace/openclaw/config";
+import { CommunicatonChannel } from "@workspace/openclaw/config";
 import { Button } from "@workspace/ui-web/button";
 import {
   Dialog,
@@ -19,43 +15,22 @@ import { Field, FieldLabel } from "@workspace/ui-web/field";
 import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 
-import type { CommunicationChannelConfig } from "@workspace/openclaw/config";
+import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
+import type { Control } from "react-hook-form";
 
 interface TelegramConfigurationProps {
   children: React.ReactElement;
-  defaultValues?: Extract<
-    CommunicationChannelConfig,
-    { channel: typeof CommunicatonChannel.TELEGRAM }
-  >;
-  onSubmit: (
-    data: Extract<
-      CommunicationChannelConfig,
-      { channel: typeof CommunicatonChannel.TELEGRAM }
-    >,
-  ) => void;
+  control: Control<DeployInstanceSchemaInput>;
 }
 
 export const TelegramConfiguration = ({
   children,
-  defaultValues,
-  onSubmit,
+  control,
 }: TelegramConfigurationProps) => {
   const { t } = useTranslation("dashboard");
   const [open, setOpen] = useState(false);
 
-  const form = useForm({
-    resolver: standardSchemaResolver(telegramSchema),
-    defaultValues: {
-      channel: CommunicatonChannel.TELEGRAM,
-      token: "",
-      ...defaultValues,
-    },
-  });
-
-  const handleTelegramSubmit = form.handleSubmit((data) => {
-    setOpen(false);
-    onSubmit(data);
-  });
+  const form = useFormContext();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -127,17 +102,11 @@ export const TelegramConfiguration = ({
               </li>
             </ol>
           </div>
-          <form
-            onSubmit={(event) => {
-              event.stopPropagation();
-              void handleTelegramSubmit(event);
-            }}
-            className="flex flex-col gap-5 sm:gap-8"
-          >
-            <Controller
-              control={form.control}
-              name="token"
-              render={({ field, fieldState }) => (
+          <Controller
+            control={control}
+            name="communication.token"
+            render={({ field, fieldState }) => (
+              <div className="flex flex-col gap-5 sm:gap-8">
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel
                     htmlFor={field.name}
@@ -149,24 +118,48 @@ export const TelegramConfiguration = ({
                   </FieldLabel>
                   <Input
                     {...field}
+                    onChange={(event) => {
+                      field.onChange(event);
+                      if (event.target.value.length > 0) {
+                        form.setValue(
+                          "communication.channel",
+                          CommunicatonChannel.TELEGRAM,
+                        );
+                      } else {
+                        form.reset({
+                          communication: {
+                            channel: undefined,
+                            token: "",
+                          },
+                        });
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        setOpen(false);
+                      }
+                    }}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
                     autoFocus
                   />
                 </Field>
-              )}
-            />
-            <Button
-              type="submit"
-              variant="foreground"
-              className="w-full"
-              disabled={!form.formState.isValid}
-            >
-              {t("instance.deploy.communication.telegram.form.cta")}
-              <Icons.Check className="size-4 shrink-0" />
-            </Button>
-          </form>
+                <Button
+                  variant="foreground"
+                  className="w-full"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                  disabled={fieldState.invalid}
+                >
+                  {t("instance.deploy.communication.telegram.form.cta")}
+                  <Icons.Check className="size-4 shrink-0" />
+                </Button>
+              </div>
+            )}
+          />
         </section>
 
         <aside className="flex min-h-[200px] w-full shrink-0 justify-center md:min-h-0 md:w-[350px]">
