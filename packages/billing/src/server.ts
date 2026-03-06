@@ -40,6 +40,9 @@ export const plugin = () =>
           },
           freeTrial: {
             days: 1,
+            onTrialExpired: async (subscription: { referenceId: string }) => {
+              await cleanupInstanceForReferenceId(subscription.referenceId);
+            },
           },
         },
       ],
@@ -48,6 +51,7 @@ export const plugin = () =>
       },
       getCheckoutSessionParams: () => ({
         params: {
+          allow_promotion_codes: true,
           managed_payments: { enabled: true },
         },
       }),

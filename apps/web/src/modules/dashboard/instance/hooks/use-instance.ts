@@ -30,9 +30,8 @@ export const useInstance = () => {
         queryClient.invalidateQueries(instanceApi.queries.get),
         queryClient.invalidateQueries(instanceApi.queries.status),
       ]);
-      toast.success(t("instance.deploy.success"));
-      router.refresh();
       router.replace(pathsConfig.dashboard.index);
+      toast.success(t("instance.deploy.success"));
     },
   });
 
