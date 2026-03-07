@@ -159,6 +159,13 @@ export const restartContainer = async (instanceId: string): Promise<void> => {
   await execute(`docker restart ${escapeShell(instanceId)}`);
 };
 
+export const readOpenclawJson = async (instanceId: string): Promise<Record<string, unknown>> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  const configPath = `${stateDir}/openclaw.json`;
+  const { stdout } = await execute(`cat ${escapeShell(configPath)} 2>/dev/null || echo "{}"`, { timeout: 15_000 });
+  return JSON.parse(stdout.trim() || "{}") as Record<string, unknown>;
+};
+
 export const updateOpenclawJson = async (
   instanceId: string,
   updater: (config: Record<string, unknown>) => Record<string, unknown>,

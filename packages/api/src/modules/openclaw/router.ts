@@ -24,6 +24,7 @@ import {
   getSkillsByInstanceId,
   upsertSkill,
   downloadSkillBinary,
+  readOpenclawJson,
   updateOpenclawJson,
   restartContainer,
   gogSetupStep1,
@@ -185,9 +186,18 @@ export const openclawRouter = new Hono()
         googleApiKey: payload.aiKeys?.googleApiKey || null,
       };
       const encryptedKeys = await encryptKeys(rawKeys, env.ENCRYPTION_KEY);
+
+      // Encrypt communication token (Telegram bot token) for DB storage
+      const communicationToken = payload.communication.channel === "telegram"
+        ? (env.ENCRYPTION_KEY
+            ? await encrypt(payload.communication.token, env.ENCRYPTION_KEY)
+            : payload.communication.token)
+        : null;
+
       await createInstance({
         userId,
         communicationChannel: payload.communication.channel,
+        communicationToken,
         vpsId,
         ...encryptedKeys,
         ...deployment,
@@ -205,13 +215,52 @@ export const openclawRouter = new Hono()
       return c.json(null);
     }
 
+    // Best-effort sync: read live config from container and update DB if changed
+    try {
+      const liveConfig = await readOpenclawJson(inst.id) as {
+        agents?: { defaults?: { model?: { primary?: string } } };
+        channels?: { telegram?: { botToken?: string } };
+      };
+      const updates: Record<string, unknown> = {};
+
+      // Sync model
+      const liveModel = liveConfig?.agents?.defaults?.model?.primary;
+      if (liveModel && typeof liveModel === "string") {
+        const modelId = liveModel.includes("/") ? liveModel.split("/").pop() : liveModel;
+        if (modelId && modelId !== inst.model) {
+          updates.model = modelId;
+        }
+      }
+
+      // Sync Telegram bot token
+      const liveBotToken = liveConfig?.channels?.telegram?.botToken;
+      if (liveBotToken && typeof liveBotToken === "string") {
+        const dbToken = inst.communicationToken && env.ENCRYPTION_KEY
+          ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
+          : inst.communicationToken ?? null;
+        if (liveBotToken !== dbToken) {
+          updates.communicationToken = env.ENCRYPTION_KEY
+            ? await encrypt(liveBotToken, env.ENCRYPTION_KEY)
+            : liveBotToken;
+        }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await updateInstance(inst.id, updates);
+        Object.assign(inst, updates);
+      }
+    } catch {
+      // Best-effort: if SSH fails, return DB data as-is
+    }
+
     const url = getUrl(inst.id, inst.token);
 
-    // Exclude raw API keys from the response
+    // Exclude raw API keys and communication token from the response
     const {
       openaiApiKey: _oai,
       anthropicApiKey: _ant,
       googleApiKey: _goo,
+      communicationToken: _ct,
       ...safeInstance
     } = inst;
 

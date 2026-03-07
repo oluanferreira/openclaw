@@ -23,6 +23,7 @@ export const instance = pgTable("instance", {
   openaiApiKey: text(),
   anthropicApiKey: text(),
   googleApiKey: text(),
+  communicationToken: text("communication_token"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

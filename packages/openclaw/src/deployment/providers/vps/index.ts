@@ -332,5 +332,5 @@ export const strategy = {
     return execute(script);
   },
 } satisfies OpenClawDeploymentProviderStrategy;
-export { findToolBinary, downloadSkillBinary, updateOpenclawJson, restartContainer, gogSetupStep1, gogSetupStep2 } from "./sdk";
+export { findToolBinary, downloadSkillBinary, readOpenclawJson, updateOpenclawJson, restartContainer, gogSetupStep1, gogSetupStep2 } from "./sdk";
 export { clawhubExec } from "./clawhub";
