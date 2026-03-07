@@ -1,0 +1,189 @@
+execution:
+  epicId: EPIC-1
+  title: "Scale-Readiness - Primeiros 5 Clientes Pagantes"
+  storyBasePath: docs/stories/epics/epic-1-scale-readiness
+  template: epic-orchestration
+
+  stories:
+    SR-1.1:
+      title: "Integrar Sentry Error Tracking"
+      file: 1.1.story.md
+      executor: dev
+      quality_gate: qa
+      complexity: P
+      priority: critical
+      branch: feat/sr-1.1-sentry-error-tracking
+      key_files:
+        - apps/web/next.config.ts
+        - apps/web/src/app/global-error.tsx
+        - packages/api/src/index.ts
+        - packages/api/src/utils/on-error.ts
+        - apps/web/package.json
+
+    SR-1.2:
+      title: "Testes de Billing Webhooks + Subscription Lifecycle"
+      file: 1.2.story.md
+      executor: dev
+      quality_gate: qa
+      complexity: M
+      priority: critical
+      branch: feat/sr-1.2-billing-tests
+      key_files:
+        - packages/api/src/modules/billing/router.ts
+        - packages/api/package.json
+
+    SR-1.3:
+      title: "Limpar Dead Code + Arquivos Residuais"
+      file: 1.3.story.md
+      executor: dev
+      quality_gate: qa
+      complexity: S
+      priority: high
+      branch: feat/sr-1.3-cleanup-dead-code
+      key_files:
+        - packages/api/src/modules/openclaw/router.ts
+        - packages/api/src/modules/openclaw/store-cache.ts
+        - packages/api/src/middleware.ts.bak
+        - packages/api/src/middleware.ts.orig
+
+    SR-1.4:
+      title: "PM2 Cluster Mode + Health Check"
+      file: 1.4.story.md
+      executor: devops
+      quality_gate: qa
+      complexity: P
+      priority: high
+      branch: feat/sr-1.4-pm2-cluster
+      key_files:
+        - ecosystem.config.js
+
+    SR-1.5:
+      title: "Simplificar Skills Page + Link ClawHub"
+      file: 1.5.story.md
+      executor: dev
+      quality_gate: qa
+      complexity: P
+      priority: medium
+      branch: feat/sr-1.5-simplify-skills
+      key_files:
+        - apps/web/src/modules/dashboard/skills/view/index.tsx
+        - apps/web/src/modules/dashboard/skills/components/skill-card.tsx
+        - packages/i18n/src/translations/index.ts
+
+    SR-1.6:
+      title: "Precos Dinamicos (Stripe + Config + Frontend)"
+      file: 1.6.story.md
+      executor: dev
+      quality_gate: qa
+      complexity: M
+      priority: medium
+      branch: feat/sr-1.6-dynamic-pricing
+      key_files:
+        - packages/shared/src/constants/pricing.ts
+        - apps/web/src/modules/dashboard/billing/view/index.tsx
+        - apps/web/src/modules/marketing/home/hero.tsx
+        - packages/api/src/modules/billing/router.ts
+
+    SR-1.7:
+      title: "Script de Deploy com Health Check + Rollback"
+      file: 1.7.story.md
+      executor: devops
+      quality_gate: qa
+      complexity: M
+      priority: medium
+      branch: feat/sr-1.7-deploy-script
+      key_files:
+        - deploy.sh
+        - docs/operations.md
+
+    SR-1.8:
+      title: "Provisionar Segunda VPS + Registrar no Sistema"
+      file: 1.8.story.md
+      executor: devops
+      quality_gate: qa
+      complexity: M
+      priority: high
+      branch: feat/sr-1.8-second-vps
+      key_files:
+        - docs/vps-setup.md
+        - vps-agent.ts
+
+    SR-1.9:
+      title: "Rate Limiting Compartilhado (Redis)"
+      file: 1.9.story.md
+      executor: dev
+      quality_gate: qa
+      complexity: M
+      priority: high
+      branch: feat/sr-1.9-redis-rate-limit
+      key_files:
+        - packages/api/src/middleware.ts
+
+    SR-1.10:
+      title: "CI/CD Pipeline (GitHub Actions)"
+      file: 1.10.story.md
+      executor: devops
+      quality_gate: qa
+      complexity: M
+      priority: medium
+      branch: feat/sr-1.10-cicd-pipeline
+      key_files:
+        - .github/workflows/deploy-production.yml
+
+  waves:
+    1:
+      name: "Fundacao"
+      parallel: true
+      stories: [SR-1.1, SR-1.2, SR-1.3]
+      dependencies: []
+      gate:
+        agent: qa
+        focus: "Verificar que Sentry captura errors, testes de billing passam, dead code removido sem quebrar build"
+      merge:
+        order: [SR-1.3, SR-1.1, SR-1.2]
+        conflict_risk: low
+        notes: "Stories tocam modulos diferentes, risco minimo de conflito"
+
+    2:
+      name: "Resiliencia"
+      parallel: true
+      stories: [SR-1.4, SR-1.5]
+      dependencies: [1]
+      gate:
+        agent: qa
+        focus: "PM2 cluster estavel, skills page simplificada, app respondendo com 2 workers"
+      merge:
+        order: [SR-1.4, SR-1.5]
+        conflict_risk: low
+        notes: "Infra (PM2) e frontend (skills) nao se sobrepoem"
+
+    3:
+      name: "Polimento Pre-Investor"
+      parallel: true
+      stories: [SR-1.6, SR-1.7]
+      dependencies: [2]
+      gate:
+        agent: qa
+        focus: "Precos centralizados, deploy script com rollback funcional"
+      merge:
+        order: [SR-1.6, SR-1.7]
+        conflict_risk: low
+        notes: "Frontend pricing e infra deploy sao independentes"
+
+    4:
+      name: "Escala Pos-Investimento"
+      parallel: false
+      stories: [SR-1.8, SR-1.9, SR-1.10]
+      dependencies: [3]
+      gate:
+        agent: architect
+        focus: "Segunda VPS integrada, rate limiting distribuido, CI/CD end-to-end"
+      merge:
+        order: [SR-1.8, SR-1.9, SR-1.10]
+        conflict_risk: medium
+        notes: "1.8 deve ser mergado antes de 1.9 (Redis precisa de VPS config)"
+
+  final_gate:
+    agent: architect
+    focus: "Validar que sistema suporta 15+ users, multi-VPS funcional, billing testado, observabilidade completa"
+    tag: epic-1-scale-readiness-complete
