@@ -329,7 +329,8 @@ cd packages/api && npx vitest run     # Billing tests (45 tests)
 | Webhook failures | Verify `STRIPE_WEBHOOK_SECRET` |
 | Sentry not receiving | Verify `SENTRY_DSN` env vars |
 | Rate limit too aggressive | Adjust in `packages/api/src/middleware.ts` |
+| Dashboard blank (white screen) | ChunkLoadError/503 on static chunks — likely build-server mismatch. Run `pm2 reload openclaw-web` or use `deploy.sh` (always build+restart atomically) |
 
 ---
 
-*Last updated: 2026-03-07 — EPIC-1 Scale-Readiness*
+*Last updated: 2026-03-07 — fix: duplicate sidebar support link, dashboard chunk mismatch troubleshooting*
