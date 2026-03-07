@@ -32,7 +32,7 @@ import {
   gogSetupStep2,
 } from "@workspace/openclaw/server";
 
-import { MODELS, VALID_MODEL_IDS, getModelProvider, PROVIDER_TO_KEY, PROVIDER_DEFAULT_MODEL } from "@workspace/openclaw/config";
+import { PROVIDER_TO_KEY } from "@workspace/openclaw/config";
 
 import {
   enforceAuth,
@@ -44,6 +44,7 @@ import {
 
 import { selectBestVps } from "../admin/vps-selector";
 import { getVpsById } from "../admin/vps-config";
+import { getModelById, getActiveModels } from "../admin/models-config";
 
 import type { AiKeysInput } from "@workspace/openclaw";
 import { encrypt, decrypt, isEncrypted } from "@workspace/shared/crypto";
@@ -56,20 +57,18 @@ const maskKey = (key: string | null | undefined): string => {
   return `${key.slice(0, 7)}...${key.slice(-4)}`;
 };
 
-// Mapping: API key field → default Model for that provider
-const KEY_TO_MODEL: Record<string, string> = {
-  anthropicApiKey: PROVIDER_DEFAULT_MODEL.anthropic,
-  openaiApiKey: PROVIDER_DEFAULT_MODEL.openai,
-  googleApiKey: PROVIDER_DEFAULT_MODEL.google,
+// Mapping: API key field -> provider for model auto-selection
+const KEY_TO_PROVIDER: Record<string, string> = {
+  anthropicApiKey: "anthropic",
+  openaiApiKey: "openai",
+  googleApiKey: "google",
 };
 
 // Priority order for model auto-selection
 const KEY_PRIORITY = ["anthropicApiKey", "openaiApiKey", "googleApiKey"] as const;
 
-const toAgentModelId = (model: string): string => {
-  const modelInfo = MODELS.find((m) => m.id === model);
-  if (!modelInfo) return model;
-  return `${modelInfo.provider}/${modelInfo.id}`;
+const toAgentModelId = (modelId: string, provider: string): string => {
+  return `${provider}/${modelId}`;
 };
 
 /**
@@ -354,10 +353,20 @@ export const openclawRouter = new Hono()
 
     // Detect which key was provided and auto-select the corresponding model
     // Priority: Anthropic > OpenAI > Google
-    let newModel: string | null = null;
+    let newModelId: string | null = null;
+    let newModelProvider: string | null = null;
     for (const key of KEY_PRIORITY) {
       if (payload[key]) {
-        newModel = KEY_TO_MODEL[key] ?? null;
+        const provider = KEY_TO_PROVIDER[key];
+        if (provider) {
+          // Find first active model for this provider from DB
+          const activeModels = await getActiveModels();
+          const match = activeModels.find((m) => m.provider === provider);
+          if (match) {
+            newModelId = match.id;
+            newModelProvider = match.provider;
+          }
+        }
         break;
       }
     }
@@ -368,11 +377,13 @@ export const openclawRouter = new Hono()
     // Update in DB (include model if auto-selected)
     await updateInstance(instanceId, {
       ...newKeys,
-      ...(newModel ? { model: newModel } : {}),
+      ...(newModelId ? { model: newModelId } : {}),
     });
 
     // Compute the full model ID for openclaw.json (e.g. "openai/gpt-5.2")
-    const agentModelId = newModel ? toAgentModelId(newModel) : undefined;
+    const agentModelId = newModelId && newModelProvider
+      ? toAgentModelId(newModelId, newModelProvider)
+      : undefined;
 
     // Recreate Docker container on the correct VPS with new env vars (plaintext keys)
     await routeUpdateKeys(
@@ -461,17 +472,14 @@ export const openclawRouter = new Hono()
 
       // Propagate to container: update openclaw.json + restart
       try {
-        await updateOpenclawJson(instanceId, (config) => ({
-          ...config,
+        await updateOpenclawJson(instanceId, {
           channels: {
-            ...((config as Record<string, unknown>).channels as Record<string, unknown> ?? {}),
             telegram: {
-              ...(((config as Record<string, unknown>).channels as Record<string, unknown> ?? {}).telegram as Record<string, unknown> ?? {}),
               enabled: true,
               botToken: payload.token,
             },
           },
-        }));
+        });
         await restartContainer(instanceId);
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
@@ -490,8 +498,9 @@ export const openclawRouter = new Hono()
       return c.json({ error: "Model is required" }, 422);
     }
 
-    // Validate model exists in supported list
-    if (!VALID_MODEL_IDS.has(body.model)) {
+    // Validate model exists in DB
+    const modelRecord = await getModelById(body.model);
+    if (!modelRecord) {
       return c.json({ error: "Invalid model" }, 422);
     }
 
@@ -501,8 +510,7 @@ export const openclawRouter = new Hono()
     if (!inst) return c.json({ error: "Instance not found" }, 404);
 
     const decrypted = await decryptKeys(inst, env.ENCRYPTION_KEY);
-    const provider = getModelProvider(body.model);
-    const keyField = provider ? PROVIDER_TO_KEY[provider] : undefined;
+    const keyField = PROVIDER_TO_KEY[modelRecord.provider as keyof typeof PROVIDER_TO_KEY];
     const hasKey = keyField ? !!(decrypted as Record<string, unknown>)[keyField] : false;
 
     if (!hasKey) {
@@ -513,24 +521,15 @@ export const openclawRouter = new Hono()
     await updateInstance(instanceId, { model: body.model });
 
     // Update container config + restart
-    const agentModelId = (provider ?? "unknown") + "/" + body.model;
+    const agentModelId = toAgentModelId(body.model, modelRecord.provider);
 
     try {
-      await updateOpenclawJson(instanceId, (config) => {
-        const cfg = config as Record<string, unknown>;
-        const agents = (cfg.agents ?? {}) as Record<string, unknown>;
-        const defaults = (agents.defaults ?? {}) as Record<string, unknown>;
-        const modelCfg = (defaults.model ?? {}) as Record<string, unknown>;
-        return {
-          ...cfg,
-          agents: {
-            ...agents,
-            defaults: {
-              ...defaults,
-              model: { ...modelCfg, primary: agentModelId },
-            },
+      await updateOpenclawJson(instanceId, {
+        agents: {
+          defaults: {
+            model: { primary: agentModelId },
           },
-        };
+        },
       });
       await restartContainer(instanceId);
     } catch (error) {
@@ -701,10 +700,7 @@ export const openclawRouter = new Hono()
     }
 
     try {
-      await updateOpenclawJson(instanceId, (config) => ({
-        ...config,
-        skills: { entries: skillsEntries },
-      }));
+      await updateOpenclawJson(instanceId, { skills: { entries: skillsEntries } });
       await restartContainer(instanceId);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
@@ -821,10 +817,7 @@ export const openclawRouter = new Hono()
           }
         }
 
-        await updateOpenclawJson(instanceId, (cfg) => ({
-          ...cfg,
-          skills: { entries: skillsEntries },
-        }));
+        await updateOpenclawJson(instanceId, { skills: { entries: skillsEntries } });
 
         await restartContainer(instanceId);
 

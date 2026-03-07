@@ -20,6 +20,7 @@ const pathsConfig = {
     users: `${ADMIN_PREFIX}/users`,
     instances: `${ADMIN_PREFIX}/instances`,
     subscriptions: `${ADMIN_PREFIX}/subscriptions`,
+    models: `${ADMIN_PREFIX}/models`,
   },
 } as const;
 

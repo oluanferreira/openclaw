@@ -14,7 +14,7 @@ export const vpsServer = pgTable("vps_server", {
   location: text().notNull(),
   endpoint: text().notNull().default("local"),
   token: text().default(""),
-  isActive: boolean().notNull().default(true),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

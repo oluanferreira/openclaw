@@ -11,6 +11,11 @@ import type { InferRequestType } from "hono/client";
 const KEY = "instance";
 
 const queries = {
+  models: queryOptions({
+    queryKey: ["models"],
+    queryFn: () => handle(api.models.$get)(),
+    staleTime: 5 * 60 * 1000, // 5 min cache
+  }),
   get: queryOptions({
     queryKey: [KEY, "get"],
     queryFn: () => handle(api.openclaw.$get)(),

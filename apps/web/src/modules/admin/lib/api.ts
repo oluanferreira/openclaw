@@ -51,6 +51,10 @@ const queries = {
     queryFn: () => handle((api.admin.stats as any).uptime.$get)(),
     refetchInterval: 60_000,
   }),
+  models: queryOptions({
+    queryKey: [KEY, "models"],
+    queryFn: () => handle(api.admin.models.$get)(),
+  }),
 };
 
 const mutations = {
@@ -111,6 +115,52 @@ const mutations = {
     mutationFn: (id: string) =>
       handle(api.admin.servers[":id"].$delete)({
         param: { id },
+      }),
+  }),
+  createModel: mutationOptions({
+    mutationKey: [KEY, "create-model"],
+    mutationFn: (data: {
+      id: string;
+      provider: string;
+      name: string;
+      tier?: string;
+      sortOrder?: number;
+      isActive?: boolean;
+    }) =>
+      handle(api.admin.models.$post)({
+        json: data,
+      }),
+  }),
+  updateModel: mutationOptions({
+    mutationKey: [KEY, "update-model"],
+    mutationFn: ({
+      id,
+      ...data
+    }: {
+      id: string;
+      provider?: string;
+      name?: string;
+      tier?: string;
+      sortOrder?: number;
+      isActive?: boolean;
+    }) =>
+      handle(api.admin.models[":id"].$put)({
+        param: { id },
+        json: data,
+      }),
+  }),
+  deleteModel: mutationOptions({
+    mutationKey: [KEY, "delete-model"],
+    mutationFn: (id: string) =>
+      handle(api.admin.models[":id"].$delete)({
+        param: { id },
+      }),
+  }),
+  reorderModels: mutationOptions({
+    mutationKey: [KEY, "reorder-models"],
+    mutationFn: (order: Array<{ id: string; sortOrder: number }>) =>
+      handle(api.admin.models.reorder.$put)({
+        json: { order },
       }),
   }),
 };

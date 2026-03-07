@@ -32,8 +32,10 @@ import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
 import { billingApi } from "~/modules/dashboard/billing/lib/api";
 import { ApiError } from "@workspace/api/utils";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
+import { useModels } from "~/modules/dashboard/instance/hooks/use-models";
 
-import { ProviderIcon, CommunicationChannelIcon } from "../icons";
+import { getModelIcon } from "../icons";
+import { CommunicationChannelIcon } from "../icons";
 
 import { TelegramConfiguration } from "./communication/telegram";
 
@@ -82,11 +84,15 @@ export const DeployInstanceForm = ({
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) => {
   const { t } = useTranslation("dashboard");
+  const { data: dbModels } = useModels();
   const searchParams = useSearchParams();
   const router = useRouter();
   const isCheckoutReturn = searchParams.get("checkout") === "success";
   const autoDeployAttempted = useRef(false);
   const pendingDeployData = useRef<DeployInstanceSchemaInput | null>(null);
+
+  // Use DB models if available, fall back to static MODELS
+  const models = (dbModels as any[])?.length ? (dbModels as any[]) : MODELS;
 
   // Read saved data from localStorage once on mount
   if (pendingDeployData.current === null && typeof window !== "undefined") {
@@ -101,7 +107,7 @@ export const DeployInstanceForm = ({
   const form = useForm<DeployInstanceSchemaInput>({
     resolver: standardSchemaResolver(deployInstanceSchema),
     defaultValues: pendingDeployData.current ?? {
-      model: MODELS[0].id,
+      model: models[0]?.id ?? MODELS[0].id,
       communication: {},
       aiKeys: {
         openaiApiKey: "",
@@ -185,8 +191,8 @@ export const DeployInstanceForm = ({
               </FieldLabel>
 
               <div className="flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
-                {MODELS.map((model) => {
-                  const Icon = ProviderIcon[model.provider];
+                {models.map((model: any) => {
+                  const Icon = getModelIcon(model.provider);
                   return (
                     <Button
                       key={model.id}

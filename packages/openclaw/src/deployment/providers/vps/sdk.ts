@@ -166,19 +166,43 @@ export const readOpenclawJson = async (instanceId: string): Promise<Record<strin
   return JSON.parse(stdout.trim() || "{}") as Record<string, unknown>;
 };
 
+/**
+ * Surgically deep-merges a patch into the instance's openclaw.json.
+ *
+ * Uses Python on the VPS to merge only the specified keys, leaving all
+ * other fields (including container-redacted tokens/secrets) untouched.
+ * This prevents the `_OPENCLAW_REDACTED_` placeholder from overwriting
+ * real values when the container redacts sensitive fields in-place.
+ */
 export const updateOpenclawJson = async (
   instanceId: string,
-  updater: (config: Record<string, unknown>) => Record<string, unknown>,
+  patch: Record<string, unknown>,
 ): Promise<void> => {
   const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
   const configPath = `${stateDir}/openclaw.json`;
+  const patchB64 = Buffer.from(JSON.stringify(patch)).toString("base64");
 
-  const { stdout } = await execute(`cat ${escapeShell(configPath)} 2>/dev/null || echo "{}"`);
-  const currentConfig = JSON.parse(stdout.trim() || "{}") as Record<string, unknown>;
-  const newConfig = updater(currentConfig);
-  const configJson = JSON.stringify(newConfig, null, 2);
+  await execute(`python3 << 'PYEOF'
+import json, base64
 
-  await execute(`cat > ${escapeShell(configPath)} << 'OPENCLAW_JSON_EOF'\n${configJson}\nOPENCLAW_JSON_EOF`);
+config_path = "${stateDir}/openclaw.json"
+patch = json.loads(base64.b64decode("${patchB64}").decode())
+
+with open(config_path) as f:
+    config = json.load(f)
+
+def deep_merge(base, update):
+    for key, value in update.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            deep_merge(base[key], value)
+        else:
+            base[key] = value
+
+deep_merge(config, patch)
+
+with open(config_path, 'w') as f:
+    json.dump(config, f, indent=2)
+PYEOF`);
 };
 
 export const findToolBinary = async (

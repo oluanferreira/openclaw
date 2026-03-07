@@ -84,27 +84,32 @@ export type ModelTier = (typeof MODELS)[number]["tier"];
 /** Set of all valid model IDs for quick validation */
 export const VALID_MODEL_IDS = new Set<string>(MODELS.map((m) => m.id));
 
-/** Map provider → API key field name */
+/** Map provider -> API key field name */
 export const PROVIDER_TO_KEY: Record<Provider, string> = {
   openai: "openaiApiKey",
   anthropic: "anthropicApiKey",
   google: "googleApiKey",
 };
 
-/** Map provider → default model (first flagship per provider) */
+/** Map provider -> default model (first flagship per provider) */
 export const PROVIDER_DEFAULT_MODEL: Record<Provider, ModelId> = {
   anthropic: "claude-opus-4-6",
   openai: "gpt-5.2",
   google: "gemini-2.5-pro",
 };
 
-/** Get provider for a model ID */
+/** Get provider for a model ID (static fallback) */
 export function getModelProvider(modelId: string): Provider | undefined {
   return MODELS.find((m) => m.id === modelId)?.provider;
 }
 
-/** Get API key field name for a model ID */
+/** Get API key field name for a model ID (static fallback) */
 export function getModelKeyField(modelId: string): string | undefined {
   const provider = getModelProvider(modelId);
   return provider ? PROVIDER_TO_KEY[provider] : undefined;
+}
+
+/** Get API key field name from provider string */
+export function getProviderKeyField(provider: string): string | undefined {
+  return PROVIDER_TO_KEY[provider as Provider];
 }

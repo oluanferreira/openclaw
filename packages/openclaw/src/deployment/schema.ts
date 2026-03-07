@@ -16,17 +16,7 @@ export const deployInstanceSchema = openclawConfigSchema
     model: true,
     communication: true,
   })
-  .extend({ aiKeys: aiKeysSchema })
-  .superRefine((data, ctx) => {
-    const requiredKey = getModelKeyField(data.model) as keyof AiKeysInput | undefined;
-    if (requiredKey && !data.aiKeys[requiredKey]) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["aiKeys", requiredKey],
-        message: "Required",
-      });
-    }
-  });
+  .extend({ aiKeys: aiKeysSchema });
 
 export type DeployInstanceSchemaInput = z.input<typeof deployInstanceSchema>;
 

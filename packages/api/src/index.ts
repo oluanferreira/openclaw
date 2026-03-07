@@ -13,6 +13,8 @@ import { openclawRouter } from "./modules/openclaw/router";
 import { adminRouter } from "./modules/admin/router";
 import { supportRouter } from "./modules/support/router";
 import { seedVpsServers } from "./modules/admin/vps-config";
+import { seedAiModels } from "./modules/admin/models-config";
+import { modelsRouter } from "./modules/admin/models-router";
 import { onError } from "./utils/on-error";
 
 const monitor = statusMonitor({
@@ -52,6 +54,7 @@ const appRouter = new Hono()
   // Deploy endpoint: 10 req/hour per IP (prevent abuse)
   .use("/openclaw", rateLimit(10, 60 * 60_000))
   .route("/openclaw", openclawRouter)
+  .route("/models", modelsRouter)
   .route("/admin", adminRouter)
   .route("/support", supportRouter)
   .onError(onError);
@@ -60,5 +63,6 @@ type AppRouter = typeof appRouter;
 
 export type { AppRouter };
 export { appRouter };
-// Seed VPS servers on startup
+// Seed on startup
 seedVpsServers().catch((e) => logger.error("Failed to seed VPS servers", e));
+seedAiModels().catch((e) => logger.error("Failed to seed AI models", e));

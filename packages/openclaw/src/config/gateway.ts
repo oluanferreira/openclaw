@@ -5,20 +5,26 @@ import type { OpenclawConfig } from "./schema";
 
 const TRUSTED_PROXIES = ["127.0.0.1", "::1", "172.17.0.1"];
 
-const toAgentModelId = (model: string) => {
-  const modelInfo = MODELS.find((m) => m.id === model);
-
-  if (!modelInfo) {
-    throw new Error(`Model ${model} not found.`);
+const toAgentModelId = (model: string, provider?: string): string => {
+  if (provider) {
+    return `${provider}/${model}`;
   }
-
-  return `${modelInfo.provider}/${modelInfo.id}`;
+  // Fallback to static MODELS lookup
+  const modelInfo = MODELS.find((m) => m.id === model);
+  if (modelInfo) {
+    return `${modelInfo.provider}/${modelInfo.id}`;
+  }
+  // Unknown model — return as-is
+  return model;
 };
+
+export { toAgentModelId };
 
 interface GatewayConfigInput {
   origin: string;
   token: string;
   hooksToken: string;
+  modelProvider?: string;
   skills?: SkillsConfig;
 }
 
@@ -53,6 +59,7 @@ export const getGatewayConfig = ({
   origin,
   token,
   hooksToken,
+  modelProvider,
   skills,
   ...config
 }: OpenclawConfig & GatewayConfigInput) => ({
@@ -72,7 +79,7 @@ export const getGatewayConfig = ({
   agents: {
     defaults: {
       model: {
-        primary: toAgentModelId(config.model),
+        primary: toAgentModelId(config.model, modelProvider),
       },
     },
   },

@@ -277,6 +277,55 @@ pnpm with-env -F @workspace/db db:generate
 pnpm with-env -F @workspace/db db:studio
 ```
 
+### Token redaction corruption (openclaw.json)
+
+The OpenClaw container redacts sensitive values in `openclaw.json` on disk, replacing them with `_OPENCLAW_REDACTED_`. This is a security feature, but it can cause issues when our code reads the file, modifies unrelated fields, and writes it back — the redacted values get persisted as literal strings.
+
+**Symptoms:**
+- Container restart loop with: `hooks.token must not match gateway auth token`
+- Telegram 404 errors: `Call to 'deleteWebhook' failed! (404: Not Found)`
+- WebSocket `code=1008 reason=origin not allowed`
+- WebSocket `code=4008 reason=connect failed`
+
+**Root cause:** `updateOpenclawJson()` used to read the entire JSON (with redacted tokens), apply the updater via spread (`{ ...config, skills }`), and write the whole thing back — overwriting real tokens with `_OPENCLAW_REDACTED_`.
+
+**Fix applied (2026-03-07):** Changed `updateOpenclawJson()` to use Python deep merge on the VPS. It now accepts a patch object and only modifies the specified keys, leaving all other fields (including redacted tokens) untouched on disk.
+
+**Manual recovery if it happens again:**
+
+```bash
+# 1. Check which fields are redacted
+python3 -c "
+import json
+path = '/opt/openclaw/instances/<INSTANCE_ID>/openclaw.json'
+def find(obj, p=''):
+    if isinstance(obj, dict):
+        for k,v in obj.items(): find(v, p+'.'+k)
+    elif obj == '_OPENCLAW_REDACTED_': print(p)
+find(json.load(open(path)))
+"
+
+# 2. Restore gateway token from DB
+docker exec clawin1click-openclaw-db-1 psql -U clawin1click -d openclaw \
+  -t -A -c "SELECT token FROM instance WHERE id = '<INSTANCE_ID>'"
+# Then set it in openclaw.json: gateway.auth.token
+
+# 3. Regenerate hooks token (distinct from gateway token)
+python3 -c "import secrets,base64; print(base64.b64encode(secrets.token_bytes(32)).decode())"
+# Then set it in openclaw.json: hooks.token
+
+# 4. Decrypt communication token from DB if needed
+# Use the ENCRYPTION_KEY from .env and the decrypt logic in @workspace/shared/crypto
+
+# 5. Verify allowedOrigins matches instance ID
+# gateway.controlUi.allowedOrigins should be ["https://<INSTANCE_ID>.clawin1click.com"]
+
+# 6. Restart container
+docker restart <INSTANCE_ID>
+```
+
+**Note:** API keys (`openai`, `anthropic`, `google`) are passed as Docker environment variables, so their redaction in the JSON file is harmless. Only `gateway.auth.token`, `hooks.token`, and `channels.telegram.botToken` are read from the JSON.
+
 ### Backups
 
 Cron: `0 3 * * *` -> `/root/backups/postgres/`

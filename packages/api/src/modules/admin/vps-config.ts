@@ -1,6 +1,7 @@
 import { eq } from "@workspace/db";
 import { vpsServer } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
+import { logger } from "@workspace/shared/logger";
 
 export interface VpsServer {
   id: string;
@@ -32,6 +33,7 @@ export async function seedVpsServers() {
       })
       .onConflictDoNothing({ target: vpsServer.id });
   }
+  logger.info("Seeded VPS servers (onConflictDoNothing)");
 }
 
 export const getVpsById = async (id: string) => {
@@ -45,6 +47,10 @@ export const getVpsById = async (id: string) => {
 
 export const getActiveVpsServers = async () => {
   return db.select().from(vpsServer).where(eq(vpsServer.isActive, true));
+};
+
+export const getAllVpsServers = async () => {
+  return db.select().from(vpsServer);
 };
 
 export const getDefaultVpsId = () => "vps-main";

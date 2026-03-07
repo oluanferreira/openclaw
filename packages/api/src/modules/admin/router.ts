@@ -3,8 +3,8 @@ import { createMiddleware } from "hono/factory";
 import Stripe from "stripe";
 import * as z from "zod";
 
-import { eq } from "@workspace/db";
-import { user, instance, subscription, vpsServer } from "@workspace/db/schema";
+import { asc, eq } from "@workspace/db";
+import { user, instance, subscription, vpsServer, aiModel } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import {
   ManageInstanceAction,
@@ -36,6 +36,30 @@ const updateServerSchema = z.object({
   endpoint: z.string().optional(),
   token: z.string().optional(),
   isActive: z.boolean().optional(),
+});
+
+const createModelSchema = z.object({
+  id: z.string().min(1).regex(/^[a-z0-9._-]+$/, "ID must be lowercase alphanumeric with dots, dashes, underscores"),
+  provider: z.string().min(1),
+  name: z.string().min(1),
+  tier: z.string().default("flagship"),
+  sortOrder: z.number().int().optional(),
+  isActive: z.boolean().default(true),
+});
+
+const updateModelSchema = z.object({
+  provider: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  tier: z.string().optional(),
+  sortOrder: z.number().int().optional(),
+  isActive: z.boolean().optional(),
+});
+
+const reorderModelsSchema = z.object({
+  order: z.array(z.object({
+    id: z.string(),
+    sortOrder: z.number().int(),
+  })),
 });
 
 import type { User } from "@workspace/auth";
@@ -158,7 +182,6 @@ export const adminRouter = new Hono()
   .delete("/servers/:id", async (c) => {
     const serverId = c.req.param("id");
 
-    // Bloqueia remoção da VPS principal
     if (serverId === "vps-main") {
       throw new HttpException(HttpStatusCode.FORBIDDEN, {
         code: "error.cannotDeleteMainServer",
@@ -180,6 +203,141 @@ export const adminRouter = new Hono()
     await db.delete(vpsServer).where(eq(vpsServer.id, serverId));
 
     return c.json({ success: true });
+  })
+
+  // ─── AI MODELS CRUD ──────────────────────────────────────────────────
+
+  .get("/models", async (c) => {
+    const models = await db
+      .select()
+      .from(aiModel)
+      .orderBy(asc(aiModel.sortOrder));
+    return c.json(models);
+  })
+
+  .post("/models", validate("json", createModelSchema), async (c) => {
+    const body = c.req.valid("json");
+
+    const existing = await db
+      .select()
+      .from(aiModel)
+      .where(eq(aiModel.id, body.id))
+      .then((r) => r[0]);
+
+    if (existing) {
+      throw new HttpException(HttpStatusCode.CONFLICT, {
+        code: "error.modelAlreadyExists",
+      });
+    }
+
+    // Auto sortOrder: max + 1
+    if (body.sortOrder === undefined) {
+      const all = await db.select({ sortOrder: aiModel.sortOrder }).from(aiModel);
+      body.sortOrder = all.length > 0
+        ? Math.max(...all.map((m) => m.sortOrder)) + 1
+        : 0;
+    }
+
+    const [created] = await db
+      .insert(aiModel)
+      .values({
+        id: body.id,
+        provider: body.provider,
+        name: body.name,
+        tier: body.tier,
+        sortOrder: body.sortOrder,
+        isActive: body.isActive,
+      })
+      .returning();
+
+    return c.json(created, HttpStatusCode.CREATED);
+  })
+
+  .put("/models/reorder", validate("json", reorderModelsSchema), async (c) => {
+    const { order } = c.req.valid("json");
+
+    await Promise.all(
+      order.map(({ id, sortOrder }) =>
+        db
+          .update(aiModel)
+          .set({ sortOrder })
+          .where(eq(aiModel.id, id)),
+      ),
+    );
+
+    const models = await db
+      .select()
+      .from(aiModel)
+      .orderBy(asc(aiModel.sortOrder));
+    return c.json(models);
+  })
+
+  .put("/models/:id", validate("json", updateModelSchema), async (c) => {
+    const modelId = c.req.param("id");
+    const body = c.req.valid("json");
+
+    const existing = await db
+      .select()
+      .from(aiModel)
+      .where(eq(aiModel.id, modelId))
+      .then((r) => r[0]);
+
+    if (!existing) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.modelNotFound",
+      });
+    }
+
+    const [updated] = await db
+      .update(aiModel)
+      .set({
+        ...(body.provider !== undefined && { provider: body.provider }),
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.tier !== undefined && { tier: body.tier }),
+        ...(body.sortOrder !== undefined && { sortOrder: body.sortOrder }),
+        ...(body.isActive !== undefined && { isActive: body.isActive }),
+      })
+      .where(eq(aiModel.id, modelId))
+      .returning();
+
+    return c.json(updated);
+  })
+
+  .delete("/models/:id", async (c) => {
+    const modelId = c.req.param("id");
+
+    const existing = await db
+      .select()
+      .from(aiModel)
+      .where(eq(aiModel.id, modelId))
+      .then((r) => r[0]);
+
+    if (!existing) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.modelNotFound",
+      });
+    }
+
+    // Check if any instance uses this model
+    const usedBy = await db
+      .select({ id: instance.id })
+      .from(instance)
+      .where(eq(instance.model, modelId))
+      .then((r) => r[0]);
+
+    if (usedBy) {
+      // Soft-delete: mark as inactive
+      const [updated] = await db
+        .update(aiModel)
+        .set({ isActive: false })
+        .where(eq(aiModel.id, modelId))
+        .returning();
+      return c.json({ ...updated, softDeleted: true });
+    }
+
+    // Hard-delete: no instances use it
+    await db.delete(aiModel).where(eq(aiModel.id, modelId));
+    return c.json({ success: true, hardDeleted: true });
   })
 
   // ─── USERS ────────────────────────────────────────────────────────────
@@ -469,7 +627,6 @@ export const adminRouter = new Hono()
     });
   })
   .get("/stats/servers", async (c) => {
-    // Consulta banco em vez de array hardcodado
     const servers = await db
       .select()
       .from(vpsServer)
@@ -568,8 +725,7 @@ export const adminRouter = new Hono()
     return c.json(results);
   })
 
-
-  // --- UPTIME (UptimeRobot) -----------------------------------------------
+  // ─── UPTIME (UptimeRobot) ─────────────────────────────────────────────
 
   .get("/stats/uptime", async (c) => {
     const apiKey = env.UPTIMEROBOT_API_KEY;

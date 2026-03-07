@@ -120,3 +120,66 @@ export const useAdminDeleteServer = () => {
     },
   });
 };
+
+export const useAdminModels = () => {
+  return useQuery(adminApi.queries.models);
+};
+
+export const useAdminCreateModel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...adminApi.mutations.createModel,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(adminApi.queries.models);
+      toast.success("Modelo criado com sucesso");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao criar modelo");
+    },
+  });
+};
+
+export const useAdminUpdateModel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...adminApi.mutations.updateModel,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(adminApi.queries.models);
+      toast.success("Modelo atualizado com sucesso");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao atualizar modelo");
+    },
+  });
+};
+
+export const useAdminDeleteModel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...adminApi.mutations.deleteModel,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(adminApi.queries.models);
+      toast.success("Modelo removido com sucesso");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao remover modelo");
+    },
+  });
+};
+
+export const useAdminReorderModels = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...adminApi.mutations.reorderModels,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(adminApi.queries.models);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao reordenar modelos");
+    },
+  });
+};

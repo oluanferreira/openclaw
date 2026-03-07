@@ -38,6 +38,11 @@ const menu: Menu = [
         icon: <Icons.CreditCard />,
       },
       {
+        title: "Modelos",
+        href: pathsConfig.admin.models,
+        icon: <Icons.Bot />,
+      },
+      {
         title: "Tickets",
         href: pathsConfig.admin.tickets,
         icon: <Icons.LifeBuoy />,
