@@ -19,11 +19,42 @@ const toAgentModelId = (model: Model) => {
 interface GatewayConfigInput {
   origin: string;
   token: string;
+  hooksToken: string;
+  skills?: SkillsConfig;
 }
+
+
+interface SkillEntry {
+  enabled: boolean;
+  credentials?: Record<string, string>;
+}
+
+type SkillsConfig = Record<string, SkillEntry>;
+
+const DEFAULT_SKILLS: SkillsConfig = {
+  canvas: { enabled: true },
+  "coding-agent": { enabled: true },
+  healthcheck: { enabled: true },
+  "skill-creator": { enabled: true },
+};
+
+const getSkillsConfig = (dbSkills?: SkillsConfig): { entries: SkillsConfig } => {
+  const merged = { ...DEFAULT_SKILLS };
+
+  if (dbSkills) {
+    for (const [name, entry] of Object.entries(dbSkills)) {
+      merged[name] = { ...merged[name], ...entry };
+    }
+  }
+
+  return { entries: merged };
+};
 
 export const getGatewayConfig = ({
   origin,
   token,
+  hooksToken,
+  skills,
   ...config
 }: OpenclawConfig & GatewayConfigInput) => ({
   gateway: {
@@ -52,5 +83,10 @@ export const getGatewayConfig = ({
       enabled: config.communication.channel === CommunicatonChannel.TELEGRAM,
       botToken: config.communication.token,
     },
+  },
+  skills: getSkillsConfig(skills),
+  hooks: {
+    enabled: true,
+    token: hooksToken,
   },
 });

@@ -230,5 +230,10 @@
     "unauthorized": "¡Necesitas iniciar sesión para acceder a esta función!",
     "forbidden": "¡No tienes permiso para acceder a esta función!"
   },
-  "goBackHome": "Volver al inicio"
+  "goBackHome": "Volver al inicio",
+  "tickets": "Tickets",
+  "all": "Todos",
+  "inProgress": "En progreso",
+  "skills": "Habilidades",
+  "accessMyClaw": "Acceder a mi ClaW"
 }

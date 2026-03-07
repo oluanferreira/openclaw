@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui-web/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
+import { Input } from "@workspace/ui-web/input";
 import {
   Table,
   TableBody,
@@ -15,7 +21,19 @@ import {
   TableRow,
 } from "@workspace/ui-web/table";
 
-import { useAdminSubscriptions, useAdminInvoices } from "../hooks/use-admin";
+import {
+  useAdminSubscriptions,
+  useAdminSubscriptionStats,
+  useAdminInvoices,
+} from "../hooks/use-admin";
+
+type SubscriptionFilter =
+  | "all"
+  | "active"
+  | "inactive"
+  | "canceled"
+  | "past_due"
+  | "expiring";
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -72,6 +90,36 @@ const invoiceStatusLabel = (status: string) => {
     default:
       return status;
   }
+};
+
+const FILTER_LABELS: Record<SubscriptionFilter, string> = {
+  all: "Todas",
+  active: "Ativas",
+  inactive: "Inativas",
+  canceled: "Canceladas",
+  past_due: "Em atraso",
+  expiring: "Expirando",
+};
+
+const STATUS_FILTERS: SubscriptionFilter[] = [
+  "all",
+  "active",
+  "expiring",
+  "inactive",
+  "canceled",
+  "past_due",
+];
+
+const getDaysRemaining = (dateStr: string | null) => {
+  if (!dateStr) return null;
+  const end = new Date(dateStr).getTime();
+  return Math.floor((end - Date.now()) / 86400000);
+};
+
+const isExpiringSoon = (sub: any) => {
+  if (sub.status !== "active" || !sub.currentPeriodEnd) return false;
+  const days = getDaysRemaining(sub.currentPeriodEnd);
+  return days !== null && days <= 7;
 };
 
 function InvoicesPanel({
@@ -178,26 +226,33 @@ function InvoicesPanel({
   );
 }
 
-const FILTER_LABELS: Record<string, string> = {
-  all: "Todas",
-  active: "Ativas",
-  inactive: "Inativas",
-  canceled: "Canceladas",
-  past_due: "Em atraso",
-};
-
-const STATUS_FILTERS = [
-  "all",
-  "active",
-  "inactive",
-  "canceled",
-  "past_due",
-] as const;
-
 export function AdminSubscriptions() {
   const { data: subs, isLoading } = useAdminSubscriptions();
-  const [filter, setFilter] = useState<string>("all");
+  const { data: stats } = useAdminSubscriptionStats();
+  const [filter, setFilter] = useState<SubscriptionFilter>("all");
+  const [search, setSearch] = useState("");
   const [invoicesFor, setInvoicesFor] = useState<string | null>(null);
+
+  const filtered = useMemo(() => {
+    let list = subs ?? [];
+
+    if (filter === "expiring") {
+      list = list.filter((s: any) => isExpiringSoon(s));
+    } else if (filter !== "all") {
+      list = list.filter((s: any) => s.status === filter);
+    }
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (s: any) =>
+          s.userName?.toLowerCase().includes(q) ||
+          s.userEmail?.toLowerCase().includes(q),
+      );
+    }
+
+    return list;
+  }, [subs, filter, search]);
 
   if (isLoading) {
     return (
@@ -207,32 +262,126 @@ export function AdminSubscriptions() {
     );
   }
 
-  const filtered =
-    filter === "all"
-      ? subs ?? []
-      : (subs ?? []).filter((s: any) => s.status === filter);
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        {STATUS_FILTERS.map((s) => (
-          <Button
-            key={s}
-            variant={filter === s ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilter(s)}
-          >
-            {FILTER_LABELS[s] ?? s}
-            {s !== "all" &&
-              subs &&
-              ` (${(subs as any[]).filter((sub: any) => sub.status === s).length})`}
-          </Button>
-        ))}
+    <div className="flex w-full flex-col gap-6">
+      {/* Summary cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <span className="text-muted-foreground text-sm font-medium">
+              MRR
+            </span>
+            <Icons.TrendingUp className="text-muted-foreground size-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ${stats?.mrr?.toFixed(2) ?? "0.00"}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={`cursor-pointer transition-colors ${filter === "active" ? "border-primary" : ""}`}
+          onClick={() => setFilter(filter === "active" ? "all" : "active")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <span className="text-muted-foreground text-sm font-medium">
+              Ativas
+            </span>
+            <Icons.CreditCard className="text-muted-foreground size-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.active ?? 0}</div>
+          </CardContent>
+        </Card>
+
+        <Card
+          className={`cursor-pointer transition-colors ${filter === "expiring" ? "border-primary" : ""} ${
+            (stats?.expiringIn7Days ?? 0) > 0 && filter !== "expiring" ? "border-yellow-500" : ""
+          }`}
+          onClick={() => setFilter(filter === "expiring" ? "all" : "expiring")}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <span className="text-muted-foreground text-sm font-medium">
+              Expirando em 7d
+            </span>
+            <Icons.Clock className="text-muted-foreground size-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.expiringIn7Days ?? 0}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <span className="text-muted-foreground text-sm font-medium">
+              Churn (30d)
+            </span>
+            <Icons.Ban className="text-muted-foreground size-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.recentChurn ?? 0}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
+      {/* Filters + Search */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          {STATUS_FILTERS.map((s) => (
+            <Button
+              key={s}
+              variant={filter === s ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter(s)}
+            >
+              {FILTER_LABELS[s]}
+              {s !== "all" && s !== "expiring" && subs && (
+                <span className="text-muted-foreground ml-1 text-xs">
+                  ({(subs as any[]).filter((sub: any) => sub.status === s).length})
+                </span>
+              )}
+              {s === "expiring" && subs && (
+                <span className="text-muted-foreground ml-1 text-xs">
+                  ({(subs as any[]).filter((sub: any) => isExpiringSoon(sub)).length})
+                </span>
+              )}
+            </Button>
+          ))}
+        </div>
+        <div className="relative w-full sm:w-64">
+          <Icons.Search className="text-muted-foreground absolute left-2.5 top-2.5 size-4" />
+          <Input
+            placeholder="Buscar por nome ou email..."
+            className="pl-8"
+            value={search}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearch(e.target.value)
+            }
+          />
+        </div>
+      </div>
+
+      {/* Table */}
       {!filtered.length ? (
-        <div className="text-muted-foreground py-8 text-center">
-          Nenhuma assinatura encontrada
+        <div className="flex flex-col items-center justify-center gap-3 py-16">
+          <Icons.CreditCard className="text-muted-foreground size-10" />
+          <div className="text-center">
+            <p className="text-muted-foreground text-sm font-medium">
+              Nenhuma assinatura encontrada
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              {search
+                ? "Tente ajustar os termos de busca."
+                : filter !== "all"
+                  ? "Nenhuma assinatura com esse filtro."
+                  : "Nenhuma assinatura cadastrada ainda."}
+            </p>
+          </div>
         </div>
       ) : (
         <Table>
@@ -247,82 +396,106 @@ export function AdminSubscriptions() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((sub: any) => (
-              <TableRow key={sub.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {sub.userImage && (
-                      <img
-                        src={sub.userImage}
-                        alt={sub.userName}
-                        className="size-6 rounded-full"
-                        width={24}
-                        height={24}
-                      />
-                    )}
-                    <div>
-                      <div className="font-medium">{sub.userName}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {sub.userEmail}
+            {filtered.map((sub: any) => {
+              const days = getDaysRemaining(sub.currentPeriodEnd);
+
+              return (
+                <TableRow key={sub.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {sub.userImage && (
+                        <img
+                          src={sub.userImage}
+                          alt={sub.userName}
+                          className="size-6 rounded-full"
+                          width={24}
+                          height={24}
+                        />
+                      )}
+                      <div>
+                        <div className="font-medium">{sub.userName}</div>
+                        <div className="text-muted-foreground text-xs">
+                          {sub.userEmail}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={statusVariant(sub.status)}>
-                    {statusLabel(sub.status)}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {sub.currentPeriodEnd
-                    ? new Date(sub.currentPeriodEnd).toLocaleDateString(
-                        "pt-BR",
-                      )
-                    : "\u2014"}
-                </TableCell>
-                <TableCell>
-                  {new Date(sub.createdAt).toLocaleDateString("pt-BR")}
-                </TableCell>
-                <TableCell>
-                  {sub.stripeCustomerId ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="font-mono text-xs"
-                      onClick={() =>
-                        window.open(
-                          `https://dashboard.stripe.com/customers/${sub.stripeCustomerId}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      {sub.stripeCustomerId.slice(0, 18)}...
-                      <Icons.ArrowUpRight className="ml-1 size-3" />
-                    </Button>
-                  ) : (
-                    <span className="text-muted-foreground">{"\u2014"}</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  {sub.stripeCustomerId && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setInvoicesFor(
-                          invoicesFor === sub.stripeCustomerId
-                            ? null
-                            : sub.stripeCustomerId,
-                        )
-                      }
-                    >
-                      <Icons.CreditCard className="mr-1 size-3" />
-                      Faturas
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariant(sub.status)}>
+                      {statusLabel(sub.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {sub.currentPeriodEnd ? (
+                      <span
+                        className={`text-sm font-medium ${
+                          days === null
+                            ? "text-muted-foreground"
+                            : days < 0
+                              ? "text-destructive"
+                              : days <= 7
+                                ? "text-yellow-500"
+                                : days <= 30
+                                  ? "text-yellow-600"
+                                  : "text-green-600"
+                        }`}
+                      >
+                        {days === null
+                          ? "—"
+                          : days < 0
+                            ? `Expirado há ${Math.abs(days)}d`
+                            : days === 0
+                              ? "Expira hoje"
+                              : `${days}d restantes`}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(sub.createdAt).toLocaleDateString("pt-BR")}
+                  </TableCell>
+                  <TableCell>
+                    {sub.stripeCustomerId ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="font-mono text-xs"
+                        onClick={() =>
+                          window.open(
+                            `https://dashboard.stripe.com/customers/${sub.stripeCustomerId}`,
+                            "_blank",
+                          )
+                        }
+                      >
+                        {sub.stripeCustomerId.slice(0, 18)}...
+                        <Icons.ArrowUpRight className="ml-1 size-3" />
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {sub.stripeCustomerId && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setInvoicesFor(
+                            invoicesFor === sub.stripeCustomerId
+                              ? null
+                              : sub.stripeCustomerId,
+                          )
+                        }
+                      >
+                        <Icons.CreditCard className="mr-1 size-3" />
+                        Faturas
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       )}

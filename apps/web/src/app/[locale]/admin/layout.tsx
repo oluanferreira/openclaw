@@ -37,6 +37,11 @@ const menu: Menu = [
         href: pathsConfig.admin.subscriptions,
         icon: <Icons.CreditCard />,
       },
+      {
+        title: "Tickets",
+        href: pathsConfig.admin.tickets,
+        icon: <Icons.LifeBuoy />,
+      },
     ],
   },
 ];
@@ -58,7 +63,7 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
-      <DashboardSidebar user={user} menu={menu} hideFooter />
+      <DashboardSidebar user={user} menu={menu} />
       <SidebarInset>
         <DashboardActionBar menu={menu} />
         <div className="@container/dashboard flex w-full flex-1 flex-col items-start gap-6 p-6 lg:p-8">

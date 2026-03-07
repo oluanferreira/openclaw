@@ -230,5 +230,10 @@
     "unauthorized": "You need to be logged in to access this feature!",
     "forbidden": "You don't have permission to access this feature!"
   },
-  "goBackHome": "Go back home"
+  "goBackHome": "Go back home",
+  "tickets": "Tickets",
+  "all": "All",
+  "inProgress": "In progress",
+  "skills": "Skills",
+  "accessMyClaw": "Access my ClaW"
 }

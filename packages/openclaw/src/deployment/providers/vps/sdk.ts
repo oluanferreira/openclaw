@@ -110,3 +110,171 @@ export const parseOutput = (stdout: string) => {
 
 export const escapeShell = (value: string) =>
   `'${value.replaceAll("'", "'\"'\"'")}'`;
+
+export const notifyAgent = async (
+  instanceId: string,
+  message: string,
+): Promise<void> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  const escapedMsg = escapeShell(
+    JSON.stringify({ message, name: "system", wakeMode: "always" }),
+  );
+
+  const script = `
+PORT=$(docker inspect --format '{{range $p, $conf := .HostConfig.PortBindings}}{{(index $conf 0).HostPort}}{{end}}' ${escapeShell(instanceId)} 2>/dev/null || echo "")
+if [ -z "$PORT" ]; then exit 0; fi
+TOKEN=$(python3 -c "import json; c=json.load(open('${stateDir}/openclaw.json')); print(c.get('hooks',{}).get('token',''))" 2>/dev/null || echo "")
+if [ -z "$TOKEN" ]; then exit 0; fi
+curl -s --max-time 5 -X POST "http://127.0.0.1:$PORT/hooks/agent" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d ${escapedMsg} || true
+`.trim();
+
+  try {
+    await execute(script, { timeout: 30_000 });
+  } catch {
+    // best-effort — don't block caller
+  }
+};
+
+export const destroyInstanceFull = async (
+  instanceId: string,
+): Promise<void> => {
+  const escaped = escapeShell(instanceId);
+  const routeFile = `${env.VPS_CADDY_ROUTES_DIR}/${instanceId}${env.VPS_INSTANCE_DOMAIN_SUFFIX}.caddy`;
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+
+  const script = `
+docker rm -f ${escaped} 2>/dev/null || true
+rm -f ${escapeShell(routeFile)}
+caddy reload --config ${escapeShell(env.VPS_CADDY_CONFIG_PATH)} 2>/dev/null || true
+rm -rf ${escapeShell(stateDir)}
+`.trim();
+
+  await execute(script, { timeout: 60_000 });
+};
+
+export const restartContainer = async (instanceId: string): Promise<void> => {
+  await execute(`docker restart ${escapeShell(instanceId)}`);
+};
+
+export const updateOpenclawJson = async (
+  instanceId: string,
+  updater: (config: Record<string, unknown>) => Record<string, unknown>,
+): Promise<void> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  const configPath = `${stateDir}/openclaw.json`;
+
+  const { stdout } = await execute(`cat ${escapeShell(configPath)} 2>/dev/null || echo "{}"`);
+  const currentConfig = JSON.parse(stdout.trim() || "{}") as Record<string, unknown>;
+  const newConfig = updater(currentConfig);
+  const configJson = JSON.stringify(newConfig, null, 2);
+
+  await execute(`cat > ${escapeShell(configPath)} << 'OPENCLAW_JSON_EOF'\n${configJson}\nOPENCLAW_JSON_EOF`);
+};
+
+export const findToolBinary = async (
+  instanceId: string,
+  toolName: string,
+): Promise<string | null> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  const toolsDir = `${stateDir}/.openclaw/tools/${toolName}`;
+
+  try {
+    const { stdout } = await execute(
+      `find ${escapeShell(toolsDir)} -name ${escapeShell(toolName)} -type f -executable 2>/dev/null | head -1`,
+      { timeout: 10_000 },
+    );
+    const path = stdout.trim();
+    return path || null;
+  } catch {
+    return null;
+  }
+};
+
+export const downloadSkillBinary = async (
+  instanceId: string,
+  binaryName: string,
+): Promise<{ success: boolean; error?: string }> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  const clawhub = `${stateDir}/.local/bin/clawhub`;
+
+  try {
+    // Install the skill via clawhub (the runtime will manage the binary)
+    const script = `
+export HOME=${escapeShell(stateDir)}
+if [ ! -f ${escapeShell(clawhub)} ]; then
+  echo "clawhub_not_found"
+  exit 1
+fi
+${escapeShell(clawhub)} install ${escapeShell(binaryName)} --workdir ${escapeShell(stateDir)} --dir skills --no-input 2>&1
+`.trim();
+    await execute(script, { timeout: 120_000 });
+    return { success: true };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { success: false, error: errMsg };
+  }
+};
+
+export const gogSetupStep1 = async (
+  instanceId: string,
+  clientSecret: string,
+  email: string,
+  keyringPassword: string,
+): Promise<{ authUrl: string }> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+
+  const script = `
+GOG_BIN=$(find ${escapeShell(`${stateDir}/.openclaw/tools/gogcli`)} -name gog -type f -executable 2>/dev/null | head -1)
+if [ -z "$GOG_BIN" ]; then
+  # Fallback to .local/bin
+  GOG_BIN=${escapeShell(`${stateDir}/.local/bin/gog`)}
+fi
+if [ ! -f "$GOG_BIN" ]; then
+  echo "gog binary not found"
+  exit 1
+fi
+export KEYRING_PASSWORD=${escapeShell(keyringPassword)}
+export GOG_DATA_DIR=${escapeShell(`${stateDir}/.gog`)}
+mkdir -p "$GOG_DATA_DIR"
+cat > "$GOG_DATA_DIR/client_secret.json" << 'CLIENT_SECRET_EOF'
+${clientSecret}
+CLIENT_SECRET_EOF
+"$GOG_BIN" auth setup --email ${escapeShell(email)} --client-secret "$GOG_DATA_DIR/client_secret.json" --data-dir "$GOG_DATA_DIR" 2>&1
+`.trim();
+
+  const { stdout } = await execute(script, { timeout: 60_000 });
+  const urlMatch = stdout.match(/https:\/\/accounts\.google\.com\/[^\s]+/);
+  if (!urlMatch) {
+    throw new Error(`Could not extract auth URL from output: ${stdout.slice(0, 500)}`);
+  }
+  return { authUrl: urlMatch[0] };
+};
+
+export const gogSetupStep2 = async (
+  instanceId: string,
+  email: string,
+  callbackUrl: string,
+  keyringPassword: string,
+): Promise<{ account: string }> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+
+  const script = `
+GOG_BIN=$(find ${escapeShell(`${stateDir}/.openclaw/tools/gogcli`)} -name gog -type f -executable 2>/dev/null | head -1)
+if [ -z "$GOG_BIN" ]; then
+  GOG_BIN=${escapeShell(`${stateDir}/.local/bin/gog`)}
+fi
+if [ ! -f "$GOG_BIN" ]; then
+  echo "gog binary not found"
+  exit 1
+fi
+export KEYRING_PASSWORD=${escapeShell(keyringPassword)}
+export GOG_DATA_DIR=${escapeShell(`${stateDir}/.gog`)}
+"$GOG_BIN" auth callback --url ${escapeShell(callbackUrl)} --data-dir "$GOG_DATA_DIR" 2>&1
+`.trim();
+
+  const { stdout } = await execute(script, { timeout: 60_000 });
+  return { account: email };
+};

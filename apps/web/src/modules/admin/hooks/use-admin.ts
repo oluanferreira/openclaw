@@ -101,6 +101,10 @@ export const useAdminUpdateServer = () => {
   });
 };
 
+export const useAdminUptime = () => {
+  return useQuery(adminApi.queries.uptime);
+};
+
 export const useAdminDeleteServer = () => {
   const queryClient = useQueryClient();
 

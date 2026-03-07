@@ -117,6 +117,15 @@ export const Comparison = async () => {
           <p className="text-muted-foreground text-sm leading-relaxed text-pretty sm:text-base">
             {t("comparison.product.description")}
           </p>
+          <p className="text-muted-foreground mt-2 text-sm font-medium sm:text-base">
+            {t("comparison.product.currentPrice")}
+            {' '}
+            <span className="mx-0.5">·</span>
+            {' '}
+            <span className="text-primary bg-primary/10 rounded px-1.5 py-0.5">
+              {t("comparison.product.nextPrice")}
+            </span>
+          </p>
         </div>
       </div>
     </Section>

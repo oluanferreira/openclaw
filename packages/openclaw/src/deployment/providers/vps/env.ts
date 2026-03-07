@@ -27,6 +27,8 @@ export const preset = {
       .int()
       .positive()
       .default(1024),
+    VPS_GOGCLI_VERSION: z.string().min(1).default("0.11.0"),
+    VPS_GH_CLI_VERSION: z.string().min(1).default("2.67.0"),
   },
   extends: [caddyPreset],
 } as const satisfies Preset;

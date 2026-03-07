@@ -55,8 +55,10 @@ const getDockerRunCommand = (params: {
   -e NODE_OPTIONS=${escapeShell(
     `--max-old-space-size=${vpsEnv.VPS_NODE_MAX_OLD_SPACE_SIZE}`,
   )} \
+  -e PATH="/opt/openclaw/.local/bin:/opt/openclaw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
+  -e HOME="/opt/openclaw" \
   -e OPENAI_API_KEY=${escapeShell(params.aiKeys?.openaiApiKey ?? "")} \
   -e ANTHROPIC_API_KEY=${escapeShell(params.aiKeys?.anthropicApiKey ?? "")} \
   -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(params.aiKeys?.googleApiKey ?? "")} \
@@ -68,6 +70,7 @@ const getDeploymentScript = (
     id: string;
     port: number;
     token: string;
+    hooksToken: string;
     userId: string;
   },
 ) => {
@@ -89,6 +92,7 @@ umask 077
 mkdir -p "$DEPLOY_ROOT/instances"
 chmod 700 "$DEPLOY_ROOT" "$DEPLOY_ROOT/instances"
 mkdir -p "$STATE_DIR"
+mkdir -p "$STATE_DIR/bin"
 CONTAINER_UID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -u' 2>/dev/null || echo "1000")
 CONTAINER_GID=$(docker run --rm --entrypoint sh "$IMAGE" -c 'id -g' 2>/dev/null || echo "1000")
 chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR"
@@ -99,6 +103,116 @@ ${JSON.stringify(getGatewayConfig({ origin, ...params }), null, 2)}
 EOF
 chown "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/openclaw.json"
 chmod 600 "$STATE_DIR/openclaw.json"
+
+# Install clawhub CLI into container writable path
+mkdir -p "$STATE_DIR/.local" "$STATE_DIR/.npm" "$STATE_DIR/skills"
+NPM_CONFIG_PREFIX="$STATE_DIR/.local" NPM_CONFIG_CACHE="$STATE_DIR/.npm" npm install -g clawhub --loglevel=error >/dev/null 2>&1 || true
+chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/.local" "$STATE_DIR/.npm" "$STATE_DIR/skills" "$STATE_DIR/.clawhub" 2>/dev/null || true
+
+# Create workspace with ClaWin1Click context (only TOOLS.md — other files use OpenClaw defaults)
+mkdir -p "$STATE_DIR/.openclaw/workspace"
+
+cat > "$STATE_DIR/.openclaw/workspace/TOOLS.md" << 'TOOLSEOF'
+# TOOLS.md - Ambiente Operacional
+
+## Onde voce esta
+
+Voce roda dentro de um **container Docker isolado** gerenciado pela plataforma ClaWin1Click.
+- **OS:** Debian Bookworm (414+ pacotes pre-instalados)
+- **Container:** read-only filesystem, 2GB RAM, 1.5 CPUs
+- **Home:** /opt/openclaw
+- **Workspace:** /opt/openclaw/.openclaw/workspace/
+- **Skills dir:** /opt/openclaw/skills/ (instaladas via clawhub)
+- **Binarios locais:** /opt/openclaw/.local/bin/ (clawhub CLI, gog, etc.)
+- **Config principal:** /opt/openclaw/openclaw.json
+- **Tmpfs:** /tmp (64MB, apagado a cada restart)
+- **Internet:** acesso total (outbound) — voce pode fazer HTTP requests, DNS, npm install, etc.
+- **Sem acesso SSH externo** — voce nao tem acesso ao host nem a outros containers
+
+## O que voce PODE fazer
+
+- Ler/escrever em /opt/openclaw/ (volume persistente — sobrevive restarts)
+- Ler/escrever em /tmp (tmpfs 64MB — apagado a cada restart)
+- Instalar pacotes Node.js: npm install --prefix /opt/openclaw/.local <pacote>
+- Instalar binarios estaticos (Go, Rust): download + chmod +x em /opt/openclaw/.local/bin/
+- Instalar skills do ClawHub: clawhub install <slug>
+- Acessar a internet: curl, wget, APIs externas, npm registries
+- Executar scripts: node, bash, python3
+- Usar pip3 para instalar pacotes Python: pip3 install --user <pacote>
+- Usar ffmpeg para audio/video processing
+- Usar jq para processar JSON no shell
+- Usar yt-dlp para download de videos do YouTube e outros sites
+- Usar tesseract para OCR (reconhecimento de texto em imagens)
+
+## O que voce NAO PODE fazer
+
+- **apt/dpkg install:** apt e dpkg existem mas precisam de root. Voce roda como user node, sem sudo.
+- **Instalar pacotes de sistema:** nao pode instalar libs como libnspr4, libnss3, etc.
+- **Browsers/Chromium:** NAO tente instalar Playwright, Puppeteer, ou qualquer browser.
+  Mesmo baixando o binario, ele depende de libs de sistema que voce nao pode instalar.
+  Isso gasta centenas de MB e vai falhar com "cannot open shared object file".
+- **Escrever fora de /opt/openclaw/ e /tmp:** filesystem e read-only.
+- **Editar o Docker/imagem/compose:** voce nao controla o container. A plataforma gerencia.
+- **Acessar outros containers ou o host:** voce esta isolado.
+
+## Env Vars Disponiveis
+
+Apenas 3 AI keys sao injetadas pelo host:
+- OPENAI_API_KEY — configuravel pelo user no dashboard
+- ANTHROPIC_API_KEY — configuravel pelo user no dashboard
+- GOOGLE_GENERATIVE_AI_API_KEY — configuravel pelo user no dashboard
+
+**Nao ha** .env file. Para skills que precisam de env vars customizadas (ex: TAVILY_API_KEY),
+voce pode criar um .env em /opt/openclaw/.env e instruir o user sobre como definir.
+Porem, note que o processo principal do OpenClaw **nao le** esse arquivo automaticamente —
+as env vars ficam disponiveis apenas para scripts que voce executar com source .env && <comando>
+ou export CHAVE=valor && <comando>.
+
+## ClawHub — Instalar Skills
+
+O CLI clawhub esta disponivel em /opt/openclaw/.local/bin/clawhub.
+
+### Instalar uma skill
+clawhub install <slug> --workdir /opt/openclaw --dir skills --no-input
+
+### Listar skills instaladas
+clawhub list --workdir /opt/openclaw --dir skills
+
+### Desinstalar uma skill
+clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
+
+### Buscar skills
+clawhub search <query> --workdir /opt/openclaw --dir skills
+
+### Tipos de skills
+
+| Tipo | Exemplo | Precisa de env? | Funciona automaticamente? |
+|------|---------|-----------------|---------------------------|
+| Instruction-only | shadcn, github, weather | Nao | SIM |
+| Scripts + env | tavily-search | TAVILY_API_KEY | Precisa config manual |
+| Binario + env | trello | TRELLO_API_KEY | Precisa config manual (env vars) |
+
+Se o user pedir para instalar uma skill que requer env vars, ajude-o:
+1. Instale a skill com clawhub install
+2. Leia o SKILL.md da skill para ver requires.env
+3. Peca a API key ao user
+4. Exporte a var com export VAR=valor antes de executar scripts da skill
+
+## Limpeza
+
+- Limpe /opt/openclaw/.tmp/ periodicamente — downloads falhados se acumulam ali
+- NAO acumule binarios grandes sem necessidade
+
+## Plataforma
+
+- **Dashboard:** O user gerencia tudo pelo dashboard em clawin1click.com
+- **Skills curadas:** 9 skills pre-configuradas (toggle on/off no dashboard)
+- **Skills ClawHub:** User encontra em clawhub.ai, pede para voce instalar via chat
+- **AI Keys:** Configuradas no dashboard, criptografadas AES-256
+- **Comunicacao:** Telegram (configurado no deploy) ou Web UI
+TOOLSEOF
+
+chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/.openclaw"
 
 PORT="$INITIAL_PORT"
 for _ in $(seq 1 128); do
@@ -131,9 +245,27 @@ echo "container_id=$CONTAINER_ID"
 `;
 };
 
-const getUpdateKeysScript = (id: string, aiKeys: AiKeysInput) => {
+const getUpdateKeysScript = (id: string, aiKeys: AiKeysInput, model?: string) => {
+  const STATE_DIR = toStateDir(id);
+
   return `
 set -euo pipefail
+
+NEW_MODEL=${escapeShell(model ?? "")}
+STATE_DIR=${escapeShell(STATE_DIR)}
+
+# Update model in openclaw.json (if provided)
+if [ -n "$NEW_MODEL" ]; then
+  python3 -c "
+import json, sys
+cfg_path = sys.argv[1] + '/openclaw.json'
+with open(cfg_path) as f:
+    cfg = json.load(f)
+cfg['agents']['defaults']['model']['primary'] = sys.argv[2]
+with open(cfg_path, 'w') as f:
+    json.dump(cfg, f, indent=2)
+" "$STATE_DIR" "$NEW_MODEL"
+fi
 
 # Get the current host port from the running container
 PORT=$(docker inspect --format '{{range $p, $conf := .HostConfig.PortBindings}}{{(index $conf 0).HostPort}}{{end}}' ${escapeShell(id)})
@@ -162,11 +294,13 @@ export const strategy = {
     const id = toInstanceId(userId);
     const port = toInitialPort(id);
     const token = getGatewayToken();
+    const hooksToken = getGatewayToken();
     const script = getDeploymentScript({
       id,
       port,
       userId,
       token,
+      hooksToken,
       ...input,
     });
 
@@ -193,8 +327,10 @@ export const strategy = {
   getLogs: async (id) =>
     execute(`docker logs --timestamps --details ${escapeShell(id)} 2>&1`),
   getUrl,
-  updateKeys: async (id: string, aiKeys: AiKeysInput) => {
-    const script = getUpdateKeysScript(id, aiKeys);
+  updateKeys: async (id: string, aiKeys: AiKeysInput, model?: string) => {
+    const script = getUpdateKeysScript(id, aiKeys, model);
     return execute(script);
   },
 } satisfies OpenClawDeploymentProviderStrategy;
+export { findToolBinary, downloadSkillBinary, updateOpenclawJson, restartContainer, gogSetupStep1, gogSetupStep2 } from "./sdk";
+export { clawhubExec } from "./clawhub";

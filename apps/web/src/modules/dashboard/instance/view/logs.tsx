@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useTranslation } from "@workspace/i18n";
 import { Icons } from "@workspace/ui-web/icons";
@@ -38,8 +38,14 @@ const parseLogs = (stdout: string) =>
 
 export const InstanceLogs = () => {
   const { t } = useTranslation(["common", "dashboard"]);
+  const queryClient = useQueryClient();
 
-  const logs = useQuery(instanceApi.queries.logs);
+  // Only poll logs when instance data is available in cache
+  const instanceData = queryClient.getQueryData(instanceApi.queries.get.queryKey);
+  const logs = useQuery({
+    ...instanceApi.queries.logs,
+    enabled: !!instanceData,
+  });
   const entries = parseLogs(logs.data?.stdout ?? "");
 
   const status = logs.isLoading

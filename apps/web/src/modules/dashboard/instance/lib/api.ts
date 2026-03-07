@@ -18,11 +18,12 @@ const queries = {
   status: queryOptions({
     queryKey: [KEY, "status"],
     queryFn: () => handle(api.openclaw.status.$get)(),
+    refetchInterval: 15_000,
   }),
   logs: queryOptions({
     queryKey: [KEY, "logs"],
     queryFn: () => handle(api.openclaw.logs.$get)(),
-    refetchInterval: 1000,
+    refetchInterval: 5_000,
   }),
   pairing: queryOptions({
     queryKey: [KEY, "pairing"],

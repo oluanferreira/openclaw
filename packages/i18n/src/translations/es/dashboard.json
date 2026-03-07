@@ -38,10 +38,10 @@
         }
       },
       "note": {
-        "pricing": "<strong>$49 por mes.</strong> Incluye $15 en créditos de IA renovados mensualmente.",
+        "pricing": "<strong>$29.90 por mes.</strong>",
         "signIn": "Inicia sesión para desplegar tu asistente de IA y conectar tus canales.",
         "invalid": "Asegúrate de que todos los campos estén llenos correctamente.",
-        "limited": "Servidores en la nube limitados — solo 8 restantes"
+        "limited": "El precio subirá — pero no para quienes se suscriban ahora"
       },
       "cta": "Desplegar OpenClaw",
       "success": "Despliegue iniciado. Esto puede tomar unos minutos para completarse."
@@ -147,6 +147,136 @@
     "manage": "Gestionar suscripción",
     "required": "Se requiere una suscripción activa para desplegar instancias.",
     "currency": "Moneda",
-    "perMonth": "mes"
+    "perMonth": "mes",
+    "banner": {
+      "paymentPending": "Pago pendiente. Su OpenClaw se apagará en {{days}} día(s).",
+      "lastDay": "¡ATENCIÓN! Último día para regularizar el pago de su suscripción.",
+      "overdue": "¡URGENTE! Plazo de suscripción vencido hace {{days}} día(s). ¡Su OpenClaw se apagará hoy!",
+      "payNow": "Pagar ahora"
+    }
+  },
+  "support": {
+    "home": {
+      "title": "Soporte",
+      "description": "Crea y gestiona tus solicitudes de soporte."
+    },
+    "ticket": {
+      "empty": "Todavía no tienes tickets de soporte.",
+      "details": "Detalles del ticket",
+      "replies": "Respuestas",
+      "noReplies": "Sin respuestas aún.",
+      "new": "Nuevo ticket",
+      "newTitle": "Abrir un nuevo ticket",
+      "form": {
+        "subject": "Asunto",
+        "subjectPlaceholder": "Breve descripción del problema",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Describe tu problema en detalle...",
+        "submit": "Enviar ticket",
+        "attach": "Adjuntar imagen"
+      },
+      "reply": {
+        "placeholder": "Escribe tu respuesta...",
+        "submit": "Enviar respuesta"
+      },
+      "status": {
+        "open": "Abierto",
+        "in_progress": "En progreso",
+        "closed": "Cerrado"
+      }
+    }
+  },
+  "account": {
+    "home": {
+      "title": "Cuenta",
+      "description": "Gestiona la información de tu cuenta."
+    },
+    "profile": {
+      "title": "Perfil",
+      "description": "Información de tu cuenta proporcionada por tu proveedor de inicio de sesión.",
+      "readOnly": "Esta información está gestionada por tu proveedor OAuth y no se puede editar aquí."
+    },
+    "dangerZone": {
+      "title": "Zona peligrosa",
+      "description": "Elimina permanentemente tu cuenta y todos los datos asociados.",
+      "warning": "Esta acción es irreversible. Todos tus datos serán eliminados permanentemente.",
+      "cta": "Eliminar cuenta",
+      "confirmWord": "ELIMINAR",
+      "dialog": {
+        "title": "Eliminar cuenta permanentemente",
+        "description": "Esta acción es irreversible. Todos tus datos, instancias y configuraciones serán eliminados permanentemente.",
+        "label": "Escribe para confirmar:"
+      }
+    }
+  },
+  "admin": {
+    "tickets": {
+      "home": {
+        "title": "Tickets de soporte",
+        "description": "Gestiona todas las solicitudes de soporte de usuarios."
+      },
+      "empty": "No se encontraron tickets.",
+      "reply": {
+        "label": "Respuesta admin",
+        "placeholder": "Escribe tu respuesta como admin...",
+        "cta": "Enviar respuesta"
+      }
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "description": "Gestiona las habilidades de tu agente OpenClaw.",
+    "error": "Error al cargar skills. Intenta de nuevo.",
+    "configure": "Configurar",
+    "saveCredentials": "Guardar",
+    "categories": {
+      "auto": "Auto-habilitadas",
+      "autoDescription": "Estas skills funcionan automaticamente sin configuracion.",
+      "config": "Requiere Configuracion",
+      "configDescription": "Estas skills necesitan credenciales para funcionar.",
+      "install": "Requiere Instalacion",
+      "installDescription": "Estas skills necesitan un binario externo y credenciales."
+    },
+    "status": {
+      "active": "Activo",
+      "pending": "Pendiente",
+      "disabled": "Deshabilitado",
+      "error": "Error"
+    },
+    "notifications": {
+      "enabled": "{{name}} habilitado exitosamente",
+      "disabled": "{{name}} deshabilitado"
+    },
+    "gog": {
+      "setup": {
+        "title": "Configurar Google Workspace (GoG)",
+        "step1Title": "Paso 1: Credenciales de Google Cloud",
+        "step2Title": "Paso 2: Autorizar acceso",
+        "step3Title": "Google Workspace conectado!",
+        "invalidJson": "Archivo JSON invalido",
+        "emailLabel": "Tu email de Google",
+        "uploadLabel": "Subir client_secret.json",
+        "fileLoaded": "Archivo cargado exitosamente",
+        "processing": "Procesando...",
+        "continue": "Continuar",
+        "step2Desc": "Haz clic en el boton para autorizar con Google. Despues de autorizar, copia la URL completa de la pagina de retorno (mostrara un error de conexion - es normal).",
+        "openAuth": "Abrir autorizacion Google",
+        "callbackLabel": "URL de retorno",
+        "callbackHint": "Pega aqui la URL completa de la barra de direcciones despues de autorizar",
+        "verify": "Verificar y completar",
+        "connectedAs": "Cuenta {{account}} conectada exitosamente!",
+        "done": "Listo",
+        "instructions": {
+          "1": "Ve a console.cloud.google.com",
+          "2": "Crea un nuevo proyecto (o usa uno existente)",
+          "3": "Ve a APIs & Services > Credentials",
+          "4": "Crea un OAuth 2.0 Client ID tipo Desktop app",
+          "5": "Descarga el JSON y subelo abajo"
+        }
+      },
+      "configure": "Configurar OAuth"
+    },
+    "getCredential": "Obtener clave",
+    "browseClawHub": "Explorar ClawHub"
   }
 }

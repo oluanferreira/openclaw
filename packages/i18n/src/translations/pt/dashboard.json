@@ -38,10 +38,10 @@
         }
       },
       "note": {
-        "pricing": "<strong>R$ 49 por mês.</strong> Inclui R$ 15 em créditos de IA renovados mensalmente.",
+        "pricing": "<strong>R$153,39 por mês.</strong>",
         "signIn": "Entre para fazer deploy do seu assistente de IA e conectar seus canais.",
         "invalid": "Certifique-se de que todos os campos estão preenchidos corretamente.",
-        "limited": "Servidores limitados — apenas 8 disponíveis"
+        "limited": "O preço vai subir — mas não pra quem assinar agora"
       },
       "cta": "Fazer Deploy do OpenClaw",
       "success": "Deploy iniciado. Pode levar alguns instantes para concluir."
@@ -63,7 +63,7 @@
     "status": {
       "stopped": "Parado",
       "running": "Em execução",
-      "starting": "Iniciando",
+      "starting": "Inicializando",
       "stopping": "Parando",
       "restarting": "Reiniciando",
       "removing": "Removendo",
@@ -103,15 +103,15 @@
       "steps": [
         {
           "title": "Acesse sua instância",
-          "description": "Clique no link da sua instância acima para abrir o painel de controle do OpenClaw em uma nova aba."
+          "description": "Clique no botão abaixo para abrir o painel de controle do OpenClaw em uma nova aba (o link já inclui sua chave de acesso).<br/><a href=\"{{instanceUrl}}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"instance-open-link\">Abrir painel do OpenClaw ↗</a>"
         },
         {
           "title": "Aguarde a solicitação de emparelhamento",
-          "description": "Ao abrir o painel, você verá a mensagem <strong>\"pairing required\"</strong>. Isso é normal — é uma camada de segurança do OpenClaw."
+          "description": "Ao abrir o painel, você verá a mensagem <strong>\"pairing required\"</strong>. Isso é normal — é uma camada de segurança do OpenClaw. Volte aqui em seguida."
         },
         {
           "title": "Aprove o emparelhamento aqui",
-          "description": "Volte a esta página. Uma solicitação aparecerá na seção <strong>\"Emparelhamento\"</strong> abaixo deste card. Clique em <strong>Aprovar</strong>."
+          "description": "Uma solicitação aparecerá na seção <strong>\"Emparelhamento\"</strong> abaixo deste card. Clique em <strong>Aprovar</strong>. Se demorar mais de 30 segundos, recarregue a página."
         },
         {
           "title": "Conecte seu canal (Telegram/Discord/WhatsApp)",
@@ -147,6 +147,136 @@
     "manage": "Gerenciar assinatura",
     "required": "É necessária uma assinatura ativa para fazer deploy de instâncias.",
     "currency": "Moeda",
-    "perMonth": "mês"
+    "perMonth": "mês",
+    "banner": {
+      "paymentPending": "Pagamento pendente. Seu OpenClaw será desligado em {{days}} dia(s).",
+      "lastDay": "ATENÇÃO! Último dia para regularizar o pagamento da sua assinatura.",
+      "overdue": "URGENTE! Prazo de assinatura vencido há {{days}} dia(s). Seu OpenClaw será desligado hoje!",
+      "payNow": "Pagar agora"
+    }
+  },
+  "support": {
+    "home": {
+      "title": "Suporte",
+      "description": "Crie e gerencie suas solicitacoes de suporte."
+    },
+    "ticket": {
+      "new": "Novo ticket",
+      "newTitle": "Abrir novo ticket",
+      "empty": "Voce ainda nao tem tickets de suporte.",
+      "details": "Detalhes do ticket",
+      "status": {
+        "open": "Aberto",
+        "in_progress": "Em andamento",
+        "closed": "Fechado"
+      },
+      "replies": "RESPOSTAS",
+      "noReplies": "Sem respostas ainda.",
+      "form": {
+        "subject": "Assunto",
+        "subjectPlaceholder": "Ex: Problema ao fazer deploy",
+        "description": "Descricao",
+        "descriptionPlaceholder": "Descreva o problema em detalhes...",
+        "submit": "Abrir ticket",
+        "attach": "Anexar imagem"
+      },
+      "reply": {
+        "placeholder": "Escreva sua resposta...",
+        "submit": "Responder"
+      }
+    }
+  },
+  "account": {
+    "home": {
+      "title": "Minha conta",
+      "description": "Gerencie as informacoes da sua conta."
+    },
+    "profile": {
+      "title": "Perfil",
+      "description": "Informacoes da sua conta de login.",
+      "readOnly": "Suas informacoes sao gerenciadas pelo seu provedor de autenticacao."
+    },
+    "dangerZone": {
+      "title": "Zona de perigo",
+      "description": "Exclua permanentemente sua conta.",
+      "warning": "A exclusao da conta e permanente.",
+      "cta": "Excluir conta",
+      "confirmWord": "EXCLUIR",
+      "dialog": {
+        "title": "Excluir conta permanentemente",
+        "description": "Esta acao e irreversivel. Todos os seus dados, instancias e configuracoes serao permanentemente excluidos.",
+        "label": "Digite para confirmar:"
+      }
+    }
+  },
+  "admin": {
+    "tickets": {
+      "home": {
+        "title": "Tickets de suporte",
+        "description": "Gerencie todas as solicitacoes de suporte."
+      },
+      "empty": "Nenhum ticket encontrado.",
+      "reply": {
+        "label": "Resposta do admin",
+        "placeholder": "Escreva sua resposta como admin...",
+        "cta": "Enviar resposta"
+      }
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "description": "Gerencie as habilidades do seu agente OpenClaw.",
+    "error": "Erro ao carregar skills. Tente novamente.",
+    "configure": "Configurar",
+    "saveCredentials": "Salvar",
+    "categories": {
+      "auto": "Auto-habilitadas",
+      "autoDescription": "Essas skills funcionam automaticamente, sem necessidade de configuracao.",
+      "config": "Requer Configuracao",
+      "configDescription": "Essas skills precisam de credenciais para funcionar.",
+      "install": "Requer Instalacao",
+      "installDescription": "Essas skills precisam de um binario externo e credenciais."
+    },
+    "status": {
+      "active": "Ativo",
+      "pending": "Pendente",
+      "disabled": "Desabilitado",
+      "error": "Erro"
+    },
+    "notifications": {
+      "enabled": "{{name}} habilitado com sucesso",
+      "disabled": "{{name}} desabilitado"
+    },
+    "gog": {
+      "setup": {
+        "title": "Configurar Google Workspace (GoG)",
+        "step1Title": "Passo 1: Credenciais do Google Cloud",
+        "step2Title": "Passo 2: Autorizar acesso",
+        "step3Title": "Google Workspace conectado!",
+        "invalidJson": "Arquivo JSON invalido",
+        "emailLabel": "Seu email Google",
+        "uploadLabel": "Upload do client_secret.json",
+        "fileLoaded": "Arquivo carregado com sucesso",
+        "processing": "Processando...",
+        "continue": "Continuar",
+        "step2Desc": "Clique no botao abaixo para autorizar no Google. Apos autorizar, copie a URL completa da pagina de retorno (que mostrara um erro de conexao - isso e normal).",
+        "openAuth": "Abrir autorizacao Google",
+        "callbackLabel": "URL de retorno",
+        "callbackHint": "Cole aqui a URL completa da barra de endereco apos autorizar",
+        "verify": "Verificar e concluir",
+        "connectedAs": "Conta {{account}} conectada com sucesso!",
+        "done": "Concluir",
+        "instructions": {
+          "1": "Acesse console.cloud.google.com",
+          "2": "Crie um novo projeto (ou use um existente)",
+          "3": "Va em APIs & Services > Credentials",
+          "4": "Crie um OAuth 2.0 Client ID do tipo Desktop app",
+          "5": "Baixe o JSON e faca upload abaixo"
+        }
+      },
+      "configure": "Configurar OAuth"
+    },
+    "getCredential": "Obter chave",
+    "browseClawHub": "Explorar ClawHub"
   }
 }

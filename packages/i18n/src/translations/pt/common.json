@@ -230,5 +230,10 @@
     "unauthorized": "Você precisa estar logado para acessar este recurso!",
     "forbidden": "Você não tem permissão para acessar este recurso!"
   },
-  "goBackHome": "Voltar para o início"
+  "goBackHome": "Voltar para o início",
+  "tickets": "Tickets",
+  "all": "Todos",
+  "inProgress": "Em andamento",
+  "skills": "Skills",
+  "accessMyClaw": "Acessar meu ClaW"
 }

@@ -8,9 +8,14 @@ import { generateId } from "@workspace/shared/utils";
 import { HttpStatusCode } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
+import { getInstanceByUserId, deleteInstance, notifyAgent, destroyInstanceFull } from "@workspace/openclaw/server";
+import { logger } from "@workspace/shared/logger";
+
 import { env } from "../../env";
 import { enforceAuth } from "../../middleware";
 
+
+const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
 let _stripe: Stripe | null = null;
 const getStripe = () => {
   if (!_stripe) _stripe = new Stripe(env.STRIPE_SECRET_KEY);
@@ -96,6 +101,24 @@ export const billingRouter = new Hono()
           updatedAt: new Date(),
         })
         .where(eq(subscription.stripeCustomerId, customerId));
+
+      if (sub.status === "past_due") {
+        const dbSub = await db.query.subscription.findFirst({
+          where: (t, { eq: eqFn }) => eqFn(t.stripeCustomerId, customerId),
+        });
+        if (dbSub) {
+          const inst = await getInstanceByUserId(dbSub.userId);
+          if (inst) {
+            const deadline = new Date(sub.current_period_end * 1000);
+            deadline.setDate(deadline.getDate() + 3);
+            const deadlineStr = deadline.toLocaleDateString("pt-BR");
+            await notifyAgent(
+              inst.id,
+              `ALERTA: Pagamento da assinatura falhou. Seu OpenClaw será desligado em ${deadlineStr} se o pagamento não for regularizado. Por favor, avise seu usuário imediatamente pelo canal de comunicação.`,
+            ).catch(() => {});
+          }
+        }
+      }
     }
 
     if (event.type === "customer.subscription.deleted") {
@@ -110,15 +133,78 @@ export const billingRouter = new Hono()
           updatedAt: new Date(),
         })
         .where(eq(subscription.stripeCustomerId, customerId));
+
+      const dbSub = await db.query.subscription.findFirst({
+        where: (t, { eq: eqFn }) => eqFn(t.stripeCustomerId, customerId),
+      });
+      if (dbSub) {
+        const inst = await getInstanceByUserId(dbSub.userId);
+        if (inst) {
+          await notifyAgent(
+            inst.id,
+            "Assinatura cancelada. Este OpenClaw será desligado agora.",
+          ).catch(() => {});
+          await destroyInstanceFull(inst.id).catch((e) =>
+            logger.error("destroyInstanceFull failed", e),
+          );
+          await deleteInstance(inst.id);
+        }
+      }
+    }
+
+    if (event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id ?? null;
+      if (customerId) {
+        await db
+          .update(subscription)
+          .set({
+            status: "past_due",
+            updatedAt: new Date(),
+          })
+          .where(eq(subscription.stripeCustomerId, customerId));
+
+        const dbSub = await db.query.subscription.findFirst({
+          where: (t, { eq: eqFn }) => eqFn(t.stripeCustomerId, customerId),
+        });
+        if (dbSub) {
+          const inst = await getInstanceByUserId(dbSub.userId);
+          if (inst) {
+            await notifyAgent(
+              inst.id,
+              "ALERTA URGENTE: Tentativa de cobrança da sua assinatura falhou. Regularize o pagamento em até 3 dias para evitar o desligamento. Avise seu usuário imediatamente.",
+            ).catch(() => {});
+          }
+        }
+      }
     }
 
     return c.json({ received: true });
   })
   .use(enforceAuth)
   .get("/subscription", async (c) => {
-    const userId = c.var.user.id;
+    const user = c.var.user;
+
+    // Admin accounts bypass subscription requirement
+    if (ADMIN_EMAILS.includes(user.email)) {
+      return c.json({
+        id: "admin",
+        userId: user.id,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        stripePriceId: null,
+        status: "active",
+        currentPeriodEnd: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
     const result = await db.query.subscription.findFirst({
-      where: (t, { eq: eqFn }) => eqFn(t.userId, userId),
+      where: (t, { eq: eqFn }) => eqFn(t.userId, user.id),
     });
     return c.json(result ?? null);
   })
@@ -134,7 +220,7 @@ export const billingRouter = new Hono()
       payment_method_types: ["card"],
       currency,
       line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
-      success_url: `${baseUrl}/dashboard/billing?success=true`,
+      success_url: `${baseUrl}/dashboard?checkout=success`,
       cancel_url: `${baseUrl}/dashboard/billing`,
       client_reference_id: user.id,
       customer_email: user.email,

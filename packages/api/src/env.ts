@@ -16,6 +16,13 @@ export const preset = {
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
     STRIPE_PRICE_ID: z.string().min(1),
+    // 64-char hex string = 32 bytes = AES-256 key
+    ENCRYPTION_KEY: z
+      .string()
+      .length(64, "ENCRYPTION_KEY must be a 64-character hex string (32 bytes)")
+      .regex(/^[0-9a-f]+$/i, "ENCRYPTION_KEY must be a hex string")
+      .optional(),
+    UPTIMEROBOT_API_KEY: z.string().optional(),
   },
 } as const satisfies Preset;
 

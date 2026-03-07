@@ -21,7 +21,9 @@
     "product": {
       "timeUnderSeconds": "< {{seconds}} seconds",
       "subtitle": "Pick a model, connect Telegram, deploy - done under 30 seconds.",
-      "description": "Servers, SSH and OpenClaw Environment are already set up, waiting to get assigned. Simple, secure and fast connection to your bot."
+      "description": "Servers, SSH and OpenClaw Environment are already set up, waiting to get assigned. Simple, secure and fast connection to your bot.",
+      "currentPrice": "$29.90/mo",
+      "nextPrice": "Next price: $39.90"
     }
   },
   "useCases": {

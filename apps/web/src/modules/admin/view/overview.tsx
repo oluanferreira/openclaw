@@ -15,6 +15,7 @@ import { Icons } from "@workspace/ui-web/icons";
 import {
   useAdminGrowth,
   useAdminSubscriptionStats,
+  useAdminUptime,
   useAdminUsers,
 } from "../hooks/use-admin";
 
@@ -148,10 +149,22 @@ function AreaChart({ data }: { data: { label: string; count: number }[] }) {
 
 type GrowthPeriod = "months" | "days";
 
+const MONITOR_STATUS: Record<
+  number,
+  { label: string; className: string }
+> = {
+  0: { label: "Pausado", className: "bg-muted-foreground" },
+  1: { label: "Aguardando", className: "bg-yellow-400" },
+  2: { label: "Online", className: "bg-green-500" },
+  8: { label: "Instável", className: "bg-yellow-500" },
+  9: { label: "Offline", className: "bg-red-500" },
+};
+
 export function AdminOverview() {
   const { data: growth, isLoading: loadingGrowth } = useAdminGrowth();
   const { data: stats, isLoading: loadingStats } = useAdminSubscriptionStats();
   const { data: users, isLoading: loadingUsers } = useAdminUsers();
+  const { data: uptimeData, isLoading: loadingUptime } = useAdminUptime();
   const [period, setPeriod] = useState<GrowthPeriod>("months");
 
   const loading = loadingGrowth || loadingStats || loadingUsers;
@@ -330,6 +343,54 @@ export function AdminOverview() {
           </CardContent>
         </Card>
       </div>
+
+      {/* UptimeRobot Monitoring */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Monitoramento (UptimeRobot)</CardTitle>
+          <Icons.Globe className="text-muted-foreground size-4" />
+        </CardHeader>
+        <CardContent>
+          {loadingUptime ? (
+            <div className="text-muted-foreground text-sm">Carregando...</div>
+          ) : !(uptimeData as any)?.monitors?.length ? (
+            <div className="text-muted-foreground text-sm">
+              {(uptimeData as any)?.error ?? "Nenhum monitor configurado"}
+            </div>
+          ) : (
+            <div className="flex flex-col divide-y">
+              {(uptimeData as any).monitors.map((m: any) => {
+                const st = MONITOR_STATUS[m.status] ?? MONITOR_STATUS[0]!;
+                return (
+                  <div
+                    key={m.id}
+                    className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`size-2 rounded-full ${st.className}`}
+                      />
+                      <span className="text-sm font-medium">{m.name}</span>
+                    </div>
+                    <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                      {m.responseTime != null && (
+                        <span>{m.responseTime}ms</span>
+                      )}
+                      <span>{m.uptimeRatio.toFixed(2)}%</span>
+                      <Badge
+                        variant={m.status === 2 ? "default" : "destructive"}
+                        className="text-xs"
+                      >
+                        {st.label}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Bottom row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

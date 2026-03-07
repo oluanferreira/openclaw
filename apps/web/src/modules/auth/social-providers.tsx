@@ -19,10 +19,12 @@ const ProviderIcons = {
 
 interface SocialProvidersProps extends React.ComponentProps<"div"> {
   redirectTo?: string;
+  onBeforeSignIn?: (provider: SocialProvider) => void;
 }
 
 export const SocialProviders = ({
   redirectTo = pathsConfig.dashboard.index,
+  onBeforeSignIn,
   className,
   ...props
 }: SocialProvidersProps) => {
@@ -39,7 +41,10 @@ export const SocialProviders = ({
             variant={index === 0 ? "foreground" : "outline"}
             type="button"
             className="h-auto px-4 py-2.5 text-base sm:px-5"
-            onClick={() => signIn.mutate({ provider, callbackURL: redirectTo })}
+            onClick={() => {
+              onBeforeSignIn?.(provider);
+              signIn.mutate({ provider, callbackURL: redirectTo });
+            }}
             disabled={
               signIn.isPending && signIn.variables.provider === provider
             }

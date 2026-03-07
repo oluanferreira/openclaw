@@ -2,12 +2,15 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useFormContext } from "react-hook-form";
 
 import { useTranslation } from "@workspace/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
+import { buttonVariants } from "@workspace/ui-web/button";
 import { Card } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 import { Spinner } from "@workspace/ui-web/spinner";
+import { cn } from "@workspace/ui";
 
 import { pathsConfig } from "~/config/paths";
 import { auth } from "~/modules/auth/lib/api";
@@ -17,10 +20,33 @@ import {
   DeployInstanceFormNote,
   DeployInstanceFormFooter,
   DeployInstanceSubmitButton,
+  DEPLOY_DATA_KEY,
 } from "~/modules/dashboard/instance/deploy/form";
+import { TurboLink } from "~/modules/common/turbo-link";
 import { Section } from "~/modules/marketing/layout/section";
 
 import type { User } from "@workspace/auth";
+import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
+
+const HeroLoginButtons = ({ className }: { className?: string }) => {
+  const form = useFormContext<DeployInstanceSchemaInput>();
+
+  const handleBeforeSignIn = () => {
+    try {
+      localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify(form.getValues()));
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <SocialProviders
+      className={className}
+      redirectTo={pathsConfig.index}
+      onBeforeSignIn={handleBeforeSignIn}
+    />
+  );
+};
 
 interface HeroProps {
   user: User | null;
@@ -89,7 +115,7 @@ export const Hero = ({ user }: HeroProps) => {
             {user ? (
               <div className="flex flex-col items-stretch gap-2 sm:flex-row">
                 <DeployInstanceSubmitButton />
-                {/* <TurboLink
+                <TurboLink
                   href={pathsConfig.dashboard.index}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "lg" }),
@@ -98,14 +124,12 @@ export const Hero = ({ user }: HeroProps) => {
                 >
                   <Icons.Home className="size-4.5 shrink-0" />
                   {t("goToDashboard")}
-                </TurboLink> */}
+                </TurboLink>
               </div>
             ) : (
-              <SocialProviders className="flex-col items-stretch sm:flex-row" />
+              <HeroLoginButtons className="flex-col items-stretch sm:flex-row" />
             )}
-            <DeployInstanceFormNote
-              {...(!user ? { note: t("instance.deploy.note.signIn") } : {})}
-            />
+            <DeployInstanceFormNote />
           </DeployInstanceFormFooter>
         </DeployInstanceForm>
       </Card>

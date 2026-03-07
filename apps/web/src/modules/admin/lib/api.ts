@@ -46,6 +46,11 @@ const queries = {
     queryKey: [KEY, "servers"],
     queryFn: () => handle(api.admin.servers.$get)(),
   }),
+  uptime: queryOptions({
+    queryKey: [KEY, "stats", "uptime"],
+    queryFn: () => handle((api.admin.stats as any).uptime.$get)(),
+    refetchInterval: 60_000,
+  }),
 };
 
 const mutations = {

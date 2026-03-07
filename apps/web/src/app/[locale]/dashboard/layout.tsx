@@ -12,6 +12,7 @@ import { getQueryClient } from "~/lib/query/server";
 import { DashboardActionBar } from "~/modules/common/layout/dashboard/action-bar";
 import { DashboardInset } from "~/modules/common/layout/dashboard/inset";
 import { DashboardSidebar } from "~/modules/common/layout/dashboard/sidebar/index";
+import { SubscriptionBanner } from "~/modules/common/layout/dashboard/subscription-banner";
 import { instance } from "~/modules/dashboard/instance/lib/api";
 
 const menu = [
@@ -30,8 +31,13 @@ const menu = [
     items: [
       {
         title: "account",
-        href: "#",
+        href: pathsConfig.dashboard.account,
         icon: <Icons.UserRound />,
+      },
+      {
+        title: "support",
+        href: pathsConfig.dashboard.support,
+        icon: <Icons.LifeBuoy />,
       },
       {
         title: "subscription",
@@ -42,6 +48,11 @@ const menu = [
         title: "apiKeys",
         href: pathsConfig.dashboard.apiKeys,
         icon: <Icons.Webhook />,
+      },
+      {
+        title: "skills",
+        href: pathsConfig.dashboard.skills,
+        icon: <Icons.Zap />,
       },
     ],
   },
@@ -70,6 +81,7 @@ export default async function DashboardLayout({
         <DashboardSidebar user={user} menu={menu} />
         <SidebarInset>
           <DashboardActionBar menu={menu} />
+          <SubscriptionBanner />
           <DashboardInset>{children}</DashboardInset>
         </SidebarInset>
       </SidebarProvider>

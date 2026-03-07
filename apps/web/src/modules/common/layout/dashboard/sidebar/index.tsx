@@ -36,11 +36,10 @@ import type { User } from "@workspace/auth";
 interface DashboardSidebarProps {
   readonly user: User;
   readonly menu: Menu;
-  readonly hideFooter?: boolean;
 }
 
 export const DashboardSidebar = memo<DashboardSidebarProps>(
-  ({ user, menu, hideFooter }) => {
+  ({ user, menu }) => {
     const { t, i18n } = useTranslation("common");
     const { setOpenMobile } = useSidebar();
     const {
@@ -174,7 +173,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
                     </SidebarGroup>
                   ))}
 
-                  {href === ROOT_MENU_HREF && !hideFooter && (
+                  {href === ROOT_MENU_HREF && (
                     <SidebarGroup className="mt-auto">
                       <SidebarGroupContent>
                         <SidebarMenu>
@@ -183,24 +182,11 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
                               tooltip={t("support")}
                               onClick={() => setOpenMobile(false)}
                               render={
-                                <TurboLink href="mailto:suporte@clawin1click.com" />
+                                <TurboLink href={pathsConfig.dashboard.support} />
                               }
                             >
                               <Icons.LifeBuoy />
                               <span>{t("support")}</span>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              tooltip={t("feedback")}
-                              onClick={() => setOpenMobile(false)}
-                              render={
-                                <TurboLink href="mailto:suporte@clawin1click.com" />
-                              }
-                            >
-                              <Icons.MessageCircle />
-                              <span>{t("feedback")}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         </SidebarMenu>
@@ -215,7 +201,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <UserNavigation user={user} minimal={hideFooter} />
+              <UserNavigation user={user} />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>

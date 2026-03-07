@@ -36,6 +36,11 @@ export const auth = betterAuth({
       clientSecret: env.GITHUB_CLIENT_SECRET,
     },
   },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   advanced: {
     cookiePrefix: "openclaw",
     cookies: {

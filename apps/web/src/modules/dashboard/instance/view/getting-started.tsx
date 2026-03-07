@@ -78,7 +78,7 @@ export const InstanceGettingStarted = ({ instanceUrl }: { instanceUrl: string })
                     {step.title}
                   </span>
                   <span
-                    className="text-muted-foreground text-xs"
+                    className="text-muted-foreground [&_.instance-open-link]:text-primary [&_.instance-open-link]:underline [&_.instance-open-link]:font-medium [&_.instance-open-link]:mt-1 [&_.instance-open-link]:inline-flex [&_.instance-open-link]:items-center [&_.instance-open-link]:gap-1 text-xs"
                     dangerouslySetInnerHTML={{ __html: step.description }}
                   />
                 </div>

@@ -520,7 +520,7 @@ export const adminRouter = new Hono()
             pids: pids ?? "0",
           };
         })
-        .filter((ct) => ct.name !== "turbostarter-openclaw-db-1");
+        .filter((ct) => ct.name !== "openclaw-db-1");
 
       return {
         server: {
@@ -566,4 +566,62 @@ export const adminRouter = new Hono()
     );
 
     return c.json(results);
+  })
+
+
+  // --- UPTIME (UptimeRobot) -----------------------------------------------
+
+  .get("/stats/uptime", async (c) => {
+    const apiKey = env.UPTIMEROBOT_API_KEY;
+    if (!apiKey) {
+      return c.json({ monitors: [], error: "UPTIMEROBOT_API_KEY not configured" });
+    }
+
+    try {
+      const res = await fetch("https://api.uptimerobot.com/v2/getMonitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          api_key: apiKey,
+          format: "json",
+          response_times: "1",
+          response_times_limit: "1",
+          all_time_uptime_ratio: "1",
+        }).toString(),
+        signal: AbortSignal.timeout(8000),
+      });
+
+      if (!res.ok) {
+        return c.json({ monitors: [], error: "UptimeRobot API error" });
+      }
+
+      const data = (await res.json()) as {
+        stat: string;
+        monitors?: Array<{
+          id: number;
+          friendly_name: string;
+          url: string;
+          status: number;
+          all_time_uptime_ratio: string;
+          response_times?: Array<{ value: number }>;
+        }>;
+      };
+
+      if (data.stat !== "ok" || !data.monitors) {
+        return c.json({ monitors: [], error: "UptimeRobot returned error" });
+      }
+
+      const monitors = data.monitors.map((m) => ({
+        id: m.id,
+        name: m.friendly_name,
+        url: m.url,
+        status: m.status,
+        uptimeRatio: parseFloat(m.all_time_uptime_ratio ?? "0"),
+        responseTime: m.response_times?.[0]?.value ?? null,
+      }));
+
+      return c.json({ monitors });
+    } catch {
+      return c.json({ monitors: [], error: "Failed to reach UptimeRobot" });
+    }
   });

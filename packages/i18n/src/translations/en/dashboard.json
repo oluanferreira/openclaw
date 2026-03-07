@@ -38,10 +38,10 @@
         }
       },
       "note": {
-        "pricing": "<strong>$49 per month.</strong> Includes $15 in AI credits refreshed monthly.",
+        "pricing": "<strong>$29.90 per month.</strong>",
         "signIn": "Sign in to deploy your AI assistant and connect your channels.",
         "invalid": "Ensure all fields are filled correctly.",
-        "limited": "Limited cloud servers — only 8 left"
+        "limited": "Price is going up — but not for those who subscribe now"
       },
       "cta": "Deploy OpenClaw",
       "success": "Deployment started. This can take a few moments to complete."
@@ -103,15 +103,15 @@
       "steps": [
         {
           "title": "Open your instance",
-          "description": "Click the instance link above to open the OpenClaw control panel in a new tab."
+          "description": "Click the button below to open the OpenClaw control panel in a new tab (the link already includes your access key).<br/><a href=\"{{instanceUrl}}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"instance-open-link\">Open OpenClaw control panel ↗</a>"
         },
         {
           "title": "Wait for the pairing request",
-          "description": "When you open the panel, you will see <strong>\"pairing required\"</strong>. This is normal — it is a security layer from OpenClaw."
+          "description": "When you open the panel, you will see <strong>\"pairing required\"</strong>. This is normal — it is a security layer from OpenClaw. Come back here afterwards."
         },
         {
           "title": "Approve the pairing here",
-          "description": "Return to this page. A request will appear in the <strong>\"Pairing\"</strong> section below this card. Click <strong>Approve</strong>."
+          "description": "A request will appear in the <strong>\"Pairing\"</strong> section below this card. Click <strong>Approve</strong>. If it takes more than 30 seconds, reload the page."
         },
         {
           "title": "Connect your channel (Telegram/Discord/WhatsApp)",
@@ -147,6 +147,136 @@
     "manage": "Manage subscription",
     "required": "An active subscription is required to deploy instances.",
     "currency": "Currency",
-    "perMonth": "mo"
+    "perMonth": "mo",
+    "banner": {
+      "paymentPending": "Payment pending. Your OpenClaw will be shut down in {{days}} day(s).",
+      "lastDay": "WARNING! Last day to resolve your subscription payment.",
+      "overdue": "URGENT! Subscription overdue by {{days}} day(s). Your OpenClaw will be shut down today!",
+      "payNow": "Pay now"
+    }
+  },
+  "support": {
+    "home": {
+      "title": "Support",
+      "description": "Create and manage your support requests."
+    },
+    "ticket": {
+      "empty": "You have no support tickets yet.",
+      "details": "Ticket details",
+      "replies": "Replies",
+      "noReplies": "No replies yet.",
+      "new": "New ticket",
+      "newTitle": "Open a new ticket",
+      "form": {
+        "subject": "Subject",
+        "subjectPlaceholder": "Brief description of the issue",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe your issue in detail...",
+        "submit": "Submit ticket",
+        "attach": "Attach image"
+      },
+      "reply": {
+        "placeholder": "Type your reply...",
+        "submit": "Send reply"
+      },
+      "status": {
+        "open": "Open",
+        "in_progress": "In progress",
+        "closed": "Closed"
+      }
+    }
+  },
+  "account": {
+    "home": {
+      "title": "Account",
+      "description": "Manage your account information."
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Your account information provided by your sign-in provider.",
+      "readOnly": "This information is managed by your OAuth provider and cannot be edited here."
+    },
+    "dangerZone": {
+      "title": "Danger zone",
+      "description": "Permanently delete your account and all associated data.",
+      "warning": "This action is irreversible. All your data will be permanently deleted.",
+      "cta": "Delete account",
+      "confirmWord": "DELETE",
+      "dialog": {
+        "title": "Permanently delete account",
+        "description": "This action is irreversible. All your data, instances, and settings will be permanently deleted.",
+        "label": "Type to confirm:"
+      }
+    }
+  },
+  "admin": {
+    "tickets": {
+      "home": {
+        "title": "Support tickets",
+        "description": "Manage all user support requests."
+      },
+      "empty": "No tickets found.",
+      "reply": {
+        "label": "Admin reply",
+        "placeholder": "Write your reply as admin...",
+        "cta": "Send reply"
+      }
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "description": "Manage your OpenClaw agent skills.",
+    "error": "Failed to load skills. Please try again.",
+    "configure": "Configure",
+    "saveCredentials": "Save",
+    "categories": {
+      "auto": "Auto-enabled",
+      "autoDescription": "These skills work automatically with no configuration needed.",
+      "config": "Requires Configuration",
+      "configDescription": "These skills need credentials to work.",
+      "install": "Requires Installation",
+      "installDescription": "These skills need an external binary and credentials."
+    },
+    "status": {
+      "active": "Active",
+      "pending": "Pending",
+      "disabled": "Disabled",
+      "error": "Error"
+    },
+    "notifications": {
+      "enabled": "{{name}} enabled successfully",
+      "disabled": "{{name}} disabled"
+    },
+    "gog": {
+      "setup": {
+        "title": "Configure Google Workspace (GoG)",
+        "step1Title": "Step 1: Google Cloud Credentials",
+        "step2Title": "Step 2: Authorize Access",
+        "step3Title": "Google Workspace Connected!",
+        "invalidJson": "Invalid JSON file",
+        "emailLabel": "Your Google email",
+        "uploadLabel": "Upload client_secret.json",
+        "fileLoaded": "File loaded successfully",
+        "processing": "Processing...",
+        "continue": "Continue",
+        "step2Desc": "Click the button below to authorize with Google. After authorizing, copy the full URL from the return page (which will show a connection error - this is normal).",
+        "openAuth": "Open Google Authorization",
+        "callbackLabel": "Return URL",
+        "callbackHint": "Paste the full URL from the address bar after authorizing",
+        "verify": "Verify and Complete",
+        "connectedAs": "Account {{account}} connected successfully!",
+        "done": "Done",
+        "instructions": {
+          "1": "Go to console.cloud.google.com",
+          "2": "Create a new project (or use an existing one)",
+          "3": "Go to APIs & Services > Credentials",
+          "4": "Create an OAuth 2.0 Client ID of type Desktop app",
+          "5": "Download the JSON and upload below"
+        }
+      },
+      "configure": "Configure OAuth"
+    },
+    "getCredential": "Get key",
+    "browseClawHub": "Browse ClawHub"
   }
 }

@@ -26,6 +26,17 @@ export const isAPIError = (e: unknown): e is z.infer<typeof apiErrorSchema> => {
   return apiErrorSchema.safeParse(e).success;
 };
 
+
+export class ApiError extends Error {
+  constructor(
+    public readonly code: string | undefined,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 interface HandleOptions<
   E extends boolean = true,
   S extends z.ZodType | undefined = undefined,
@@ -70,7 +81,8 @@ export const handle = <
 
     if (!response.ok) {
       if (throwOnError) {
-        throw new Error(
+        throw new ApiError(
+          isAPIError(data) ? data.code : undefined,
           isAPIError(data)
             ? data.message
             : "Something went wrong. Please try again later.",

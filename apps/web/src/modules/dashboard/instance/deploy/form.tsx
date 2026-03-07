@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import {
   Controller,
@@ -8,6 +9,7 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
+import { useSearchParams, useRouter } from "next/navigation";
 
 import { Trans, useTranslation } from "@workspace/i18n";
 import { deployInstanceSchema } from "@workspace/openclaw";
@@ -23,7 +25,11 @@ import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
+import { billingApi } from "~/modules/dashboard/billing/lib/api";
+import { ApiError } from "@workspace/api/utils";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
 import { ModelIcon } from "../icons";
@@ -32,6 +38,8 @@ import { CommunicationChannelIcon } from "../icons";
 import { TelegramConfiguration } from "./communication/telegram";
 
 import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
+
+export const DEPLOY_DATA_KEY = "openclaw:pending-deploy";
 
 const ChannelConfiguration = {
   [CommunicatonChannel.TELEGRAM]: TelegramConfiguration,
@@ -60,7 +68,7 @@ const AI_KEY_CONFIG: Record<
     link: "https://console.anthropic.com/settings/keys",
     placeholder: "sk-ant-...",
   },
-  "gemini-3-0-flash": {
+  "gemini-3-flash-preview": {
     field: "googleApiKey",
     provider: "Google",
     link: "https://aistudio.google.com/app/apikey",
@@ -74,9 +82,25 @@ export const DeployInstanceForm = ({
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) => {
   const { t } = useTranslation("dashboard");
-  const form = useForm({
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const isCheckoutReturn = searchParams.get("checkout") === "success";
+  const autoDeployAttempted = useRef(false);
+  const pendingDeployData = useRef<DeployInstanceSchemaInput | null>(null);
+
+  // Read saved data from localStorage once on mount
+  if (pendingDeployData.current === null && typeof window !== "undefined") {
+    try {
+      const raw = localStorage.getItem(DEPLOY_DATA_KEY);
+      if (raw) pendingDeployData.current = JSON.parse(raw) as DeployInstanceSchemaInput;
+    } catch {
+      // ignore
+    }
+  }
+
+  const form = useForm<DeployInstanceSchemaInput>({
     resolver: standardSchemaResolver(deployInstanceSchema),
-    defaultValues: {
+    defaultValues: pendingDeployData.current ?? {
       model: MODELS[0].id,
       communication: {},
       aiKeys: {
@@ -89,6 +113,41 @@ export const DeployInstanceForm = ({
 
   const { deploy } = useInstance();
   const { subscription, checkout } = useBilling();
+  const queryClient = useQueryClient();
+
+  // Poll subscription status while waiting for Stripe webhook after checkout
+  useEffect(() => {
+    if (!isCheckoutReturn || !pendingDeployData.current || autoDeployAttempted.current) return;
+
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: billingApi.queries.subscription.queryKey });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isCheckoutReturn, queryClient]);
+
+  // Auto-deploy once subscription becomes active after checkout
+  const subscriptionStatus = subscription.data?.status;
+  useEffect(() => {
+    if (
+      !isCheckoutReturn ||
+      !pendingDeployData.current ||
+      autoDeployAttempted.current ||
+      subscriptionStatus !== "active"
+    )
+      return;
+
+    autoDeployAttempted.current = true;
+    const data = pendingDeployData.current;
+    localStorage.removeItem(DEPLOY_DATA_KEY);
+    pendingDeployData.current = null;
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("checkout");
+    window.history.replaceState(null, "", url.pathname);
+
+    deploy.mutate(data);
+  }, [isCheckoutReturn, subscriptionStatus, deploy]);
 
   return (
     <FormProvider {...form}>
@@ -97,12 +156,22 @@ export const DeployInstanceForm = ({
           "flex min-h-[200px] w-full min-w-[280px] flex-col gap-6 overflow-hidden rounded-2xl border p-4 sm:gap-8 sm:p-6 md:gap-10 md:p-8",
           className,
         )}
-        onSubmit={form.handleSubmit((data) => {
+        onSubmit={form.handleSubmit(async (data) => {
           if (!subscription.data || subscription.data.status !== "active") {
+            localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify(data));
             checkout.mutate();
             return;
           }
-          return deploy.mutateAsync(data);
+          try {
+            await deploy.mutateAsync(data);
+          } catch (error) {
+            // Edge case: subscription expired between frontend check and API call
+            if (error instanceof ApiError && error.code === "billing:subscription.required") {
+              localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify(data));
+              checkout.mutate();
+            }
+            // Other errors are already handled by deploy's onError toast
+          }
         })}
         {...props}
       >
@@ -301,31 +370,19 @@ export const DeployInstanceFormNote = ({
   const { t } = useTranslation("dashboard");
   const form = useFormContext<DeployInstanceSchemaInput>();
 
-  const renderNote = () => {
-    if (note) {
-      return note;
-    }
-
-    if (!form.formState.isValid) {
-      return t("instance.deploy.note.invalid");
-    }
-
-    return (
-      <Trans
-        i18nKey="instance.deploy.note.pricing"
-        t={t}
-        components={{ strong: <span className="text-foreground" /> }}
-      />
-    );
-  };
-
   return (
     <span
       className={cn("text-muted-foreground text-sm font-medium", className)}
       {...props}
     >
-      {renderNote()}{" "}
-      <span className="text-primary">{t("instance.deploy.note.limited")}</span>
+      {note && <>{note}{" "}</>}
+      {!note && !form.formState.isValid && <>{t("instance.deploy.note.invalid")}{" "}</>}
+      <Trans
+        i18nKey="instance.deploy.note.pricing"
+        t={t}
+        components={{ strong: <span className="text-foreground" /> }}
+      />{" "}
+      <span className="text-red-500">{t("instance.deploy.note.limited")}</span>
     </span>
   );
 };

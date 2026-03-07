@@ -21,7 +21,9 @@
     "product": {
       "timeUnderSeconds": "< {{seconds}} segundos",
       "subtitle": "Elige un modelo, conecta Telegram, despliega - listo en menos de 30 segundos.",
-      "description": "Los servidores, SSH y el entorno de OpenClaw ya están configurados, esperando ser asignados. Conexión simple, segura y rápida con tu bot."
+      "description": "Los servidores, SSH y el entorno de OpenClaw ya están configurados, esperando ser asignados. Conexión simple, segura y rápida con tu bot.",
+      "currentPrice": "$29.90/mes",
+      "nextPrice": "Próximo precio: $39.90"
     }
   },
   "useCases": {
