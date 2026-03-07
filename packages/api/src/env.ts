@@ -16,6 +16,8 @@ export const preset = {
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
     STRIPE_PRICE_ID: z.string().min(1),
+    STRIPE_PRICE_ID_USD: z.string().optional(),
+    STRIPE_PRICE_ID_BRL: z.string().optional(),
     // 64-char hex string = 32 bytes = AES-256 key
     ENCRYPTION_KEY: z
       .string()
