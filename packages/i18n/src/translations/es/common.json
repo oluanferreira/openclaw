@@ -193,7 +193,6 @@
   "revenue": "Ingresos",
   "externalId": "ID externo",
   "variantId": "ID de variante",
-  "store": "Tienda",
   "daysRemaining_one": "{{count}} día restante",
   "daysRemaining_other": "{{count}} días restantes",
   "language": {

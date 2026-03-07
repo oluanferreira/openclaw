@@ -143,7 +143,6 @@
   "id": "ID",
   "externalId": "External ID",
   "variantId": "Variant ID",
-  "store": "Store",
   "connect": "Connect",
   "logo": "Logo",
   "disconnect": "Disconnect",

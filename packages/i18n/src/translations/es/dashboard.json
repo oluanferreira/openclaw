@@ -277,6 +277,7 @@
       "configure": "Configurar OAuth"
     },
     "getCredential": "Obtener clave",
-    "browseClawHub": "Explorar ClawHub"
+    "exploreTitle": "Explorar Skills",
+    "exploreDescription": "Tu agente instala skills por chat. Explora el catálogo en ClawHub."
   }
 }
