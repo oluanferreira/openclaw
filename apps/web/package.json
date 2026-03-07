@@ -15,6 +15,7 @@
   "prettier": "@workspace/prettier-config",
   "dependencies": {
     "@hookform/resolvers": "catalog:",
+    "@sentry/nextjs": "10.42.0",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",
     "@tanstack/react-table": "catalog:",

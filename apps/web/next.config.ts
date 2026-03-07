@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import "./env.config";
@@ -30,4 +31,20 @@ const config: NextConfig = {
   },
 };
 
-export default config;
+export default withSentryConfig(config, {
+  // Suppresses source map uploading logs during build
+  silent: true,
+
+  // Upload a larger set of source maps for prettier stack traces (increases build time)
+  widenClientFileUpload: true,
+
+  // Automatically tree-shake Sentry logger statements to reduce bundle size
+  disableLogger: true,
+
+  // Hides source maps from generated client bundles
+  hideSourceMaps: true,
+
+  // Only enable Sentry webpack plugin when DSN and auth token are available
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+});
