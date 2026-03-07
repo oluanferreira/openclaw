@@ -13,6 +13,7 @@ import { logger } from "@workspace/shared/logger";
 
 import { env } from "../../env";
 import { enforceAuth } from "../../middleware";
+import { getPriceId } from "@workspace/shared/constants/pricing";
 
 
 const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
@@ -219,7 +220,7 @@ export const billingRouter = new Hono()
       mode: "subscription",
       payment_method_types: ["card"],
       currency,
-      line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: getPriceId(currency) || env.STRIPE_PRICE_ID, quantity: 1 }],
       success_url: `${baseUrl}/dashboard?checkout=success`,
       cancel_url: `${baseUrl}/dashboard/billing`,
       client_reference_id: user.id,

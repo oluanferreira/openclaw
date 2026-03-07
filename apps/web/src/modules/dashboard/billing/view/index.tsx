@@ -13,11 +13,8 @@ import {
   DashboardHeaderDescription,
 } from "~/modules/common/layout/dashboard/header";
 import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
+import { getDisplayPrice } from "@workspace/shared/constants/pricing";
 
-const PRICES = {
-  usd: "$29.90",
-  brl: "R$153,39",
-} as const;
 
 export const BillingView = () => {
   const { t } = useTranslation("dashboard");
@@ -78,7 +75,7 @@ export const BillingView = () => {
             disabled={checkout.isPending}
           >
             {checkout.isPending && <Spinner className="mr-2 size-4" />}
-            {t("billing.subscribe")} — {PRICES[currency]}/{t("billing.perMonth")}
+            {t("billing.subscribe")} — {getDisplayPrice(currency)}/{t("billing.perMonth")}
           </Button>
         )}
       </section>
