@@ -42,7 +42,7 @@ export default withSentryConfig(config, {
   disableLogger: true,
 
   // Hides source maps from generated client bundles
-  hideSourceMaps: true,
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
 
   // Only enable Sentry webpack plugin when DSN and auth token are available
   org: process.env.SENTRY_ORG,

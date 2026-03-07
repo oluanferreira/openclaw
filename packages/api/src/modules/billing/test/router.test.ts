@@ -414,7 +414,7 @@ describe("Billing Webhook Router", () => {
       );
 
       // Verify the deadline is current_period_end + 3 days
-      const notifyCall = mockNotifyAgent.mock.calls[0];
+      const notifyCall = mockNotifyAgent.mock.calls[0]!;
       const message = notifyCall[1] as string;
       const deadline = new Date(PERIOD_END_UNIX * 1000);
       deadline.setDate(deadline.getDate() + 3);
