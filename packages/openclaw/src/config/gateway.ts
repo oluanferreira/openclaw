@@ -43,7 +43,7 @@ export const getGatewayConfig = ({
   env: {
     OPENAI_API_KEY: aiEnv.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: aiEnv.ANTHROPIC_API_KEY,
-    GOOGLE_GENERATIVE_AI_API_KEY: aiEnv.GOOGLE_GENERATIVE_AI_API_KEY,
+    GEMINI_API_KEY: aiEnv.GOOGLE_GENERATIVE_AI_API_KEY,
   },
   agents: {
     defaults: {

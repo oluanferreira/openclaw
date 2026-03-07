@@ -40,17 +40,22 @@ export const useInstance = () => {
     onSuccess: async (_, variables) => {
       const isDestroy = variables.action === ManageInstanceAction.DESTROY;
 
-      if (isDestroy) {
-        queryClient.removeQueries({
-          queryKey: instanceApi.queries.logs.queryKey,
-        });
-        await queryClient.invalidateQueries(instanceApi.queries.get);
-      }
-
       await Promise.all([
         queryClient.invalidateQueries(instanceApi.queries.status),
-        queryClient.invalidateQueries(instanceApi.queries.logs),
+        queryClient.invalidateQueries(instanceApi.queries.get),
       ]);
+
+      if (isDestroy) {
+        [
+          instanceApi.queries.logs,
+          instanceApi.queries.pairing.devices,
+          instanceApi.queries.pairing.channels,
+        ].forEach(({ queryKey }) => {
+          queryClient.removeQueries({
+            queryKey,
+          });
+        });
+      }
 
       toast.success(t(`instance.manage.${variables.action}.success`));
     },

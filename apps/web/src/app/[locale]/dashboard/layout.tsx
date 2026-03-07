@@ -17,18 +17,7 @@ import { DashboardInset } from "~/modules/common/layout/dashboard/inset";
 import { DashboardSidebar } from "~/modules/common/layout/dashboard/sidebar/index";
 import { instance } from "~/modules/dashboard/instance/lib/api";
 
-const agents = [
-  "Alexander",
-  "Isabella",
-  "Benjamin",
-  "Gabriella",
-  "Nathaniel",
-  "Valentina",
-  "Sebastian",
-  "Anastasia",
-  "Christopher",
-  "Eleanor",
-];
+const agents = ["Alexander", "Isabella", "Benjamin", "Gabriella", "Nathaniel"];
 
 const menu = [
   {

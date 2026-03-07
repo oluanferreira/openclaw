@@ -27,6 +27,19 @@ const queries = {
     queryFn: () => handle(api.openclaw.status.$get)(),
     refetchInterval: 2000,
   }),
+  ready: queryOptions({
+    queryKey: [KEY, "ready"],
+    queryFn: async () => {
+      const { entries } = await handle(api.openclaw.logs.$get)({
+        query: { limit: "100" },
+      });
+      const pattern = /\[gateway\] listening on ws:\/\/[\d.]+:\d+/;
+      return entries.some((e) => pattern.test(e.message));
+    },
+    retry: (failureCount) => failureCount < 30,
+    refetchInterval: (query) => (query.state.data === true ? false : 2000),
+    staleTime: 0,
+  }),
   logs: infiniteQueryOptions({
     queryKey: [KEY, "logs"],
     queryFn: async ({ pageParam }) =>
@@ -47,6 +60,8 @@ const queries = {
         handle(api.openclaw.pairing.devices.$get, {
           schema: z.array(deviceRequestSchema),
         })(),
+      retry: false,
+      refetchOnWindowFocus: false,
     }),
     channels: queryOptions({
       queryKey: [KEY, "pairing", "channels"],
@@ -54,6 +69,8 @@ const queries = {
         handle(api.openclaw.pairing.channels.$get, {
           schema: z.array(channelRequestSchema),
         })(),
+      retry: false,
+      refetchOnWindowFocus: false,
     }),
   },
 };

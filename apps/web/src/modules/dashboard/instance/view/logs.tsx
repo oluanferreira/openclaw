@@ -117,7 +117,7 @@ export const InstanceLogs = () => {
       </div>
       <ScrollArea
         ref={scrollAreaRef}
-        className="bg-card h-[500px] w-full overflow-hidden rounded-2xl border p-0"
+        className="bg-card h-[500px] w-full overflow-hidden rounded-2xl border p-0 shadow-xs"
       >
         <pre className="py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap @md/dashboard:py-4 @lg/dashboard:text-sm">
           {!entries.length ? (

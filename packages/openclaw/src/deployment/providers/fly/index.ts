@@ -33,6 +33,7 @@ const toBootstrapGatewayConfigPath = () => "/tmp/openclaw.json";
 
 const getInitExecScript = (gatewayPort: number) => `set -eu
 cp ${escapeShell(toBootstrapGatewayConfigPath())} ${escapeShell(toGatewayConfigPath())}
+rm -f ${escapeShell(`${flyEnv.FLY_OPENCLAW_STATE_DIR}/gateway.*.lock`)}
 exec node /app/dist/index.js gateway --port ${gatewayPort} --bind lan`;
 
 const getUrl = (id: string, token?: string) =>
@@ -100,8 +101,10 @@ export const strategy = {
         config: {
           image: flyEnv.FLY_OPENCLAW_IMAGE,
           env: {
+            NODE_ENV: "production",
             NODE_OPTIONS: "--max-old-space-size=1536",
             OPENCLAW_STATE_DIR: flyEnv.FLY_OPENCLAW_STATE_DIR,
+            OPENCLAW_GATEWAY_TOKEN: token,
           },
           init: {
             exec: ["sh", "-c", getInitExecScript(gatewayConfig.gateway.port)],
@@ -194,11 +197,20 @@ export const strategy = {
     try {
       const machine = await getMachineOrThrow(id);
       const result = await execMachine(id, machine.id, {
-        command: ["node", "/app/dist/index.js", ...commandArgs],
-        timeout: 30,
+        command: [
+          "timeout",
+          "-s",
+          "9",
+          "15",
+          "node",
+          "/app/dist/index.js",
+          ...commandArgs,
+        ],
+        timeout: 20,
       });
 
-      if ((result.exit_code ?? 0) !== 0) {
+      const exitCode = result.exit_code ?? 0;
+      if (exitCode !== 0 && exitCode !== 124) {
         throw new Error(
           (
             result.stderr ??

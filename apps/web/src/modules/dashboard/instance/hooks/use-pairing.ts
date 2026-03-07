@@ -3,20 +3,35 @@ import { toast } from "sonner";
 
 import { useTranslation } from "@workspace/i18n";
 
-import { canRestartInstance } from "~/modules/dashboard/instance/lib/status";
+import { isInstanceReadyForPairing } from "~/modules/dashboard/instance/lib/status";
 
 import { instance as instanceApi } from "../lib/api";
 
 import { useInstance } from "./use-instance";
 
-const useDevices = () => {
+const useGatewayReady = () => {
+  const { instance, status } = useInstance();
+
+  const ready = useQuery({
+    ...instanceApi.queries.ready,
+    enabled:
+      !!instance.data?.id && isInstanceReadyForPairing(status.data?.status),
+  });
+
+  return ready.data === true;
+};
+
+const useDevices = (ready: boolean) => {
   const { t } = useTranslation("dashboard");
   const { instance, status } = useInstance();
   const queryClient = useQueryClient();
 
   const query = useQuery({
     ...instanceApi.queries.pairing.devices,
-    enabled: !!instance.data?.id && canRestartInstance(status.data?.status),
+    enabled:
+      !!instance.data?.id &&
+      isInstanceReadyForPairing(status.data?.status) &&
+      ready,
   });
 
   const approve = useMutation({
@@ -38,14 +53,17 @@ const useDevices = () => {
   return { query, approve, reject };
 };
 
-const useChannels = () => {
+const useChannels = (ready: boolean) => {
   const { t } = useTranslation("dashboard");
   const { instance, status } = useInstance();
   const queryClient = useQueryClient();
 
   const query = useQuery({
     ...instanceApi.queries.pairing.channels,
-    enabled: !!instance.data?.id && canRestartInstance(status.data?.status),
+    enabled:
+      !!instance.data?.id &&
+      isInstanceReadyForPairing(status.data?.status) &&
+      ready,
   });
 
   const approve = useMutation({
@@ -68,8 +86,9 @@ const useChannels = () => {
 };
 
 export const usePairing = () => {
-  const devices = useDevices();
-  const channels = useChannels();
+  const ready = useGatewayReady();
+  const devices = useDevices(ready);
+  const channels = useChannels(ready);
 
   return { devices, channels };
 };

@@ -225,7 +225,7 @@ export const InstancePairing = () => {
           </div>
         ))
       ) : (
-        <div className="flex items-center justify-center rounded-2xl border p-4 py-6">
+        <div className="flex items-center justify-center rounded-2xl border p-4 py-6 shadow-xs">
           <span className="text-muted-foreground text-sm">
             {t("instance.pairing.empty")}
           </span>

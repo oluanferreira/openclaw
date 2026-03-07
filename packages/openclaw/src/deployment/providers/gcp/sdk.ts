@@ -84,7 +84,7 @@ export const executeOnInstance = async (
     const escapedArgs = commandArgs
       .map((a) => `'${a.replaceAll("'", "'\"'\"'")}'`)
       .join(" ");
-    const script = `sudo -n env OPENCLAW_STATE_DIR=${stateDir} openclaw ${escapedArgs}`;
+    const script = `timeout -s 9 15 sudo -n env OPENCLAW_STATE_DIR=${stateDir} openclaw ${escapedArgs}`;
 
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -110,12 +110,13 @@ export const executeOnInstance = async (
               stream.on("close", (code: number | undefined) => {
                 clearTimeout(timeout);
                 client.end();
-                if (code === 0) {
+                const out = stdout.join("").trim();
+                if (code === 0 || (code === 124 && out)) {
                   resolve();
                 } else {
                   reject(
                     new Error(
-                      `Command failed with exit code ${code ?? -1}. ${stderr.join("") || stdout.join("")}`.trim(),
+                      `Command failed with exit code ${code ?? -1}. ${stderr.join("") || out}`.trim(),
                     ),
                   );
                 }

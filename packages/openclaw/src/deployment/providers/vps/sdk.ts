@@ -6,6 +6,7 @@ import type { ClientChannel } from "ssh2";
 
 interface RunRemoteScriptOptions {
   timeout?: number;
+  acceptExitCodes?: number[];
 }
 
 export interface RunRemoteScriptResult {
@@ -50,14 +51,19 @@ export const execute = async (
               clearTimeout(timeout);
               client.end();
 
-              if (code === 0) {
+              const out = stdout.join("").trim();
+              const acceptCodes = options?.acceptExitCodes ?? [];
+              if (
+                code === 0 ||
+                (code !== undefined && acceptCodes.includes(code) && out)
+              ) {
                 resolve();
                 return;
               }
 
               reject(
                 new Error(
-                  `Remote command failed with exit code ${code ?? -1}. ${stderr.join("") || stdout.join("")}`.trim(),
+                  `Remote command failed with exit code ${code ?? -1}. ${stderr.join("") || out}`.trim(),
                 ),
               );
             });

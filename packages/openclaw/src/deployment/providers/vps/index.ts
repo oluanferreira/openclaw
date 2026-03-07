@@ -29,8 +29,10 @@ const toStateDir = (instanceId: string) =>
 export const getUrl = (id: string, token?: string) =>
   `https://${id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}${token ? `/#token=${encodeURIComponent(token)}` : ""}`;
 
-const executeDocker = (args: readonly string[]) =>
-  execute(`docker ${toEscapedCommand(args)}`);
+const executeDocker = (
+  args: readonly string[],
+  options?: { acceptExitCodes?: number[] },
+) => execute(`docker ${toEscapedCommand(args)}`, options);
 
 const getDeploymentScript = (
   params: DeployInstanceSchemaInput & {
@@ -142,7 +144,20 @@ export const strategy = {
   },
   getStatus,
   cli: async (id, commandArgs) =>
-    executeDocker(["exec", id, "node", "dist/index.js", ...commandArgs]),
+    executeDocker(
+      [
+        "exec",
+        id,
+        "timeout",
+        "-s",
+        "9",
+        "15",
+        "node",
+        "dist/index.js",
+        ...commandArgs,
+      ],
+      { acceptExitCodes: [124] },
+    ),
   start: async (id) => executeDocker(["start", id]),
   stop: async (id) => executeDocker(["stop", id]),
   restart: async (id) => executeDocker(["restart", id]),

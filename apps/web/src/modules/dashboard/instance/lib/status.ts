@@ -52,6 +52,15 @@ const stoppableStatuses = [
 
 const restartableStatuses = ["running", "started", "starting"] as const;
 
+const pairingReadyStatuses = ["running", "started"] as const;
+
+export const isInstanceReadyForPairing = (
+  status: string | null | undefined,
+) => {
+  const key = toRawStatusKey(status);
+  return key ? pairingReadyStatuses.includes(key) : false;
+};
+
 export const toRawStatusKey = (status: string | null | undefined) =>
   status?.toLowerCase() ?? null;
 
