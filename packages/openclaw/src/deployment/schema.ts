@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-import { Model } from "../config/ai";
+import { getModelKeyField } from "../config/ai";
 import { openclawConfigSchema } from "../config";
 
 export const aiKeysSchema = z.object({
@@ -18,13 +18,7 @@ export const deployInstanceSchema = openclawConfigSchema
   })
   .extend({ aiKeys: aiKeysSchema })
   .superRefine((data, ctx) => {
-    const required: Record<string, keyof AiKeysInput> = {
-      [Model.GPT_5_2]: "openaiApiKey",
-      [Model.CLAUDE_OPUS_4_6]: "anthropicApiKey",
-      [Model.GEMINI_3_0_FLASH]: "googleApiKey",
-    };
-
-    const requiredKey = required[data.model];
+    const requiredKey = getModelKeyField(data.model) as keyof AiKeysInput | undefined;
     if (requiredKey && !data.aiKeys[requiredKey]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

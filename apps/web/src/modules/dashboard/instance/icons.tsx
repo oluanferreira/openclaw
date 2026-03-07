@@ -1,4 +1,4 @@
-import { Model, CommunicatonChannel } from "@workspace/openclaw/config";
+import { CommunicatonChannel, Provider } from "@workspace/openclaw/config";
 import { Icons } from "@workspace/ui-web/icons";
 
 export const CommunicationChannelIcon = {
@@ -7,8 +7,8 @@ export const CommunicationChannelIcon = {
   [CommunicatonChannel.WHATSAPP]: Icons.Whatsapp,
 } as const;
 
-export const ModelIcon = {
-  [Model.CLAUDE_OPUS_4_6]: Icons.Claude,
-  [Model.GPT_5_2]: Icons.OpenAI,
-  [Model.GEMINI_3_0_FLASH]: Icons.Gemini,
+export const ProviderIcon = {
+  [Provider.ANTHROPIC]: Icons.Claude,
+  [Provider.OPENAI]: Icons.OpenAI,
+  [Provider.GOOGLE]: Icons.Gemini,
 } as const;

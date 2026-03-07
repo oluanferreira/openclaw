@@ -32,7 +32,7 @@ import {
   gogSetupStep2,
 } from "@workspace/openclaw/server";
 
-import { Model, MODELS } from "@workspace/openclaw/config";
+import { MODELS, VALID_MODEL_IDS, getModelProvider, PROVIDER_TO_KEY, PROVIDER_DEFAULT_MODEL } from "@workspace/openclaw/config";
 
 import {
   enforceAuth,
@@ -56,17 +56,17 @@ const maskKey = (key: string | null | undefined): string => {
   return `${key.slice(0, 7)}...${key.slice(-4)}`;
 };
 
-// Mapping: API key field → Model constant
-const KEY_TO_MODEL: Record<string, Model> = {
-  anthropicApiKey: Model.CLAUDE_OPUS_4_6,
-  openaiApiKey: Model.GPT_5_2,
-  googleApiKey: Model.GEMINI_3_0_FLASH,
+// Mapping: API key field → default Model for that provider
+const KEY_TO_MODEL: Record<string, string> = {
+  anthropicApiKey: PROVIDER_DEFAULT_MODEL.anthropic,
+  openaiApiKey: PROVIDER_DEFAULT_MODEL.openai,
+  googleApiKey: PROVIDER_DEFAULT_MODEL.google,
 };
 
 // Priority order for model auto-selection
 const KEY_PRIORITY = ["anthropicApiKey", "openaiApiKey", "googleApiKey"] as const;
 
-const toAgentModelId = (model: Model): string => {
+const toAgentModelId = (model: string): string => {
   const modelInfo = MODELS.find((m) => m.id === model);
   if (!modelInfo) return model;
   return `${modelInfo.provider}/${modelInfo.id}`;
@@ -354,7 +354,7 @@ export const openclawRouter = new Hono()
 
     // Detect which key was provided and auto-select the corresponding model
     // Priority: Anthropic > OpenAI > Google
-    let newModel: Model | null = null;
+    let newModel: string | null = null;
     for (const key of KEY_PRIORITY) {
       if (payload[key]) {
         newModel = KEY_TO_MODEL[key] ?? null;
@@ -490,9 +490,8 @@ export const openclawRouter = new Hono()
       return c.json({ error: "Model is required" }, 422);
     }
 
-    // Validate model exists
-    const validModels = ["claude-opus-4-6", "gpt-5.2", "gemini-3-flash-preview"];
-    if (!validModels.includes(body.model)) {
+    // Validate model exists in supported list
+    if (!VALID_MODEL_IDS.has(body.model)) {
       return c.json({ error: "Invalid model" }, 422);
     }
 
@@ -502,13 +501,11 @@ export const openclawRouter = new Hono()
     if (!inst) return c.json({ error: "Instance not found" }, 404);
 
     const decrypted = await decryptKeys(inst, env.ENCRYPTION_KEY);
-    const modelToKey: Record<string, string | null | undefined> = {
-      "claude-opus-4-6": decrypted.anthropicApiKey,
-      "gpt-5.2": decrypted.openaiApiKey,
-      "gemini-3-flash-preview": decrypted.googleApiKey,
-    };
+    const provider = getModelProvider(body.model);
+    const keyField = provider ? PROVIDER_TO_KEY[provider] : undefined;
+    const hasKey = keyField ? !!(decrypted as Record<string, unknown>)[keyField] : false;
 
-    if (!modelToKey[body.model]) {
+    if (!hasKey) {
       return c.json({ error: "No API key configured for this model" }, 422);
     }
 
@@ -516,12 +513,7 @@ export const openclawRouter = new Hono()
     await updateInstance(instanceId, { model: body.model });
 
     // Update container config + restart
-    const providerMap: Record<string, string> = {
-      "claude-opus-4-6": "anthropic",
-      "gpt-5.2": "openai",
-      "gemini-3-flash-preview": "google",
-    };
-    const agentModelId = providerMap[body.model] + "/" + body.model;
+    const agentModelId = (provider ?? "unknown") + "/" + body.model;
 
     try {
       await updateOpenclawJson(instanceId, (config) => {

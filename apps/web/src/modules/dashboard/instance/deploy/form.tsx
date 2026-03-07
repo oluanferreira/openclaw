@@ -33,8 +33,7 @@ import { billingApi } from "~/modules/dashboard/billing/lib/api";
 import { ApiError } from "@workspace/api/utils";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
-import { ModelIcon } from "../icons";
-import { CommunicationChannelIcon } from "../icons";
+import { ProviderIcon, CommunicationChannelIcon } from "../icons";
 
 import { TelegramConfiguration } from "./communication/telegram";
 
@@ -187,7 +186,7 @@ export const DeployInstanceForm = ({
 
               <div className="flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
                 {MODELS.map((model) => {
-                  const Icon = ModelIcon[model.id];
+                  const Icon = ProviderIcon[model.provider];
                   return (
                     <Button
                       key={model.id}

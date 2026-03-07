@@ -1,12 +1,11 @@
 import { MODELS } from "./ai";
 import { CommunicatonChannel } from "./communication";
 
-import type { Model } from "./ai";
 import type { OpenclawConfig } from "./schema";
 
 const TRUSTED_PROXIES = ["127.0.0.1", "::1", "172.17.0.1"];
 
-const toAgentModelId = (model: Model) => {
+const toAgentModelId = (model: string) => {
   const modelInfo = MODELS.find((m) => m.id === model);
 
   if (!modelInfo) {
