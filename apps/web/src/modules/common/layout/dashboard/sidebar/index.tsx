@@ -7,7 +7,6 @@ import { cn } from "@workspace/ui";
 import { Icons } from "@workspace/ui-web/icons";
 import {
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenuAction,
   SidebarMenuButton,
@@ -172,27 +171,6 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
                       </SidebarMenu>
                     </SidebarGroup>
                   ))}
-
-                  {href === ROOT_MENU_HREF && (
-                    <SidebarGroup className="mt-auto">
-                      <SidebarGroupContent>
-                        <SidebarMenu>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              tooltip={t("support")}
-                              onClick={() => setOpenMobile(false)}
-                              render={
-                                <TurboLink href={pathsConfig.dashboard.support} />
-                              }
-                            >
-                              <Icons.LifeBuoy />
-                              <span>{t("support")}</span>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        </SidebarMenu>
-                      </SidebarGroupContent>
-                    </SidebarGroup>
-                  )}
                 </SidebarContent>
               );
             })}
