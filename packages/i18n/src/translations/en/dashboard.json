@@ -130,6 +130,21 @@
       "save": "Save",
       "success": "API Keys updated successfully. The container is being recreated.",
       "error": "Failed to update API Keys. Please try again."
+    },
+    "settings": {
+      "communication": {
+        "noBot": "No bot configured",
+        "editToken": "Edit token",
+        "addToken": "Add token",
+        "dialogTitle": "Update Telegram Bot Token",
+        "dialogDescription": "Enter your new bot token from @BotFather. The token will be validated before saving.",
+        "invalidFormat": "Invalid format. Expected: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz",
+        "validating": "Validating token...",
+        "botFound": "Bot found: {{name}}",
+        "save": "Save token",
+        "success": "Token updated! Bot: {{botName}}",
+        "error": "Failed to update token. Please check and try again."
+      }
     }
   },
   "billing": {

@@ -20,6 +20,7 @@ import {
   CommunicationChannelIcon,
   ModelIcon,
 } from "~/modules/dashboard/instance/icons";
+import { CommunicationSettings } from "./communication-settings";
 
 import { InstanceHeader } from "./header";
 import { InstanceLogs } from "./logs";
@@ -48,47 +49,10 @@ export const ViewInstance = () => {
     );
   }
 
-  const details = [
-    {
-      id: "model",
-      label: t("model"),
-      value: (() => {
-        const model = MODELS.find((model) => model.id === instance.data?.model);
-        if (!model) return null;
-        const Icon = ModelIcon[model.id];
-        return (
-          <div className="inline-flex items-center gap-2 @md/dashboard:gap-3">
-            <Icon className="size-5 @md/dashboard:size-6" />
-            <span>{model.name}</span>
-          </div>
-        );
-      })(),
-    },
-    {
-      id: "communication",
-      label: t("communication"),
-      value: (() => {
-        const communication = COMMUNICATION_CHANNELS.find(
-          (channel) => channel.id === instance.data?.communicationChannel,
-        );
-
-        if (!communication) return null;
-
-        const Icon = CommunicationChannelIcon[communication.id];
-        return (
-          <div className="inline-flex items-center gap-2 @md/dashboard:gap-3">
-            <Icon className="size-5 @md/dashboard:size-6" />
-            <span>{communication.name}</span>
-          </div>
-        );
-      })(),
-    },
-    {
-      id: "createdAt",
-      label: t("createdAt"),
-      value: new Date(instance.data.createdAt).toLocaleString(i18n.language),
-    },
-  ];
+  const model = MODELS.find((m) => m.id === instance.data?.model);
+  const communication = COMMUNICATION_CHANNELS.find(
+    (ch) => ch.id === instance.data?.communicationChannel,
+  );
 
   return (
     <>
@@ -100,20 +64,46 @@ export const ViewInstance = () => {
           {t("configuration")}
         </span>
         <div className="grid w-full grid-cols-1 gap-4 @xl/dashboard:grid-cols-3">
-          {details
-            .filter(({ value }) => value !== null)
-            .map((detail) => (
-              <Card key={detail.id}>
-                <CardHeader className="p-5 pb-0! @md/dashboard:p-6">
-                  <CardTitle className="text-muted-foreground text-sm font-normal @md/dashboard:text-base">
-                    {detail.label}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="truncate p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
-                  {detail.value}
-                </CardContent>
-              </Card>
-            ))}
+          {/* Model Card */}
+          <Card>
+            <CardHeader className="p-5 pb-0! @md/dashboard:p-6">
+              <CardTitle className="text-muted-foreground text-sm font-normal @md/dashboard:text-base">
+                {t("model")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="truncate p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
+              {model && (
+                <div className="inline-flex items-center gap-2 @md/dashboard:gap-3">
+                  {(() => { const Icon = ModelIcon[model.id]; return <Icon className="size-5 @md/dashboard:size-6" />; })()}
+                  <span>{model.name}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Communication Card — Editable */}
+          <Card>
+            <CardHeader className="p-5 pb-0! @md/dashboard:p-6">
+              <CardTitle className="text-muted-foreground text-sm font-normal @md/dashboard:text-base">
+                {t("communication")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
+              <CommunicationSettings />
+            </CardContent>
+          </Card>
+
+          {/* Created At Card */}
+          <Card>
+            <CardHeader className="p-5 pb-0! @md/dashboard:p-6">
+              <CardTitle className="text-muted-foreground text-sm font-normal @md/dashboard:text-base">
+                {t("createdAt")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="truncate p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
+              {new Date(instance.data.createdAt).toLocaleString(i18n.language)}
+            </CardContent>
+          </Card>
         </div>
       </section>
 

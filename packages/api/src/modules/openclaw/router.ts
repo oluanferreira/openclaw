@@ -7,6 +7,7 @@ import {
   manageInstanceSchema,
   aiKeysSchema,
 } from "@workspace/openclaw";
+import { updateCommunicationSchema, maskToken } from "@workspace/openclaw/config";
 import { getCommandToRun, commandSchema } from "@workspace/openclaw/cli";
 import {
   createInstance,
@@ -46,6 +47,7 @@ import { getVpsById } from "../admin/vps-config";
 
 import type { AiKeysInput } from "@workspace/openclaw";
 import { encrypt, decrypt, isEncrypted } from "@workspace/shared/crypto";
+import { isRedactedValue } from "@workspace/shared/utils";
 import { env } from "../../env";
 
 
@@ -221,18 +223,18 @@ export const openclawRouter = new Hono()
       };
       const updates: Record<string, unknown> = {};
 
-      // Sync model (skip redacted values from OpenClaw runtime)
+      // Sync model (skip redacted values — see isRedactedValue)
       const liveModel = liveConfig?.agents?.defaults?.model?.primary;
-      if (liveModel && typeof liveModel === "string" && !liveModel.includes("_REDACTED_")) {
+      if (liveModel && typeof liveModel === "string" && !isRedactedValue(liveModel)) {
         const modelId = liveModel.includes("/") ? liveModel.split("/").pop() : liveModel;
         if (modelId && modelId !== inst.model) {
           updates.model = modelId;
         }
       }
 
-      // Sync Telegram bot token (skip redacted values from OpenClaw runtime)
+      // Sync Telegram bot token (skip redacted values — see isRedactedValue)
       const liveBotToken = liveConfig?.channels?.telegram?.botToken;
-      if (liveBotToken && typeof liveBotToken === "string" && !liveBotToken.includes("_REDACTED_")) {
+      if (liveBotToken && typeof liveBotToken === "string" && !isRedactedValue(liveBotToken)) {
         const dbToken = inst.communicationToken && env.ENCRYPTION_KEY
           ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
           : inst.communicationToken ?? null;
@@ -390,6 +392,95 @@ export const openclawRouter = new Hono()
       googleApiKey: maskKey(mergedKeys.googleApiKey),
     });
   })
+  .get("/communication", enforceInstance, async (c) => {
+    const userId = c.var.user.id;
+    const inst = await getInstanceByUserId(userId);
+    let channel = "";
+    let maskedTk = "";
+    let botNm = "";
+
+    if (inst) {
+      channel = inst.communicationChannel ?? "";
+      if (inst.communicationToken) {
+        try {
+          const plainToken = env.ENCRYPTION_KEY
+            ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
+            : inst.communicationToken;
+          if (plainToken && !isRedactedValue(plainToken)) {
+            maskedTk = maskToken(plainToken) ?? "";
+            const tgUrl = "https://api.telegram.org/bot" + plainToken + "/getMe";
+            const res = await fetch(tgUrl, { signal: AbortSignal.timeout(5000) });
+            if (res.ok) {
+              const data = (await res.json()) as { result?: { first_name?: string; username?: string } };
+              botNm = data.result?.first_name ?? data.result?.username ?? "";
+            }
+          }
+        } catch {
+          // Best-effort
+        }
+      }
+    }
+
+    return c.json({ channel, maskedToken: maskedTk, botName: botNm });
+  })
+  .put(
+    "/communication",
+    enforceInstance,
+    validate("json", updateCommunicationSchema),
+    async (c) => {
+      const instanceId = c.var.instanceId;
+      const vpsId = c.var.vpsId;
+      const userId = c.var.user.id;
+      const payload = c.req.valid("json");
+
+      // Validate token with Telegram API
+      let botName: string;
+      try {
+        const telegramUrl = 'https://api.telegram.org/bot' + payload.token + '/getMe';
+        const res = await fetch(
+          telegramUrl,
+          { signal: AbortSignal.timeout(5000) },
+        );
+        if (!res.ok) {
+          return c.json({ error: "Invalid Telegram bot token" }, 422);
+        }
+        const data = (await res.json()) as { result?: { first_name?: string; username?: string } };
+        botName = data.result?.first_name ?? data.result?.username ?? "Bot";
+      } catch {
+        return c.json({ error: "Could not validate token with Telegram API" }, 422);
+      }
+
+      // Encrypt and update DB
+      const encryptedToken = env.ENCRYPTION_KEY
+        ? await encrypt(payload.token, env.ENCRYPTION_KEY)
+        : payload.token;
+
+      await updateInstance(instanceId, {
+        communicationToken: encryptedToken,
+      });
+
+      // Propagate to container: update openclaw.json + restart
+      try {
+        await updateOpenclawJson(instanceId, (config) => ({
+          ...config,
+          channels: {
+            ...((config as Record<string, unknown>).channels as Record<string, unknown> ?? {}),
+            telegram: {
+              ...(((config as Record<string, unknown>).channels as Record<string, unknown> ?? {}).telegram as Record<string, unknown> ?? {}),
+              enabled: true,
+              botToken: payload.token,
+            },
+          },
+        }));
+        await restartContainer(instanceId);
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        return c.json({ error: "Token saved but container update failed: " + errMsg }, 500);
+      }
+
+      return c.json({ success: true, botName });
+    },
+  )
   .post(
     "/manage",
     enforceInstance,

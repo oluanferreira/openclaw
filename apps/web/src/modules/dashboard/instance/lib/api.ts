@@ -36,6 +36,14 @@ const queries = {
     queryKey: [KEY, "keys"],
     queryFn: () => handle(api.openclaw.keys.$get)(),
   }),
+  communication: queryOptions({
+    queryKey: [KEY, "communication"],
+    queryFn: async () => {
+      const res = await api.openclaw.communication.$get();
+      if (!res.ok) return { channel: "", maskedToken: "", botName: "" };
+      return (await res.json()) as { channel: string; maskedToken: string; botName: string };
+    },
+  }),
 };
 
 const mutations = {
@@ -74,6 +82,17 @@ const mutations = {
       handle(api.openclaw.keys.$put)({
         json,
       }),
+  }),
+  updateCommunication: mutationOptions({
+    mutationKey: [KEY, "updateCommunication"],
+    mutationFn: async (json: { channel: "telegram"; token: string }) => {
+      const res = await api.openclaw.communication.$put({ json });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error((data as { error?: string }).error ?? "Update failed");
+      }
+      return data as { success: boolean; botName: string };
+    },
   }),
 };
 
