@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import * as z from "zod";
 
 import { isKey } from "@workspace/i18n";
@@ -43,7 +44,12 @@ export const onError = async (
   const isExpectedClientError = status === 401 || status === 403 || status === 404;
 
   if (isError(e)) {
-    if (!isExpectedClientError) logger.error(e.code, e.message);
+    if (!isExpectedClientError) {
+      logger.error(e.code, e.message);
+      Sentry.captureException(e, {
+        extra: { code: e.code, path, status },
+      });
+    }
     return new Response(
       JSON.stringify({
         code: e.code,
@@ -61,6 +67,9 @@ export const onError = async (
   }
 
   logger.error(e);
+  Sentry.captureException(e, {
+    extra: { path, status },
+  });
   return new Response(
     JSON.stringify({
       code: "common:error.general",

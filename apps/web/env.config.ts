@@ -14,27 +14,29 @@ export default defineEnv({
   },
   /**
    * Specify your server-side environment variables schema here.
-   * This way you can ensure the app isn't built with invalid env vars.
+   * This way you can ensure the app is not built with invalid env vars.
    */
   server: {},
 
   /**
    * Specify your client-side environment variables schema here.
-   * For them to be exposed to the client, prefix them with `NEXT_PUBLIC_`.
+   * For them to be exposed to the client, prefix them with NEXT_PUBLIC_.
    */
   clientPrefix: "NEXT_PUBLIC_",
   client: {
     NEXT_PUBLIC_PRODUCT_NAME: z.string(),
     NEXT_PUBLIC_URL: z.url(),
     NEXT_PUBLIC_DEFAULT_LOCALE: z.string().optional().default("en"),
+    NEXT_PUBLIC_SENTRY_DSN: z.string().optional().default(""),
   },
   /**
-   * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
+   * Destructure all variables from process.env to make sure they are not tree-shaken away.
    */
   env: {
     ...process.env,
     NEXT_PUBLIC_PRODUCT_NAME: process.env.NEXT_PUBLIC_PRODUCT_NAME,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     NEXT_PUBLIC_DEFAULT_LOCALE: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
 });
