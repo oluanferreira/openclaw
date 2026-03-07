@@ -33,11 +33,16 @@ export const ModelSettings = () => {
 
   const updateModel = useMutation({
     ...instanceApi.mutations.updateModel,
+    onMutate: () => {
+      toast.loading(t("instance.settings.model.restarting"), { id: "model-update" });
+    },
     onSuccess: async (data) => {
+      toast.dismiss("model-update");
       await queryClient.invalidateQueries(instanceApi.queries.get);
       toast.success(t("instance.settings.model.success", { model: MODELS.find((m) => m.id === data.model)?.name ?? data.model }));
     },
     onError: (error) => {
+      toast.dismiss("model-update");
       toast.error(error.message || t("instance.settings.model.error"));
     },
   });

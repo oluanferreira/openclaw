@@ -148,7 +148,8 @@
       "model": {
         "success": "Model changed to {{model}}",
         "error": "Failed to update model",
-        "noKey": "no key"
+        "noKey": "no key",
+        "restarting": "Updating model and restarting container..."
       }
     }
   },

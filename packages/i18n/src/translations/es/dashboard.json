@@ -148,7 +148,8 @@
       "model": {
         "success": "Modelo cambiado a {{model}}",
         "error": "Error al actualizar el modelo",
-        "noKey": "sin clave"
+        "noKey": "sin clave",
+        "restarting": "Actualizando modelo y reiniciando contenedor..."
       }
     }
   },
