@@ -94,6 +94,17 @@ const mutations = {
       return data as { success: boolean; botName: string };
     },
   }),
+  updateModel: mutationOptions({
+    mutationKey: [KEY, "updateModel"],
+    mutationFn: async (json: { model: string }) => {
+      const res = await api.openclaw.model.$put({ json });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error((data as { error?: string }).error ?? "Update failed");
+      }
+      return data as { success: boolean; model: string };
+    },
+  }),
 };
 
 export const instance = {

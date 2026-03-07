@@ -144,6 +144,11 @@
         "save": "Save token",
         "success": "Token updated! Bot: {{botName}}",
         "error": "Failed to update token. Please check and try again."
+      },
+      "model": {
+        "success": "Model changed to {{model}}",
+        "error": "Failed to update model",
+        "noKey": "no key"
       }
     }
   },

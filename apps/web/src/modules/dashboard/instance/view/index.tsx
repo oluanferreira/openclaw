@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "@workspace/i18n";
-import { MODELS, COMMUNICATION_CHANNELS } from "@workspace/openclaw/config";
+import { COMMUNICATION_CHANNELS } from "@workspace/openclaw/config";
 import {
   Card,
   CardContent,
@@ -16,11 +16,8 @@ import {
 } from "~/modules/common/layout/dashboard/header";
 import { DeployInstance } from "~/modules/dashboard/instance/deploy";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
-import {
-  CommunicationChannelIcon,
-  ModelIcon,
-} from "~/modules/dashboard/instance/icons";
 import { CommunicationSettings } from "./communication-settings";
+import { ModelSettings } from "./model-settings";
 
 import { InstanceHeader } from "./header";
 import { InstanceLogs } from "./logs";
@@ -49,7 +46,6 @@ export const ViewInstance = () => {
     );
   }
 
-  const model = MODELS.find((m) => m.id === instance.data?.model);
   const communication = COMMUNICATION_CHANNELS.find(
     (ch) => ch.id === instance.data?.communicationChannel,
   );
@@ -64,20 +60,15 @@ export const ViewInstance = () => {
           {t("configuration")}
         </span>
         <div className="grid w-full grid-cols-1 gap-4 @xl/dashboard:grid-cols-3">
-          {/* Model Card */}
+          {/* Model Card — Editable */}
           <Card>
             <CardHeader className="p-5 pb-0! @md/dashboard:p-6">
               <CardTitle className="text-muted-foreground text-sm font-normal @md/dashboard:text-base">
                 {t("model")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="truncate p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
-              {model && (
-                <div className="inline-flex items-center gap-2 @md/dashboard:gap-3">
-                  {(() => { const Icon = ModelIcon[model.id]; return <Icon className="size-5 @md/dashboard:size-6" />; })()}
-                  <span>{model.name}</span>
-                </div>
-              )}
+            <CardContent className="p-5 pt-3 text-base font-medium @md/dashboard:p-6 @md/dashboard:pt-4 @md/dashboard:text-lg">
+              <ModelSettings />
             </CardContent>
           </Card>
 

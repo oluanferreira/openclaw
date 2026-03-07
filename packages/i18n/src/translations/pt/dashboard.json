@@ -144,6 +144,11 @@
         "save": "Salvar token",
         "success": "Token atualizado! Bot: {{botName}}",
         "error": "Falha ao atualizar token. Verifique e tente novamente."
+      },
+      "model": {
+        "success": "Modelo alterado para {{model}}",
+        "error": "Falha ao atualizar modelo",
+        "noKey": "sem chave"
       }
     }
   },

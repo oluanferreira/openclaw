@@ -481,6 +481,73 @@ export const openclawRouter = new Hono()
       return c.json({ success: true, botName });
     },
   )
+  .put("/model", enforceInstance, async (c) => {
+    const instanceId = c.var.instanceId;
+    const vpsId = c.var.vpsId;
+    const body = await c.req.json<{ model: string }>();
+
+    if (!body.model || typeof body.model !== "string") {
+      return c.json({ error: "Model is required" }, 422);
+    }
+
+    // Validate model exists
+    const validModels = ["claude-opus-4-6", "gpt-5.2", "gemini-3-flash-preview"];
+    if (!validModels.includes(body.model)) {
+      return c.json({ error: "Invalid model" }, 422);
+    }
+
+    // Check user has the required API key for this model
+    const userId = c.var.user.id;
+    const inst = await getInstanceByUserId(userId);
+    if (!inst) return c.json({ error: "Instance not found" }, 404);
+
+    const decrypted = await decryptKeys(inst, env.ENCRYPTION_KEY);
+    const modelToKey: Record<string, string | null | undefined> = {
+      "claude-opus-4-6": decrypted.anthropicApiKey,
+      "gpt-5.2": decrypted.openaiApiKey,
+      "gemini-3-flash-preview": decrypted.googleApiKey,
+    };
+
+    if (!modelToKey[body.model]) {
+      return c.json({ error: "No API key configured for this model" }, 422);
+    }
+
+    // Update DB
+    await updateInstance(instanceId, { model: body.model });
+
+    // Update container config + restart
+    const providerMap: Record<string, string> = {
+      "claude-opus-4-6": "anthropic",
+      "gpt-5.2": "openai",
+      "gemini-3-flash-preview": "google",
+    };
+    const agentModelId = providerMap[body.model] + "/" + body.model;
+
+    try {
+      await updateOpenclawJson(instanceId, (config) => {
+        const cfg = config as Record<string, unknown>;
+        const agents = (cfg.agents ?? {}) as Record<string, unknown>;
+        const defaults = (agents.defaults ?? {}) as Record<string, unknown>;
+        const modelCfg = (defaults.model ?? {}) as Record<string, unknown>;
+        return {
+          ...cfg,
+          agents: {
+            ...agents,
+            defaults: {
+              ...defaults,
+              model: { ...modelCfg, primary: agentModelId },
+            },
+          },
+        };
+      });
+      await restartContainer(instanceId);
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      return c.json({ error: "Model saved but container update failed: " + errMsg }, 500);
+    }
+
+    return c.json({ success: true, model: body.model });
+  })
   .post(
     "/manage",
     enforceInstance,
