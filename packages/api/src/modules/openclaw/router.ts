@@ -221,18 +221,18 @@ export const openclawRouter = new Hono()
       };
       const updates: Record<string, unknown> = {};
 
-      // Sync model
+      // Sync model (skip redacted values from OpenClaw runtime)
       const liveModel = liveConfig?.agents?.defaults?.model?.primary;
-      if (liveModel && typeof liveModel === "string") {
+      if (liveModel && typeof liveModel === "string" && !liveModel.includes("_REDACTED_")) {
         const modelId = liveModel.includes("/") ? liveModel.split("/").pop() : liveModel;
         if (modelId && modelId !== inst.model) {
           updates.model = modelId;
         }
       }
 
-      // Sync Telegram bot token
+      // Sync Telegram bot token (skip redacted values from OpenClaw runtime)
       const liveBotToken = liveConfig?.channels?.telegram?.botToken;
-      if (liveBotToken && typeof liveBotToken === "string") {
+      if (liveBotToken && typeof liveBotToken === "string" && !liveBotToken.includes("_REDACTED_")) {
         const dbToken = inst.communicationToken && env.ENCRYPTION_KEY
           ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
           : inst.communicationToken ?? null;
