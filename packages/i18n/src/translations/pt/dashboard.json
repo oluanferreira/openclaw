@@ -278,6 +278,7 @@
     },
     "getCredential": "Obter chave",
     "exploreTitle": "Explorar Skills",
-    "exploreDescription": "Seu agente instala skills pelo chat. Explore o catálogo no ClawHub."
+    "exploreDescription": "Seu agente pode instalar skills diretamente via chat. Navegue pelo catalogo completo no ClawHub para descobrir novas capacidades.",
+    "exploreCta": "Navegar no ClawHub"
   }
 }

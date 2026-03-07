@@ -2,6 +2,8 @@
 
 import { useTranslation } from "@workspace/i18n";
 import { Icons } from "@workspace/ui-web/icons";
+import { Button } from "@workspace/ui-web/button";
+import { Card, CardContent } from "@workspace/ui-web/card";
 
 import { SkillCard } from "../components/skill-card";
 import { useSkills } from "../hooks/use-skills";
@@ -57,30 +59,42 @@ export function SkillsView() {
         <p className="mt-1 text-muted-foreground">{t("skills.description")}</p>
       </div>
 
-      <a
-        href="https://clawhub.ai"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group block rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-6 transition-all hover:border-primary/40 hover:shadow-md"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
-              <Icons.Zap className="size-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">{t("skills.exploreTitle")}</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                {t("skills.exploreDescription")}
-              </p>
-            </div>
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="flex items-center gap-4 p-5">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <Icons.Zap className="size-5 text-primary" />
           </div>
-          <Icons.ExternalLink className="size-5 text-muted-foreground transition-colors group-hover:text-primary" />
-        </div>
-      </a>
+          <div className="flex-1">
+            <h3 className="font-semibold">{t("skills.exploreTitle")}</h3>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {t("skills.exploreDescription")}
+            </p>
+          </div>
+          <a
+            href="https://clawhub.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline" className="shrink-0 gap-1.5">
+              <Icons.ExternalLink className="size-3.5" />
+              {t("skills.exploreCta")}
+            </Button>
+          </a>
+        </CardContent>
+      </Card>
 
       {categories && (
         <>
+          <section>
+            <h2 className="mb-3 text-lg font-semibold">{t("skills.categories.auto")}</h2>
+            <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.autoDescription")}</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {categories.auto.map((skill) => (
+                <SkillCard key={skill.name} skill={skill} onToggle={handleToggle} onSaveCredentials={handleSaveCredentials} isLoading={toggleSkill.isPending} />
+              ))}
+            </div>
+          </section>
+
           <section>
             <h2 className="mb-3 text-lg font-semibold">{t("skills.categories.config")}</h2>
             <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.configDescription")}</p>
@@ -96,16 +110,6 @@ export function SkillsView() {
             <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.installDescription")}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {categories.install.map((skill) => (
-                <SkillCard key={skill.name} skill={skill} onToggle={handleToggle} onSaveCredentials={handleSaveCredentials} isLoading={toggleSkill.isPending} />
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-lg font-semibold">{t("skills.categories.auto")}</h2>
-            <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.autoDescription")}</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {categories.auto.map((skill) => (
                 <SkillCard key={skill.name} skill={skill} onToggle={handleToggle} onSaveCredentials={handleSaveCredentials} isLoading={toggleSkill.isPending} />
               ))}
             </div>
