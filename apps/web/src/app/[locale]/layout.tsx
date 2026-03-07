@@ -4,6 +4,7 @@ import { config, isLocaleSupported } from "@workspace/i18n";
 
 import { getMetadata } from "~/lib/metadata";
 import { Providers } from "~/lib/providers/providers";
+import { CookieConsent } from "~/modules/common/cookie-consent";
 import { BaseLayout } from "~/modules/common/layout/base";
 import { Toaster } from "~/modules/common/toast";
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
       <Providers locale={locale}>
         {children}
         <Toaster />
+        <CookieConsent />
       </Providers>
     </BaseLayout>
   );

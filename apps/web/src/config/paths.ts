@@ -22,6 +22,10 @@ const pathsConfig = {
     subscriptions: `${ADMIN_PREFIX}/subscriptions`,
     models: `${ADMIN_PREFIX}/models`,
   },
+  legal: {
+    terms: "/terms",
+    privacy: "/privacy",
+  },
 } as const;
 
 export { pathsConfig, DASHBOARD_PREFIX, ADMIN_PREFIX, API_PREFIX };

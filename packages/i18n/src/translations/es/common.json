@@ -234,5 +234,18 @@
   "all": "Todos",
   "inProgress": "En progreso",
   "skills": "Habilidades",
-  "accessMyClaw": "Acceder a mi ClaW"
+  "accessMyClaw": "Acceder a mi ClaW",
+  "legal": {
+    "terms": "Términos de Servicio",
+    "privacy": "Política de Privacidad",
+    "cookieConsent": {
+      "message": "Utilizamos cookies para mejorar su experiencia. Al utilizar nuestro sitio, usted consiente el uso de cookies.",
+      "accept": "Aceptar Todos",
+      "necessary": "Solo Necesarias"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 LPJ SERVICES LLC. Todos los derechos reservados.",
+    "allRightsReserved": "Todos los derechos reservados."
+  }
 }
