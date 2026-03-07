@@ -19,7 +19,7 @@ import { Spinner } from "@workspace/ui-web/spinner";
 
 import { useApiKeys } from "~/modules/dashboard/instance/hooks/use-api-keys";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
-import { ProviderIcon } from "~/modules/dashboard/instance/icons";
+import { getModelIcon } from "~/modules/dashboard/instance/icons";
 import { instance as instanceApi } from "~/modules/dashboard/instance/lib/api";
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -80,7 +80,7 @@ export const ModelSettings = () => {
               </div>
             );
           }
-          const Icon = ProviderIcon[currentModelInfo.provider];
+          const Icon = getModelIcon(currentModelInfo.provider);
           return (
             <div className="inline-flex items-center gap-2">
               <Icon className="size-5" />
@@ -101,7 +101,7 @@ export const ModelSettings = () => {
           </SelectTrigger>
           <SelectContent>
             {grouped.map((group, i) => {
-              const Icon = ProviderIcon[group.provider];
+              const Icon = getModelIcon(group.provider);
               return (
                 <SelectGroup key={group.provider}>
                   {i > 0 && <SelectSeparator />}

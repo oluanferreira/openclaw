@@ -327,17 +327,16 @@ export const adminRouter = new Hono()
 
     if (usedBy) {
       // Soft-delete: mark as inactive
-      const [updated] = await db
+      await db
         .update(aiModel)
         .set({ isActive: false })
-        .where(eq(aiModel.id, modelId))
-        .returning();
-      return c.json({ ...updated, softDeleted: true });
+        .where(eq(aiModel.id, modelId));
+    } else {
+      // Hard-delete: no instances use it
+      await db.delete(aiModel).where(eq(aiModel.id, modelId));
     }
 
-    // Hard-delete: no instances use it
-    await db.delete(aiModel).where(eq(aiModel.id, modelId));
-    return c.json({ success: true, hardDeleted: true });
+    return c.json({ success: true });
   })
 
   // ─── USERS ────────────────────────────────────────────────────────────
