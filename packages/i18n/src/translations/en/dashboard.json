@@ -38,7 +38,7 @@
         }
       },
       "note": {
-        "pricing": "<strong>$29.90 per month.</strong>",
+        "pricing": "<strong>{{price}} per month.</strong>",
         "signIn": "Sign in to deploy your AI assistant and connect your channels.",
         "invalid": "Ensure all fields are filled correctly.",
         "limited": "Price is going up — but not for those who subscribe now"

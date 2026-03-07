@@ -6,6 +6,7 @@ import { useTranslation } from "@workspace/i18n";
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
 import { Spinner } from "@workspace/ui-web/spinner";
+import { getDisplayPrice } from "@workspace/shared/constants";
 
 import {
   DashboardHeader,
@@ -13,8 +14,6 @@ import {
   DashboardHeaderDescription,
 } from "~/modules/common/layout/dashboard/header";
 import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
-import { getDisplayPrice } from "@workspace/shared/constants/pricing";
-
 
 export const BillingView = () => {
   const { t } = useTranslation("dashboard");
@@ -29,6 +28,8 @@ export const BillingView = () => {
     past_due: t("billing.status.past_due"),
   };
   const statusLabel = statusLabels[status] ?? status;
+
+  const displayPrice = getDisplayPrice(currency);
 
   return (
     <>
@@ -75,7 +76,7 @@ export const BillingView = () => {
             disabled={checkout.isPending}
           >
             {checkout.isPending && <Spinner className="mr-2 size-4" />}
-            {t("billing.subscribe")} — {getDisplayPrice(currency)}/{t("billing.perMonth")}
+            {t("billing.subscribe")} — {displayPrice}/{t("billing.perMonth")}
           </Button>
         )}
       </section>

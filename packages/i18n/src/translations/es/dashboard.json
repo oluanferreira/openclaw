@@ -38,7 +38,7 @@
         }
       },
       "note": {
-        "pricing": "<strong>$29.90 por mes.</strong>",
+        "pricing": "<strong>{{price}} por mes.</strong>",
         "signIn": "Inicia sesión para desplegar tu asistente de IA y conectar tus canales.",
         "invalid": "Asegúrate de que todos los campos estén llenos correctamente.",
         "limited": "El precio subirá — pero no para quienes se suscriban ahora"

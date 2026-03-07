@@ -38,7 +38,7 @@
         }
       },
       "note": {
-        "pricing": "<strong>R$153,39 por mês.</strong>",
+        "pricing": "<strong>{{price}} por mês.</strong>",
         "signIn": "Entre para fazer deploy do seu assistente de IA e conectar seus canais.",
         "invalid": "Certifique-se de que todos os campos estão preenchidos corretamente.",
         "limited": "O preço vai subir — mas não pra quem assinar agora"

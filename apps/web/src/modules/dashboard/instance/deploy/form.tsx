@@ -12,6 +12,7 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 
 import { Trans, useTranslation } from "@workspace/i18n";
+import { getDisplayPrice } from "@workspace/shared/constants";
 import { deployInstanceSchema } from "@workspace/openclaw";
 import {
   MODELS,
@@ -367,8 +368,10 @@ export const DeployInstanceFormNote = ({
   className,
   ...props
 }: DeployInstanceFormNoteProps) => {
-  const { t } = useTranslation("dashboard");
+  const { t, i18n } = useTranslation("dashboard");
   const form = useFormContext<DeployInstanceSchemaInput>();
+  const currency = i18n.language === "pt" ? "brl" : "usd";
+  const displayPrice = getDisplayPrice(currency);
 
   return (
     <span
@@ -380,6 +383,7 @@ export const DeployInstanceFormNote = ({
       <Trans
         i18nKey="instance.deploy.note.pricing"
         t={t}
+        values={{ price: displayPrice }}
         components={{ strong: <span className="text-foreground" /> }}
       />{" "}
       <span className="text-red-500">{t("instance.deploy.note.limited")}</span>

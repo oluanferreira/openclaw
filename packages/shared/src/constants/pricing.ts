@@ -16,6 +16,7 @@ export type CurrencyCode = "usd" | "brl";
 export interface PricingEntry {
   readonly priceId: string;
   readonly displayValue: string;
+  readonly nextDisplayValue: string;
   readonly currency: CurrencyCode;
 }
 
@@ -33,6 +34,10 @@ export const getPricing = (): Record<Uppercase<CurrencyCode>, PricingEntry> => (
       getEnv("PRICE_DISPLAY_USD") ||
       getEnv("NEXT_PUBLIC_PRICE_DISPLAY_USD") ||
       "$29.90",
+    nextDisplayValue:
+      getEnv("NEXT_PRICE_DISPLAY_USD") ||
+      getEnv("NEXT_PUBLIC_NEXT_PRICE_DISPLAY_USD") ||
+      "$39.90",
     currency: "usd",
   },
   BRL: {
@@ -45,6 +50,10 @@ export const getPricing = (): Record<Uppercase<CurrencyCode>, PricingEntry> => (
       getEnv("PRICE_DISPLAY_BRL") ||
       getEnv("NEXT_PUBLIC_PRICE_DISPLAY_BRL") ||
       "R$153,39",
+    nextDisplayValue:
+      getEnv("NEXT_PRICE_DISPLAY_BRL") ||
+      getEnv("NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL") ||
+      "R$199,90",
     currency: "brl",
   },
 });
@@ -54,6 +63,13 @@ export const getPricing = (): Record<Uppercase<CurrencyCode>, PricingEntry> => (
  */
 export const getDisplayPrice = (currency: CurrencyCode): string =>
   getPricing()[currency.toUpperCase() as Uppercase<CurrencyCode>].displayValue;
+
+/**
+ * Convenience helper — returns the "next" (upcoming) display price for a given currency.
+ */
+export const getNextDisplayPrice = (currency: CurrencyCode): string =>
+  getPricing()[currency.toUpperCase() as Uppercase<CurrencyCode>]
+    .nextDisplayValue;
 
 /**
  * Convenience helper — returns the Stripe Price ID for a given currency.

@@ -13,7 +13,7 @@ import { logger } from "@workspace/shared/logger";
 
 import { env } from "../../env";
 import { enforceAuth } from "../../middleware";
-import { getPriceId } from "@workspace/shared/constants/pricing";
+import { getPriceId } from "@workspace/shared/constants";
 
 
 const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];

@@ -2,6 +2,7 @@ import envConfig from "env.config";
 
 import { Trans } from "@workspace/i18n";
 import { getTranslation } from "@workspace/i18n/server";
+import { getDisplayPrice, getNextDisplayPrice } from "@workspace/shared/constants";
 
 import { appConfig } from "~/config/app";
 import {
@@ -12,7 +13,11 @@ import {
 } from "~/modules/marketing/layout/section";
 
 export const Comparison = async () => {
-  const { t } = await getTranslation({ ns: ["common", "marketing"] });
+  const { t, i18n } = await getTranslation({ ns: ["common", "marketing"] });
+
+  const currency = i18n.language === "pt" ? "brl" : "usd";
+  const currentPrice = getDisplayPrice(currency);
+  const nextPrice = getNextDisplayPrice(currency);
 
   const traditionalSteps = [
     {
@@ -118,12 +123,12 @@ export const Comparison = async () => {
             {t("comparison.product.description")}
           </p>
           <p className="text-muted-foreground mt-2 text-sm font-medium sm:text-base">
-            {t("comparison.product.currentPrice")}
+            {t("comparison.product.currentPrice", { price: currentPrice })}
             {' '}
             <span className="mx-0.5">·</span>
             {' '}
             <span className="text-primary bg-primary/10 rounded px-1.5 py-0.5">
-              {t("comparison.product.nextPrice")}
+              {t("comparison.product.nextPrice", { nextPrice })}
             </span>
           </p>
         </div>
