@@ -37,6 +37,7 @@
     "@workspace/tsconfig": "workspace:*",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "4.0.18"
   }
 }
