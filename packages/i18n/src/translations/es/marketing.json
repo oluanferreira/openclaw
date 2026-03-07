@@ -68,5 +68,10 @@
       "runStandupSummaries": "Generar resúmenes de dailies",
       "trackOkrsKpis": "Seguir OKRs y KPIs"
     }
+  },
+  "buyCta": {
+    "title": "Esto puede ser tuyo.",
+    "description": "Personaliza, despliega y empieza a ganar $$$. En minutos.",
+    "link": "Comprar Kit OpenClaw"
   }
 }

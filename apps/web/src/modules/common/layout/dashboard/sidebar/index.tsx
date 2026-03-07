@@ -27,6 +27,8 @@ import { pathsConfig } from "~/config/paths";
 import { TurboLink } from "~/modules/common/turbo-link";
 import { UserNavigation } from "~/modules/user/user-navigation";
 
+import { BuyCta } from "../../buy-cta";
+
 import { ROOT_MENU_HREF } from "./types";
 import { useMenu } from "./use-menu";
 
@@ -67,7 +69,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
           </TurboLink>
         </SidebarHeader>
 
-        <div className="relative h-full overflow-clip">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-clip">
           {Object.values(history)
             .filter(Boolean)
             .map((href, index) => {
@@ -175,6 +177,7 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
 
                   {href === ROOT_MENU_HREF && (
                     <SidebarGroup className="mt-auto">
+                      <BuyCta className="mt-auto mb-4" />
                       <SidebarGroupContent>
                         <SidebarMenu>
                           <SidebarMenuItem>

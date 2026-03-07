@@ -68,5 +68,10 @@
       "runStandupSummaries": "Run standup summaries",
       "trackOkrsKpis": "Track OKRs and KPIs"
     }
+  },
+  "buyCta": {
+    "title": "This can be yours.",
+    "description": "Customize, deploy and start earning $$$. In minutes.",
+    "link": "Buy OpenClaw Kit"
   }
 }
