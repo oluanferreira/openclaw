@@ -58,3 +58,5 @@ dist/
 
 # content collections
 .content-collections
+# deploy backups
+.deploy-backups/
