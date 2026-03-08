@@ -14,7 +14,7 @@ export const preset = {
     FLY_OPENCLAW_IMAGE: z
       .string()
       .min(1)
-      .default("ghcr.io/openclaw/openclaw:2026.3.2"),
+      .default("ghcr.io/openclaw/openclaw:2026.3.7"),
     FLY_MACHINE_CPUS: z.coerce.number().int().positive().default(2),
     FLY_MACHINE_MEMORY_MB: z.coerce.number().int().positive().default(2048),
     FLY_VOLUME_SIZE_GB: z.coerce.number().int().positive().default(1),

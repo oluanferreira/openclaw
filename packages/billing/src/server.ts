@@ -34,7 +34,7 @@ export const plugin = () =>
       plans: [
         {
           name: Plan.PRO,
-          priceId: "price_1T7ttCFQH4McJDTlBFD4HFJk",
+          priceId: "price_1T83NOJx7izQuNNxzCSrR7wl",
           limits: {
             instances: 1,
           },
