@@ -305,7 +305,13 @@
   "referral": {
     "home": {
       "title": "Programa de Referidos",
-      "description": "Gana 30% de comisión en cada pago de tus referidos. Comparte tu enlace y empieza a ganar."
+      "description": "Gana hasta un 30% en comisiones recurrentes de tus referidos.",
+      "tooltipTiers": "Comisión por nivel:",
+      "tooltipTier1": "Nivel 1 (directo): 20%",
+      "tooltipTier2": "Nivel 2: 8%",
+      "tooltipTier3": "Nivel 3: 2%",
+      "tooltipRecurring": "Recurrente en cada pago mensual mientras la suscripción esté activa.",
+      "tooltipPayout": "Retiro mínimo: $10 USDT — Pago el día 10 de cada mes"
     },
     "activate": {
       "title": "Activar Programa de Referidos",
@@ -326,7 +332,7 @@
     },
     "link": {
       "title": "Tu Enlace de Referido",
-      "description": "Comparte este enlace con amigos y gana 20% en sus pagos, más 8% y 2% en los siguientes dos niveles.",
+      "description": "Comparte tu enlace y gana comisiones recurrentes en cada pago de tus referidos.",
       "copied": "¡Enlace copiado!"
     },
     "wallet": {

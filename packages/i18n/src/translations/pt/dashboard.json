@@ -305,7 +305,13 @@
   "referral": {
     "home": {
       "title": "Programa de Indicação",
-      "description": "Ganhe 30% de comissão em cada pagamento dos seus indicados. Compartilhe seu link e comece a ganhar."
+      "description": "Ganhe até 30% em comissões recorrentes dos seus indicados.",
+      "tooltipTiers": "Comissão por nível:",
+      "tooltipTier1": "Nível 1 (direto): 20%",
+      "tooltipTier2": "Nível 2: 8%",
+      "tooltipTier3": "Nível 3: 2%",
+      "tooltipRecurring": "Recorrente a cada pagamento mensal enquanto a assinatura estiver ativa.",
+      "tooltipPayout": "Saque mínimo: $10 USDT — Pagamento no dia 10 de cada mês"
     },
     "activate": {
       "title": "Ativar Programa de Indicação",
@@ -326,7 +332,7 @@
     },
     "link": {
       "title": "Seu Link de Indicação",
-      "description": "Compartilhe este link com amigos e ganhe 20% nos pagamentos deles, mais 8% e 2% nos próximos dois níveis.",
+      "description": "Compartilhe seu link e ganhe comissões recorrentes a cada pagamento dos seus indicados.",
       "copied": "Link copiado!"
     },
     "wallet": {

@@ -12,6 +12,11 @@ import { Input } from "@workspace/ui-web/input";
 import { Label } from "@workspace/ui-web/label";
 import { Skeleton } from "@workspace/ui-web/skeleton";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui-web/tooltip";
+import {
   Table,
   TableBody,
   TableCell,
@@ -44,6 +49,28 @@ function formatUsd(value: number) {
 
 function copyToClipboard(text: string, successMsg: string) {
   void navigator.clipboard.writeText(text).then(() => toast.success(successMsg));
+}
+
+// ─── Info Tooltip ────────────────────────────────────────────
+
+function CommissionInfoTooltip({ t }: { t: (key: string) => string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger className="text-muted-foreground hover:text-foreground inline-flex cursor-help transition-colors">
+        <Icons.Info className="size-4" />
+      </TooltipTrigger>
+      <TooltipContent side="bottom" align="start" className="max-w-xs space-y-2 p-3">
+        <p className="font-medium">{t("referral.home.tooltipTiers")}</p>
+        <ul className="list-inside list-disc space-y-0.5 text-xs">
+          <li>{t("referral.home.tooltipTier1")}</li>
+          <li>{t("referral.home.tooltipTier2")}</li>
+          <li>{t("referral.home.tooltipTier3")}</li>
+        </ul>
+        <p className="text-xs opacity-80">{t("referral.home.tooltipRecurring")}</p>
+        <p className="text-xs opacity-80">{t("referral.home.tooltipPayout")}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 // ─── Activate Form ──────────────────────────────────────────
@@ -539,7 +566,10 @@ export const ReferralView = () => {
               {t("referral.home.title")}
             </DashboardHeaderTitle>
             <DashboardHeaderDescription>
-              {t("referral.home.description")}
+              <span className="inline-flex items-center gap-1.5">
+                {t("referral.home.description")}
+                <CommissionInfoTooltip t={t as (k: string) => string} />
+              </span>
             </DashboardHeaderDescription>
           </div>
         </DashboardHeader>

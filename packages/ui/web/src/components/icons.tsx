@@ -99,6 +99,7 @@ import {
   Clock,
   CheckCircle,
   Globe,
+  Info,
 } from "lucide-react";
 
 import { Icons as GlobalIcons } from "@workspace/ui/assets";
@@ -205,6 +206,7 @@ export const Icons = {
   Clock,
   CheckCircle,
   Globe,
+  Info,
 };
 
 export type Icon = (typeof Icons)[keyof typeof Icons];

@@ -305,7 +305,13 @@
   "referral": {
     "home": {
       "title": "Referral Program",
-      "description": "Earn 30% commission on every payment from your referrals. Share your link and start earning."
+      "description": "Earn up to 30% in recurring commissions from your referrals.",
+      "tooltipTiers": "Commission by tier:",
+      "tooltipTier1": "Tier 1 (direct): 20%",
+      "tooltipTier2": "Tier 2: 8%",
+      "tooltipTier3": "Tier 3: 2%",
+      "tooltipRecurring": "Recurring on every monthly payment while the subscription is active.",
+      "tooltipPayout": "Minimum withdrawal: $10 USDT — Payout on the 10th of each month"
     },
     "activate": {
       "title": "Activate Referral Program",
@@ -326,7 +332,7 @@
     },
     "link": {
       "title": "Your Referral Link",
-      "description": "Share this link with friends and earn 20% on their payments, plus 8% and 2% on the next two tiers.",
+      "description": "Share your link and earn recurring commissions on every payment from your referrals.",
       "copied": "Link copied!"
     },
     "wallet": {
