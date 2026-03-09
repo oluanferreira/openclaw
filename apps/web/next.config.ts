@@ -39,7 +39,7 @@ export default withSentryConfig(config, {
   widenClientFileUpload: true,
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
+  webpack: { treeshake: { removeDebugLogging: true } },
 
   // Hides source maps from generated client bundles
   sourcemaps: { deleteSourcemapsAfterUpload: true },
