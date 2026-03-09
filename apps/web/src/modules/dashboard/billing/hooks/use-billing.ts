@@ -16,8 +16,15 @@ export const useBilling = () => {
   const subscription = useQuery(billingApi.queries.subscription);
 
   const checkout = useMutation({
-    mutationFn: () =>
-      handle(api.billing.checkout.$post)({ json: { currency } }),
+    mutationFn: () => {
+      const refCookie = document.cookie
+        .split("; ")
+        .find((c) => c.startsWith("ref="))
+        ?.split("=")[1];
+      return handle(api.billing.checkout.$post)({
+        json: { currency, ...(refCookie ? { referralCode: refCookie } : {}) },
+      } as never);
+    },
     onSuccess: (data) => {
       if (data?.url) window.location.href = data.url;
     },

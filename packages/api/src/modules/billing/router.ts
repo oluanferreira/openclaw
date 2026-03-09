@@ -14,6 +14,14 @@ import { logger } from "@workspace/shared/logger";
 import { env } from "../../env";
 import { enforceAuth } from "../../middleware";
 import { getPriceId } from "@workspace/shared/constants";
+import {
+  createCommissionChain,
+  getAffiliateByUserId,
+  resolveAffiliate,
+  voidCommissionsByInvoice,
+  restoreCommissionsByInvoice,
+  voidPendingCommissionsForUser,
+} from "../referral/service";
 
 
 const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
@@ -183,6 +191,130 @@ export const billingRouter = new Hono()
       }
     }
 
+    // ─── Referral: commission on successful payment ─────────
+    if (event.type === "invoice.payment_succeeded") {
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id ?? null;
+
+      if (customerId && invoice.id) {
+        try {
+          // Get the subscription to check for referral metadata
+          const subId =
+            typeof invoice.subscription === "string"
+              ? invoice.subscription
+              : invoice.subscription?.id ?? null;
+
+          if (subId) {
+            const stripeSub = await getStripe().subscriptions.retrieve(subId);
+            const referralCode = stripeSub.metadata?.referralCode;
+
+            if (referralCode) {
+              // Find the referred user
+              const dbSub = await db.query.subscription.findFirst({
+                where: (t, { eq: eqFn }) => eqFn(t.stripeCustomerId, customerId),
+              });
+
+              if (dbSub) {
+                // Resolve the affiliate who referred this user
+                const referrerAffiliate = await resolveAffiliate(referralCode);
+
+                if (referrerAffiliate && referrerAffiliate.status === "active") {
+                  const grossAmount = (invoice.amount_paid ?? 0) / 100;
+                  const currency = invoice.currency ?? "usd";
+
+                  await createCommissionChain(
+                    referrerAffiliate.id,
+                    dbSub.userId,
+                    invoice.id,
+                    grossAmount,
+                    currency,
+                  );
+                }
+              }
+            }
+          }
+        } catch (e) {
+          logger.error("referral commission creation failed", e);
+        }
+      }
+    }
+
+    // ─── Referral: void commissions on dispute ───────────────
+    if (event.type === "charge.dispute.created") {
+      const dispute = event.data.object as Stripe.Dispute;
+      const chargeId =
+        typeof dispute.charge === "string"
+          ? dispute.charge
+          : dispute.charge?.id ?? null;
+
+      if (chargeId) {
+        try {
+          const charge = await getStripe().charges.retrieve(chargeId);
+          const invoiceId =
+            typeof charge.invoice === "string"
+              ? charge.invoice
+              : charge.invoice?.id ?? null;
+
+          if (invoiceId) {
+            await voidCommissionsByInvoice(invoiceId);
+          }
+        } catch (e) {
+          logger.error("referral commission void failed", e);
+        }
+      }
+    }
+
+    // ─── Referral: restore commissions if dispute won ────────
+    if (event.type === "charge.dispute.closed") {
+      const dispute = event.data.object as Stripe.Dispute;
+
+      if (dispute.status === "won") {
+        const chargeId =
+          typeof dispute.charge === "string"
+            ? dispute.charge
+            : dispute.charge?.id ?? null;
+
+        if (chargeId) {
+          try {
+            const charge = await getStripe().charges.retrieve(chargeId);
+            const invoiceId =
+              typeof charge.invoice === "string"
+                ? charge.invoice
+                : charge.invoice?.id ?? null;
+
+            if (invoiceId) {
+              await restoreCommissionsByInvoice(invoiceId);
+            }
+          } catch (e) {
+            logger.error("referral commission restore failed", e);
+          }
+        }
+      }
+    }
+
+    // ─── Referral: void future commissions on cancel ─────────
+    if (event.type === "customer.subscription.deleted") {
+      const sub = event.data.object as Stripe.Subscription;
+      const referralCode = sub.metadata?.referralCode;
+
+      if (referralCode) {
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+        const dbSub = await db.query.subscription.findFirst({
+          where: (t, { eq: eqFn }) => eqFn(t.stripeCustomerId, customerId),
+        });
+
+        if (dbSub) {
+          await voidPendingCommissionsForUser(dbSub.userId).catch((e) =>
+            logger.error("referral void on cancel failed", e),
+          );
+        }
+      }
+    }
+
     return c.json({ received: true });
   })
   .use(enforceAuth)
@@ -216,6 +348,8 @@ export const billingRouter = new Hono()
     const currency: "usd" | "brl" =
       body.currency === "brl" ? "brl" : "usd";
 
+    const referralCode: string | undefined = body.referralCode;
+
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
@@ -225,6 +359,10 @@ export const billingRouter = new Hono()
       cancel_url: `${baseUrl}/dashboard/billing`,
       client_reference_id: user.id,
       customer_email: user.email,
+      ...(referralCode ? {
+        metadata: { referralCode },
+        subscription_data: { metadata: { referralCode } },
+      } : {}),
     });
 
     return c.json({ url: session.url });

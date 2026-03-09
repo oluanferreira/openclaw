@@ -1,5 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 import { relations } from "drizzle-orm";
-import { index, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  type AnyPgColumn,
+  index,
+  numeric,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 import { createInsertSchema, createSelectSchema } from "../lib/zod";
 
@@ -20,6 +28,10 @@ export const affiliate = pgTable(
     referralCode: text("referral_code").notNull().unique(),
     referralSlug: text("referral_slug").unique(),
     walletAddress: text("wallet_address"),
+    parentAffiliateId: text("parent_affiliate_id").references(
+      (): AnyPgColumn => affiliate.id,
+      { onDelete: "set null" },
+    ),
     status: text({ enum: ["active", "suspended"] })
       .default("active")
       .notNull(),
@@ -29,6 +41,7 @@ export const affiliate = pgTable(
   (t) => [
     index("idx_affiliate_code").on(t.referralCode),
     index("idx_affiliate_slug").on(t.referralSlug),
+    index("idx_affiliate_parent").on(t.parentAffiliateId),
   ],
 );
 
@@ -51,6 +64,9 @@ export const commission = pgTable(
       scale: 2,
     }).notNull(),
     currency: text().notNull(),
+    tier: text({ enum: ["tier1", "tier2", "tier3"] })
+      .default("tier1")
+      .notNull(),
     status: text({ enum: ["pending", "paid", "voided"] })
       .default("pending")
       .notNull(),
@@ -93,6 +109,12 @@ export const affiliatePayout = pgTable(
 
 export const affiliateRelations = relations(affiliate, ({ one, many }) => ({
   user: one(user, { fields: [affiliate.userId], references: [user.id] }),
+  parent: one(affiliate, {
+    fields: [affiliate.parentAffiliateId],
+    references: [affiliate.id],
+    relationName: "parentChild",
+  }),
+  children: many(affiliate, { relationName: "parentChild" }),
   commissions: many(commission),
   payouts: many(affiliatePayout),
 }));
@@ -131,6 +153,7 @@ export const selectAffiliatePayoutSchema = createSelectSchema(affiliatePayout);
 
 export type AffiliateStatus = "active" | "suspended";
 export type CommissionStatus = "pending" | "paid" | "voided";
+export type CommissionTier = "tier1" | "tier2" | "tier3";
 export type PayoutStatus = "pending" | "paid" | "failed";
 export type SelectAffiliate = z.infer<typeof selectAffiliateSchema>;
 export type InsertAffiliate = z.infer<typeof insertAffiliateSchema>;
