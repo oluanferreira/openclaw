@@ -23,7 +23,8 @@
       "subtitle": "Elige un modelo, conecta Telegram, despliega - listo en menos de 30 segundos.",
       "description": "Los servidores, SSH y el entorno de OpenClaw ya están configurados, esperando ser asignados. Conexión simple, segura y rápida con tu bot.",
       "currentPrice": "{{price}}/mes",
-      "nextPrice": "Próximo precio: {{nextPrice}}"
+      "nextPrice": "Próximo precio: {{nextPrice}}",
+      "freeTokens": "Incluye activación de hasta 10M tokens OpenAI gratis/día"
     }
   },
   "useCases": {

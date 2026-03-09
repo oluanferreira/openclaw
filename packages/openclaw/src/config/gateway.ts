@@ -87,12 +87,28 @@ export const getGatewayConfig = ({
     telegram: {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       enabled: config.communication.channel === CommunicatonChannel.TELEGRAM,
+      dmPolicy: "pairing",
       botToken: config.communication.token,
+      groupPolicy: "allowlist",
+      streaming: "partial",
     },
+  },
+  commands: {
+    native: "auto",
+    nativeSkills: "auto",
+    restart: true,
+    ownerDisplay: "raw",
   },
   skills: getSkillsConfig(skills),
   hooks: {
     enabled: true,
     token: hooksToken,
+  },
+  tools: {
+    exec: {
+      host: "gateway",
+      security: "full",
+      ask: "off",
+    },
   },
 });

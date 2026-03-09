@@ -15,5 +15,5 @@ export interface OpenClawDeploymentProviderStrategy {
   destroy: (id: string) => Promise<{ stdout: string }>;
   getLogs: (id: string) => Promise<{ stdout: string }>;
   getUrl: (id: string) => string;
-  updateKeys: (id: string, aiKeys: AiKeysInput, model?: string) => Promise<{ stdout: string }>;
+  updateKeys: (id: string, aiKeys: AiKeysInput, model?: string, token?: string) => Promise<{ stdout: string }>;
 }

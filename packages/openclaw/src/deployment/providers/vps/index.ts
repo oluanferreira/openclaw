@@ -49,6 +49,8 @@ const getDockerRunCommand = (params: {
   --pids-limit="512" \
   --cpus=${escapeShell(vpsEnv.VPS_CONTAINER_CPUS)} \
   --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
   -p "127.0.0.1:${params.port}:18789" \
   -v ${escapeShell(`${stateDir}:/opt/openclaw`)} \
@@ -245,27 +247,40 @@ echo "container_id=$CONTAINER_ID"
 `;
 };
 
-const getUpdateKeysScript = (id: string, aiKeys: AiKeysInput, model?: string) => {
+const getUpdateKeysScript = (id: string, aiKeys: AiKeysInput, model?: string, token?: string) => {
   const STATE_DIR = toStateDir(id);
+  const origin = getUrl(id);
 
   return `
 set -euo pipefail
 
 NEW_MODEL=${escapeShell(model ?? "")}
 STATE_DIR=${escapeShell(STATE_DIR)}
+GATEWAY_TOKEN=${escapeShell(token ?? "")}
+ALLOWED_ORIGIN=${escapeShell(origin)}
 
-# Update model in openclaw.json (if provided)
-if [ -n "$NEW_MODEL" ]; then
-  python3 -c "
+# Update openclaw.json: model (if provided) + restore gateway token (prevents redaction corruption)
+python3 -c "
 import json, sys
 cfg_path = sys.argv[1] + '/openclaw.json'
+new_model = sys.argv[2]
+gateway_token = sys.argv[3]
+allowed_origin = sys.argv[4]
+
 with open(cfg_path) as f:
     cfg = json.load(f)
-cfg['agents']['defaults']['model']['primary'] = sys.argv[2]
+
+if new_model:
+    cfg.setdefault('agents', {}).setdefault('defaults', {}).setdefault('model', {})['primary'] = new_model
+
+if gateway_token:
+    cfg.setdefault('gateway', {}).setdefault('auth', {})['token'] = gateway_token
+    cfg['gateway']['auth']['mode'] = 'token'
+    cfg['gateway'].setdefault('controlUi', {})['allowedOrigins'] = [allowed_origin]
+
 with open(cfg_path, 'w') as f:
     json.dump(cfg, f, indent=2)
-" "$STATE_DIR" "$NEW_MODEL"
-fi
+" "$STATE_DIR" "$NEW_MODEL" "$GATEWAY_TOKEN" "$ALLOWED_ORIGIN"
 
 # Get the current host port from the running container
 PORT=$(docker inspect --format '{{range $p, $conf := .HostConfig.PortBindings}}{{(index $conf 0).HostPort}}{{end}}' ${escapeShell(id)})
@@ -325,10 +340,10 @@ export const strategy = {
   restart: async (id) => executeDocker(["restart", id]),
   destroy: async (id) => executeDocker(["rm", "-f", id]),
   getLogs: async (id) =>
-    execute(`docker logs --timestamps --details ${escapeShell(id)} 2>&1`),
+    execute(`docker logs --timestamps --details --tail 500 ${escapeShell(id)} 2>&1`),
   getUrl,
-  updateKeys: async (id: string, aiKeys: AiKeysInput, model?: string) => {
-    const script = getUpdateKeysScript(id, aiKeys, model);
+  updateKeys: async (id: string, aiKeys: AiKeysInput, model?: string, token?: string) => {
+    const script = getUpdateKeysScript(id, aiKeys, model, token);
     return execute(script);
   },
 } satisfies OpenClawDeploymentProviderStrategy;

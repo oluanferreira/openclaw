@@ -28,33 +28,27 @@ export const MODELS = [
   },
   // OpenAI
   {
+    id: "gpt-5.4",
+    provider: "openai" as const,
+    name: "GPT 5.4",
+    tier: "flagship" as const,
+  },
+  {
     id: "gpt-5.2",
     provider: "openai" as const,
     name: "GPT 5.2",
     tier: "flagship" as const,
   },
   {
-    id: "o3",
-    provider: "openai" as const,
-    name: "o3",
-    tier: "reasoning" as const,
-  },
-  {
-    id: "o4-mini",
-    provider: "openai" as const,
-    name: "o4-mini",
-    tier: "reasoning" as const,
-  },
-  {
-    id: "gpt-4.1",
-    provider: "openai" as const,
-    name: "GPT 4.1",
-    tier: "balanced" as const,
-  },
-  {
     id: "gpt-4.1-mini",
     provider: "openai" as const,
     name: "GPT 4.1 Mini",
+    tier: "balanced" as const,
+  },
+  {
+    id: "gpt-4o-mini",
+    provider: "openai" as const,
+    name: "GPT 4o Mini",
     tier: "fast" as const,
   },
   // Google
@@ -94,7 +88,7 @@ export const PROVIDER_TO_KEY: Record<Provider, string> = {
 /** Map provider -> default model (first flagship per provider) */
 export const PROVIDER_DEFAULT_MODEL: Record<Provider, ModelId> = {
   anthropic: "claude-opus-4-6",
-  openai: "gpt-5.2",
+  openai: "gpt-5.4",
   google: "gemini-2.5-pro",
 };
 

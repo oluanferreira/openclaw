@@ -49,7 +49,7 @@ const ChannelConfiguration = {
   [CommunicatonChannel.WHATSAPP]: null,
 } as const;
 
-const AI_KEY_CONFIG: Record<
+const PROVIDER_KEY_CONFIG: Record<
   string,
   {
     field: "openaiApiKey" | "anthropicApiKey" | "googleApiKey";
@@ -58,19 +58,19 @@ const AI_KEY_CONFIG: Record<
     placeholder: string;
   }
 > = {
-  "gpt-5.2": {
+  openai: {
     field: "openaiApiKey",
     provider: "OpenAI",
     link: "https://platform.openai.com/api-keys",
     placeholder: "sk-proj-...",
   },
-  "claude-opus-4-6": {
+  anthropic: {
     field: "anthropicApiKey",
     provider: "Anthropic",
     link: "https://console.anthropic.com/settings/keys",
     placeholder: "sk-ant-...",
   },
-  "gemini-3-flash-preview": {
+  google: {
     field: "googleApiKey",
     provider: "Google",
     link: "https://aistudio.google.com/app/apikey",
@@ -289,8 +289,11 @@ const AiKeyField = () => {
   const { t } = useTranslation("dashboard");
   const { control } = useFormContext<DeployInstanceSchemaInput>();
   const selectedModel = useWatch({ control, name: "model" });
+  const { data: dbModels } = useModels();
 
-  const config = AI_KEY_CONFIG[selectedModel];
+  const models = (dbModels as any[])?.length ? (dbModels as any[]) : MODELS;
+  const modelEntry = models.find((m: any) => m.id === selectedModel);
+  const config = modelEntry ? PROVIDER_KEY_CONFIG[modelEntry.provider] : undefined;
   if (!config) return null;
 
   return (

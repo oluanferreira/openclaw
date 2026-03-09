@@ -79,11 +79,12 @@ const routeUpdateKeys = async (
   vpsId: string,
   aiKeys: AiKeysInput,
   model?: string,
+  instanceToken?: string,
 ) => {
   const vps = await getVpsById(vpsId);
 
   if (!vps || vps.endpoint === "local") {
-    return updateKeys(instanceId, aiKeys, model);
+    return updateKeys(instanceId, aiKeys, model, instanceToken);
   }
 
   // Remote VPS — delegate to agent HTTP
@@ -93,7 +94,7 @@ const routeUpdateKeys = async (
       "Content-Type": "application/json",
       Authorization: `Bearer ${vps.token ?? ""}`,
     },
-    body: JSON.stringify({ instanceId, aiKeys, model }),
+    body: JSON.stringify({ instanceId, aiKeys, model, instanceToken }),
     signal: AbortSignal.timeout(120000),
   });
 
@@ -395,6 +396,7 @@ export const openclawRouter = new Hono()
         googleApiKey: mergedKeys.googleApiKey ?? undefined,
       },
       agentModelId,
+      inst.token,
     );
 
     return c.json({

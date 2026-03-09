@@ -23,7 +23,8 @@
       "subtitle": "Pick a model, connect Telegram, deploy - done under 30 seconds.",
       "description": "Servers, SSH and OpenClaw Environment are already set up, waiting to get assigned. Simple, secure and fast connection to your bot.",
       "currentPrice": "{{price}}/mo",
-      "nextPrice": "Next price: {{nextPrice}}"
+      "nextPrice": "Next price: {{nextPrice}}",
+      "freeTokens": "Includes activation of up to 10M free OpenAI tokens/day"
     }
   },
   "useCases": {
