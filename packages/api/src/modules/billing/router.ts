@@ -225,12 +225,47 @@ export const billingRouter = new Hono()
                   const grossAmount = (invoice.amount_paid ?? 0) / 100;
                   const currency = invoice.currency ?? "usd";
 
+                  // Convert to USD if payment was in another currency
+                  let usdConversion: { grossAmountUsd: number; exchangeRate: number } | null = null;
+                  if (currency !== "usd") {
+                    try {
+                      const chargeId =
+                        typeof invoice.charge === "string"
+                          ? invoice.charge
+                          : invoice.charge?.id ?? null;
+                      if (chargeId) {
+                        const charge = await getStripe().charges.retrieve(chargeId, {
+                          expand: ["balance_transaction"],
+                        });
+                        const bt = charge.balance_transaction;
+                        if (bt && typeof bt !== "string") {
+                          if (bt.currency === "usd") {
+                            // Account settles in USD — use BT amount directly
+                            usdConversion = {
+                              grossAmountUsd: bt.amount / 100,
+                              exchangeRate: bt.exchange_rate ?? 1,
+                            };
+                          } else if (bt.exchange_rate) {
+                            // Account settles in another currency but has exchange rate
+                            usdConversion = {
+                              grossAmountUsd: Math.round((grossAmount / bt.exchange_rate) * 100) / 100,
+                              exchangeRate: bt.exchange_rate,
+                            };
+                          }
+                        }
+                      }
+                    } catch (e) {
+                      logger.error("referral: failed to get USD exchange rate", e);
+                    }
+                  }
+
                   await createCommissionChain(
                     referrerAffiliate.id,
                     dbSub.userId,
                     invoice.id,
                     grossAmount,
                     currency,
+                    usdConversion,
                   );
                 }
               }

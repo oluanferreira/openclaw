@@ -64,6 +64,12 @@ export const commission = pgTable(
       scale: 2,
     }).notNull(),
     currency: text().notNull(),
+    grossAmountUsd: numeric("gross_amount_usd", { precision: 10, scale: 2 }),
+    commissionAmountUsd: numeric("commission_amount_usd", {
+      precision: 10,
+      scale: 2,
+    }),
+    exchangeRate: numeric("exchange_rate", { precision: 12, scale: 6 }),
     tier: text({ enum: ["tier1", "tier2", "tier3"] })
       .default("tier1")
       .notNull(),

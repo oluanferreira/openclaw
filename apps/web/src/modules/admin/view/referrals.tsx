@@ -63,6 +63,8 @@ type Commission = {
   stripeInvoiceId: string;
   grossAmount: string;
   commissionAmount: string;
+  grossAmountUsd: string | null;
+  commissionAmountUsd: string | null;
   currency: string;
   tier: string;
   status: string;
@@ -584,10 +586,28 @@ function CommissionsPanel({ affiliateId }: { affiliateId: string }) {
                 </Badge>
               </TableCell>
               <TableCell className="font-mono text-xs">
-                {formatUsd(Number(c.grossAmount))}
+                {c.grossAmountUsd ? (
+                  <span>
+                    {formatUsd(Number(c.grossAmountUsd))}
+                    <span className="text-muted-foreground ml-1">
+                      ({c.currency.toUpperCase()} {Number(c.grossAmount).toFixed(2)})
+                    </span>
+                  </span>
+                ) : (
+                  formatUsd(Number(c.grossAmount))
+                )}
               </TableCell>
               <TableCell className="font-mono text-xs font-medium">
-                {formatUsd(Number(c.commissionAmount))}
+                {c.commissionAmountUsd ? (
+                  <span>
+                    {formatUsd(Number(c.commissionAmountUsd))}
+                    <span className="text-muted-foreground ml-1">
+                      ({c.currency.toUpperCase()} {Number(c.commissionAmount).toFixed(2)})
+                    </span>
+                  </span>
+                ) : (
+                  formatUsd(Number(c.commissionAmount))
+                )}
               </TableCell>
               <TableCell className="text-xs">{c.periodMonth}</TableCell>
               <TableCell>

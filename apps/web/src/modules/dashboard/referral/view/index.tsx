@@ -309,6 +309,7 @@ function CommissionsTable({
   items: Array<{
     id: string;
     commissionAmount: string;
+    commissionAmountUsd: string | null;
     currency: string;
     tier: string;
     status: string;
@@ -348,7 +349,16 @@ function CommissionsTable({
                 <Badge variant="secondary">{tierLabels[c.tier] ?? c.tier}</Badge>
               </TableCell>
               <TableCell className="font-mono text-sm">
-                ${Number(c.commissionAmount).toFixed(2)} {c.currency.toUpperCase()}
+                {c.commissionAmountUsd ? (
+                  <>
+                    ${Number(c.commissionAmountUsd).toFixed(2)}
+                    <span className="text-muted-foreground ml-1.5 text-xs">
+                      ({c.currency.toUpperCase()} {Number(c.commissionAmount).toFixed(2)})
+                    </span>
+                  </>
+                ) : (
+                  `$${Number(c.commissionAmount).toFixed(2)}`
+                )}
               </TableCell>
               <TableCell>
                 <Badge variant={statusVariant[c.status] ?? "default"}>
@@ -593,6 +603,7 @@ export const ReferralView = () => {
   const commissionsData = (commissions.data as { items: Array<{
     id: string;
     commissionAmount: string;
+    commissionAmountUsd: string | null;
     currency: string;
     tier: string;
     status: string;

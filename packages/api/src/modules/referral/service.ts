@@ -136,11 +136,11 @@ export async function getAffiliateStats(affiliateId: string) {
 
   const pending = commissions
     .filter((c) => c.status === "pending")
-    .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
+    .reduce((sum, c) => sum + Number(c.commissionAmountUsd ?? c.commissionAmount), 0);
 
   const totalEarned = commissions
     .filter((c) => c.status !== "voided")
-    .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
+    .reduce((sum, c) => sum + Number(c.commissionAmountUsd ?? c.commissionAmount), 0);
 
   const activeReferrals = new Set(
     commissions
@@ -183,6 +183,7 @@ export async function createCommissionChain(
   stripeInvoiceId: string,
   grossAmount: number,
   currency: string,
+  usdConversion?: { grossAmountUsd: number; exchangeRate: number } | null,
 ) {
   const tiers: Array<{ affiliateId: string; tier: "tier1" | "tier2" | "tier3" }> = [];
   const periodMonth = getCurrentPeriodMonth();
@@ -247,6 +248,11 @@ export async function createCommissionChain(
         grossAmount: String(grossAmount),
         commissionAmount: String(commissionAmount),
         currency,
+        grossAmountUsd: usdConversion ? String(usdConversion.grossAmountUsd) : (currency === "usd" ? String(grossAmount) : null),
+        commissionAmountUsd: usdConversion
+          ? String(Math.round(usdConversion.grossAmountUsd * rate * 100) / 100)
+          : (currency === "usd" ? String(commissionAmount) : null),
+        exchangeRate: usdConversion ? String(usdConversion.exchangeRate) : (currency === "usd" ? "1" : null),
         tier,
         status: "pending",
         periodMonth,

@@ -64,6 +64,13 @@
       "when": 1773074944623,
       "tag": "0008_previous_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773098284184,
+      "tag": "0009_commission_usd_columns",
+      "breakpoints": true
     }
   ]
 }
