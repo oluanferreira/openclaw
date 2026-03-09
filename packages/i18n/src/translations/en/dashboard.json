@@ -301,5 +301,69 @@
     "exploreTitle": "Explore Skills",
     "exploreDescription": "Your agent can install skills directly via chat. Browse the full catalog on ClawHub to discover new capabilities.",
     "exploreCta": "Browse on ClawHub"
+  },
+  "referral": {
+    "home": {
+      "title": "Referral Program",
+      "description": "Earn 30% commission on every payment from your referrals. Share your link and start earning."
+    },
+    "activate": {
+      "title": "Activate Referral Program",
+      "description": "Enter your BEP20 wallet address to receive USDT payouts and start earning commissions.",
+      "walletLabel": "BEP20 Wallet Address",
+      "walletHint": "BNB Smart Chain (BSC) wallet address starting with 0x",
+      "acceptTerms": "I have read and accept the <a href='/referral-terms' target='_blank' class='text-primary underline'>Referral Program Terms</a>",
+      "cta": "Activate Program",
+      "success": "Referral program activated!",
+      "error": "Failed to activate. Please try again."
+    },
+    "stats": {
+      "available": "Available",
+      "pending": "Pending",
+      "totalEarned": "Total Earned",
+      "totalPaid": "Total Paid",
+      "activeReferrals": "Active Referrals"
+    },
+    "link": {
+      "title": "Your Referral Link",
+      "description": "Share this link with friends and earn 20% on their payments, plus 8% and 2% on the next two tiers.",
+      "copied": "Link copied!"
+    },
+    "wallet": {
+      "title": "Payout Wallet",
+      "description": "USDT BEP20 wallet for receiving monthly payouts on the 10th.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "notSet": "Not set",
+      "updateSuccess": "Wallet updated!",
+      "updateError": "Failed to update wallet."
+    },
+    "commissions": {
+      "title": "Commissions",
+      "empty": "No commissions yet. Share your link to start earning!",
+      "date": "Date",
+      "period": "Period",
+      "tier": "Tier",
+      "amount": "Amount",
+      "status": "Status",
+      "statusLabel": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "voided": "Voided"
+      }
+    },
+    "payouts": {
+      "title": "Payouts",
+      "empty": "No payouts yet. Commissions are paid monthly on the 10th.",
+      "period": "Period",
+      "amount": "Amount",
+      "status": "Status",
+      "txHash": "TX Hash",
+      "statusLabel": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "failed": "Failed"
+      }
+    }
   }
 }

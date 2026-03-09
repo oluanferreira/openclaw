@@ -3,8 +3,8 @@ import { createMiddleware } from "hono/factory";
 import Stripe from "stripe";
 import * as z from "zod";
 
-import { asc, eq } from "@workspace/db";
-import { user, instance, subscription, vpsServer, aiModel } from "@workspace/db/schema";
+import { asc, desc, eq, sql, and, count } from "@workspace/db";
+import { user, instance, subscription, vpsServer, aiModel, affiliate, commission, affiliatePayout } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import {
   ManageInstanceAction,
@@ -779,4 +779,159 @@ export const adminRouter = new Hono()
     } catch {
       return c.json({ monitors: [], error: "Failed to reach UptimeRobot" });
     }
+  })
+
+  // ─── REFERRALS ────────────────────────────────────────────────────────
+
+  .get("/referrals", async (c) => {
+    const affiliates = await db
+      .select({
+        id: affiliate.id,
+        userId: affiliate.userId,
+        referralCode: affiliate.referralCode,
+        referralSlug: affiliate.referralSlug,
+        walletAddress: affiliate.walletAddress,
+        status: affiliate.status,
+        parentAffiliateId: affiliate.parentAffiliateId,
+        createdAt: affiliate.createdAt,
+        userName: user.name,
+        userEmail: user.email,
+        userImage: user.image,
+      })
+      .from(affiliate)
+      .leftJoin(user, eq(affiliate.userId, user.id))
+      .orderBy(desc(affiliate.createdAt));
+
+    // Get commission stats per affiliate
+    const commissionStats = await db
+      .select({
+        affiliateId: commission.affiliateId,
+        totalCount: count(),
+        totalAmount: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} != 'voided' THEN ${commission.commissionAmount}::numeric ELSE 0 END), 0)::text`,
+        pendingAmount: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} = 'pending' THEN ${commission.commissionAmount}::numeric ELSE 0 END), 0)::text`,
+        paidAmount: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} = 'paid' THEN ${commission.commissionAmount}::numeric ELSE 0 END), 0)::text`,
+        referralCount: sql<number>`COUNT(DISTINCT CASE WHEN ${commission.tier} = 'tier1' AND ${commission.status} != 'voided' THEN ${commission.referredUserId} END)::int`,
+      })
+      .from(commission)
+      .groupBy(commission.affiliateId);
+
+    const statsMap = new Map(commissionStats.map((s) => [s.affiliateId, s]));
+
+    const result = affiliates.map((a) => {
+      const stats = statsMap.get(a.id);
+      return {
+        ...a,
+        totalCommissions: stats ? Number(stats.totalAmount) : 0,
+        pendingCommissions: stats ? Number(stats.pendingAmount) : 0,
+        paidCommissions: stats ? Number(stats.paidAmount) : 0,
+        referralCount: stats?.referralCount ?? 0,
+        commissionCount: stats?.totalCount ?? 0,
+      };
+    });
+
+    return c.json(result);
+  })
+
+  .get("/referrals/stats", async (c) => {
+    const allAffiliates = await db.select({ id: affiliate.id, status: affiliate.status }).from(affiliate);
+    const allCommissions = await db
+      .select({
+        status: commission.status,
+        commissionAmount: commission.commissionAmount,
+        tier: commission.tier,
+      })
+      .from(commission);
+    const allPayouts = await db
+      .select({
+        status: affiliatePayout.status,
+        amountUsdt: affiliatePayout.amountUsdt,
+      })
+      .from(affiliatePayout);
+
+    const active = allAffiliates.filter((a) => a.status === "active").length;
+    const suspended = allAffiliates.filter((a) => a.status === "suspended").length;
+
+    const totalEarned = allCommissions
+      .filter((c) => c.status !== "voided")
+      .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
+    const pendingAmount = allCommissions
+      .filter((c) => c.status === "pending")
+      .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
+    const paidAmount = allPayouts
+      .filter((p) => p.status === "paid")
+      .reduce((sum, p) => sum + Number(p.amountUsdt), 0);
+
+    const tier1Count = allCommissions.filter((c) => c.tier === "tier1" && c.status !== "voided").length;
+    const tier2Count = allCommissions.filter((c) => c.tier === "tier2" && c.status !== "voided").length;
+    const tier3Count = allCommissions.filter((c) => c.tier === "tier3" && c.status !== "voided").length;
+
+    return c.json({
+      totalAffiliates: allAffiliates.length,
+      active,
+      suspended,
+      totalEarned: Math.round(totalEarned * 100) / 100,
+      pendingAmount: Math.round(pendingAmount * 100) / 100,
+      paidAmount: Math.round(paidAmount * 100) / 100,
+      totalCommissions: allCommissions.length,
+      tier1Count,
+      tier2Count,
+      tier3Count,
+    });
+  })
+
+  .get("/referrals/:id/commissions", async (c) => {
+    const affiliateId = c.req.param("id");
+    const comms = await db
+      .select({
+        id: commission.id,
+        referredUserId: commission.referredUserId,
+        stripeInvoiceId: commission.stripeInvoiceId,
+        grossAmount: commission.grossAmount,
+        commissionAmount: commission.commissionAmount,
+        currency: commission.currency,
+        tier: commission.tier,
+        status: commission.status,
+        periodMonth: commission.periodMonth,
+        createdAt: commission.createdAt,
+        referredName: user.name,
+        referredEmail: user.email,
+      })
+      .from(commission)
+      .leftJoin(user, eq(commission.referredUserId, user.id))
+      .where(eq(commission.affiliateId, affiliateId))
+      .orderBy(desc(commission.createdAt));
+
+    return c.json(comms);
+  })
+
+  .put("/referrals/:id/status", async (c) => {
+    const affiliateId = c.req.param("id");
+    const body = await c.req.json() as { status: string };
+    const validStatuses = ["active", "suspended"] as const;
+
+    if (!validStatuses.includes(body.status as typeof validStatuses[number])) {
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.invalidStatus",
+      });
+    }
+
+    const existing = await db
+      .select()
+      .from(affiliate)
+      .where(eq(affiliate.id, affiliateId))
+      .then((r) => r[0]);
+
+    if (!existing) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.affiliateNotFound",
+      });
+    }
+
+    const [updated] = await db
+      .update(affiliate)
+      .set({ status: body.status as "active" | "suspended" })
+      .where(eq(affiliate.id, affiliateId))
+      .returning();
+
+    return c.json(updated);
   });

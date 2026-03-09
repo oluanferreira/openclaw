@@ -301,5 +301,69 @@
     "exploreTitle": "Explorar Skills",
     "exploreDescription": "Seu agente pode instalar skills diretamente via chat. Navegue pelo catalogo completo no ClawHub para descobrir novas capacidades.",
     "exploreCta": "Navegar no ClawHub"
+  },
+  "referral": {
+    "home": {
+      "title": "Programa de Indicação",
+      "description": "Ganhe 30% de comissão em cada pagamento dos seus indicados. Compartilhe seu link e comece a ganhar."
+    },
+    "activate": {
+      "title": "Ativar Programa de Indicação",
+      "description": "Insira seu endereço de carteira BEP20 para receber pagamentos em USDT e começar a ganhar comissões.",
+      "walletLabel": "Endereço da Carteira BEP20",
+      "walletHint": "Endereço BNB Smart Chain (BSC) começando com 0x",
+      "acceptTerms": "Li e aceito os <a href='/referral-terms' target='_blank' class='text-primary underline'>Termos do Programa de Indicação</a>",
+      "cta": "Ativar Programa",
+      "success": "Programa de indicação ativado!",
+      "error": "Falha ao ativar. Tente novamente."
+    },
+    "stats": {
+      "available": "Disponível",
+      "pending": "Pendente",
+      "totalEarned": "Total Ganho",
+      "totalPaid": "Total Pago",
+      "activeReferrals": "Indicações Ativas"
+    },
+    "link": {
+      "title": "Seu Link de Indicação",
+      "description": "Compartilhe este link com amigos e ganhe 20% nos pagamentos deles, mais 8% e 2% nos próximos dois níveis.",
+      "copied": "Link copiado!"
+    },
+    "wallet": {
+      "title": "Carteira de Pagamento",
+      "description": "Carteira USDT BEP20 para receber pagamentos mensais no dia 10.",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "notSet": "Não configurada",
+      "updateSuccess": "Carteira atualizada!",
+      "updateError": "Falha ao atualizar carteira."
+    },
+    "commissions": {
+      "title": "Comissões",
+      "empty": "Nenhuma comissão ainda. Compartilhe seu link para começar a ganhar!",
+      "date": "Data",
+      "period": "Período",
+      "tier": "Nível",
+      "amount": "Valor",
+      "status": "Status",
+      "statusLabel": {
+        "pending": "Pendente",
+        "paid": "Pago",
+        "voided": "Cancelado"
+      }
+    },
+    "payouts": {
+      "title": "Pagamentos",
+      "empty": "Nenhum pagamento ainda. Comissões são pagas mensalmente no dia 10.",
+      "period": "Período",
+      "amount": "Valor",
+      "status": "Status",
+      "txHash": "TX Hash",
+      "statusLabel": {
+        "pending": "Pendente",
+        "paid": "Pago",
+        "failed": "Falhou"
+      }
+    }
   }
 }

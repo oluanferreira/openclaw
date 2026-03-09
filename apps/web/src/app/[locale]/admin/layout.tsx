@@ -47,6 +47,11 @@ const menu: Menu = [
         href: pathsConfig.admin.tickets,
         icon: <Icons.LifeBuoy />,
       },
+      {
+        title: "Referrals",
+        href: pathsConfig.admin.referrals,
+        icon: <Icons.Gift />,
+      },
     ],
   },
 ];

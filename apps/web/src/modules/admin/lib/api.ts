@@ -55,6 +55,23 @@ const queries = {
     queryKey: [KEY, "models"],
     queryFn: () => handle(api.admin.models.$get)(),
   }),
+  referrals: queryOptions({
+    queryKey: [KEY, "referrals"],
+    queryFn: () => handle((api.admin as any).referrals.$get)(),
+  }),
+  referralStats: queryOptions({
+    queryKey: [KEY, "referrals", "stats"],
+    queryFn: () => handle((api.admin as any).referrals.stats.$get)(),
+  }),
+  referralCommissions: (affiliateId: string) =>
+    queryOptions({
+      queryKey: [KEY, "referrals", affiliateId, "commissions"],
+      queryFn: () =>
+        handle((api.admin as any).referrals[":id"].commissions.$get)({
+          param: { id: affiliateId },
+        }),
+      enabled: !!affiliateId,
+    }),
 };
 
 const mutations = {
@@ -161,6 +178,14 @@ const mutations = {
     mutationFn: (order: Array<{ id: string; sortOrder: number }>) =>
       handle(api.admin.models.reorder.$put)({
         json: { order },
+      }),
+  }),
+  updateReferralStatus: mutationOptions({
+    mutationKey: [KEY, "update-referral-status"],
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      handle((api.admin as any).referrals[":id"].status.$put)({
+        param: { id },
+        json: { status },
       }),
   }),
 };

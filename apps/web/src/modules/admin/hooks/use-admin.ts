@@ -183,3 +183,34 @@ export const useAdminReorderModels = () => {
     },
   });
 };
+
+
+// ─── Referrals ──────────────────────────────────────────────
+
+export const useAdminReferrals = () => {
+  return useQuery(adminApi.queries.referrals);
+};
+
+export const useAdminReferralStats = () => {
+  return useQuery(adminApi.queries.referralStats);
+};
+
+export const useAdminReferralCommissions = (affiliateId: string) => {
+  return useQuery(adminApi.queries.referralCommissions(affiliateId));
+};
+
+export const useAdminUpdateReferralStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...adminApi.mutations.updateReferralStatus,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(adminApi.queries.referrals);
+      await queryClient.invalidateQueries(adminApi.queries.referralStats);
+      toast.success("Status do afiliado atualizado");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Erro ao atualizar status");
+    },
+  });
+};

@@ -93,7 +93,21 @@ export async function activateAffiliate(
   if (parentReferralCode) {
     const parent = await resolveAffiliate(parentReferralCode);
     if (parent && parent.status === "active") {
-      parentAffiliateId = parent.id;
+      // Anti-fraud: prevent self-referral
+      if (parent.userId === userId) {
+        console.warn(`[referral] Self-referral blocked: user ${userId} tried own code ${parentReferralCode}`);
+      }
+      // Anti-fraud: prevent circular chain (A refers B, B refers A)
+      else if (parent.parentAffiliateId) {
+        const grandparent = await getAffiliateById(parent.parentAffiliateId);
+        if (grandparent?.userId === userId) {
+          console.warn(`[referral] Circular chain blocked: user ${userId} -> ${parent.id} -> ${grandparent.id}`);
+        } else {
+          parentAffiliateId = parent.id;
+        }
+      } else {
+        parentAffiliateId = parent.id;
+      }
     }
   }
 
@@ -173,12 +187,37 @@ export async function createCommissionChain(
   const tiers: Array<{ affiliateId: string; tier: "tier1" | "tier2" | "tier3" }> = [];
   const periodMonth = getCurrentPeriodMonth();
 
+  // Anti-fraud: check tier1 affiliate is active
+  const tier1Affiliate = await getAffiliateById(referrerAffiliateId);
+  if (!tier1Affiliate || tier1Affiliate.status !== "active") {
+    console.warn(`[referral] Commission blocked: affiliate ${referrerAffiliateId} not active`);
+    return [];
+  }
+
+  // Anti-fraud: prevent self-payment commission
+  if (tier1Affiliate.userId === referredUserId) {
+    console.warn(`[referral] Self-payment blocked: affiliate ${referrerAffiliateId} == referred ${referredUserId}`);
+    return [];
+  }
+
+  // Anti-fraud: check duplicate (same invoice already processed)
+  const existingForInvoice = await db.query.commission.findFirst({
+    where: (t, { eq: eqFn, and: andFn }) =>
+      andFn(
+        eqFn(t.stripeInvoiceId, stripeInvoiceId),
+        eqFn(t.affiliateId, referrerAffiliateId),
+      ),
+  });
+  if (existingForInvoice) {
+    console.warn(`[referral] Duplicate blocked: invoice ${stripeInvoiceId} already has commission for ${referrerAffiliateId}`);
+    return [];
+  }
+
   // Tier 1: direct referrer
   tiers.push({ affiliateId: referrerAffiliateId, tier: "tier1" });
 
   // Tier 2: referrer's parent
-  const tier1Affiliate = await getAffiliateById(referrerAffiliateId);
-  if (tier1Affiliate?.parentAffiliateId) {
+  if (tier1Affiliate.parentAffiliateId) {
     const parent = await getAffiliateById(tier1Affiliate.parentAffiliateId);
     if (parent && parent.status === "active") {
       tiers.push({ affiliateId: parent.id, tier: "tier2" });

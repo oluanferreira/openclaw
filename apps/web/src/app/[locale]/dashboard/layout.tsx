@@ -54,6 +54,11 @@ const menu = [
         href: pathsConfig.dashboard.skills,
         icon: <Icons.Zap />,
       },
+      {
+        title: "referral",
+        href: pathsConfig.dashboard.referral,
+        icon: <Icons.Gift />,
+      },
     ],
   },
 ];

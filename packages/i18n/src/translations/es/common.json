@@ -248,5 +248,8 @@
   "footer": {
     "copyright": "© 2026 LPJ SERVICES LLC. Todos los derechos reservados.",
     "allRightsReserved": "Todos los derechos reservados."
+  },
+  "sidebar": {
+    "referral": "Referidos"
   }
 }
