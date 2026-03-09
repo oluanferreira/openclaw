@@ -50,6 +50,13 @@
       "when": 1772918925597,
       "tag": "0006_chubby_swordsman",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1773070771213,
+      "tag": "0007_tranquil_boom_boom",
+      "breakpoints": true
     }
   ]
 }

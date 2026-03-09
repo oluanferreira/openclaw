@@ -25,6 +25,12 @@ export const Footer = async () => {
           >
             {t("legal.privacy")}
           </TurboLink>
+          <TurboLink
+            href={pathsConfig.legal.referralTerms}
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+          >
+            {t("legal.referralTerms")}
+          </TurboLink>
         </nav>
       </div>
     </footer>

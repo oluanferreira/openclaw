@@ -1,9 +1,12 @@
-import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-
 import {
-  createInsertSchema,
-  createSelectSchema,
-} from "../lib/zod";
+  boolean,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
+
+import { createInsertSchema, createSelectSchema } from "../lib/zod";
 
 import { user } from "./auth";
 
@@ -41,7 +44,9 @@ export const ticketAttachment = pgTable("ticket_attachment", {
   ticketId: text("ticket_id")
     .notNull()
     .references(() => supportTicket.id, { onDelete: "cascade" }),
-  replyId: text("reply_id").references(() => ticketReply.id, { onDelete: "cascade" }),
+  replyId: text("reply_id").references(() => ticketReply.id, {
+    onDelete: "cascade",
+  }),
   fileName: text("file_name").notNull(),
   mimeType: text("mime_type").notNull(),
   fileSize: integer("file_size").notNull(),
@@ -53,13 +58,19 @@ export const insertSupportTicketSchema = createInsertSchema(supportTicket);
 export const selectSupportTicketSchema = createSelectSchema(supportTicket);
 export const insertTicketReplySchema = createInsertSchema(ticketReply);
 export const selectTicketReplySchema = createSelectSchema(ticketReply);
-export const insertTicketAttachmentSchema = createInsertSchema(ticketAttachment);
-export const selectTicketAttachmentSchema = createSelectSchema(ticketAttachment);
+export const insertTicketAttachmentSchema =
+  createInsertSchema(ticketAttachment);
+export const selectTicketAttachmentSchema =
+  createSelectSchema(ticketAttachment);
 
 export type TicketStatus = "open" | "in_progress" | "closed";
 export type SelectSupportTicket = z.infer<typeof selectSupportTicketSchema>;
 export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
 export type SelectTicketReply = z.infer<typeof selectTicketReplySchema>;
 export type InsertTicketReply = z.infer<typeof insertTicketReplySchema>;
-export type SelectTicketAttachment = z.infer<typeof selectTicketAttachmentSchema>;
-export type InsertTicketAttachment = z.infer<typeof insertTicketAttachmentSchema>;
+export type SelectTicketAttachment = z.infer<
+  typeof selectTicketAttachmentSchema
+>;
+export type InsertTicketAttachment = z.infer<
+  typeof insertTicketAttachmentSchema
+>;

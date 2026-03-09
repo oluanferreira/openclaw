@@ -13,6 +13,7 @@ const pathsConfig = {
     billing: `${DASHBOARD_PREFIX}/billing`,
     apiKeys: `${DASHBOARD_PREFIX}/api-keys`,
     skills: `${DASHBOARD_PREFIX}/skills`,
+    referral: `${DASHBOARD_PREFIX}/referral`,
   },
   admin: {
     index: ADMIN_PREFIX,
@@ -21,10 +22,12 @@ const pathsConfig = {
     instances: `${ADMIN_PREFIX}/instances`,
     subscriptions: `${ADMIN_PREFIX}/subscriptions`,
     models: `${ADMIN_PREFIX}/models`,
+    referrals: `${ADMIN_PREFIX}/referrals`,
   },
   legal: {
     terms: "/terms",
     privacy: "/privacy",
+    referralTerms: "/referral-terms",
   },
 } as const;
 

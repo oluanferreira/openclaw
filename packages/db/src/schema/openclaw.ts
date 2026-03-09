@@ -36,7 +36,9 @@ export type InsertInstance = z.infer<typeof insertInstanceSchema>;
 export type UpdateInstance = z.infer<typeof updateInstanceSchema>;
 
 export const instanceSkill = pgTable("instance_skill", {
-  id: text().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   instanceId: text("instance_id")
     .notNull()
     .references(() => instance.id, { onDelete: "cascade" }),
