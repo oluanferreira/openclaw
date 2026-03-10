@@ -176,6 +176,20 @@ export const DashboardSidebar = memo<DashboardSidebarProps>(
         </div>
 
         <SidebarFooter>
+          <div className="text-muted-foreground flex flex-wrap justify-center gap-x-3 gap-y-1 px-2 text-xs group-data-[collapsible=icon]:hidden">
+            <TurboLink
+              href={pathsConfig.legal.terms}
+              className="hover:text-foreground transition-colors"
+            >
+              {t("legal.terms")}
+            </TurboLink>
+            <TurboLink
+              href={pathsConfig.legal.privacy}
+              className="hover:text-foreground transition-colors"
+            >
+              {t("legal.privacy")}
+            </TurboLink>
+          </div>
           <SidebarMenu>
             <SidebarMenuItem>
               <UserNavigation user={user} />

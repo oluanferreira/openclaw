@@ -71,7 +71,7 @@ export function UserLogin() {
           ))}
         </CardContent>
         <CardFooter className="justify-center">
-          <p className="text-muted-foreground text-center text-xs">
+          <p className="text-muted-foreground text-center text-sm">
             {t("login.consentPrefix")}{" "}
             <Link
               href={pathsConfig.legal.terms}
