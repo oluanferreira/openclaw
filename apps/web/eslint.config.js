@@ -11,7 +11,10 @@ export default [
   ...reactConfig,
   ...nextConfig,
   {
-    files: ["src/modules/admin/**/*.{ts,tsx}", "src/app/**/admin/**/*.{ts,tsx}"],
+    files: [
+      "src/modules/admin/**/*.{ts,tsx}",
+      "src/app/**/admin/**/*.{ts,tsx}",
+    ],
     rules: {
       "i18next/no-literal-string": "off",
       "@next/next/no-img-element": "off",

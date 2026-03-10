@@ -38,9 +38,7 @@ async function importKey(hexKey: string): Promise<CryptoKey> {
  */
 export async function encrypt(value: string, hexKey: string): Promise<string> {
   const key = await importKey(hexKey);
-  const iv = crypto.getRandomValues(
-    new Uint8Array(IV_LENGTH),
-  );
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
   const encoded = new TextEncoder().encode(value);
 
   const ciphertext = await crypto.subtle.encrypt(

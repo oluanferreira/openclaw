@@ -1,6 +1,5 @@
 import { eq, and, sql } from "@workspace/db";
 import { affiliate, commission, affiliatePayout } from "@workspace/db/schema";
-import { instance } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import { generateId } from "@workspace/shared/utils";
 

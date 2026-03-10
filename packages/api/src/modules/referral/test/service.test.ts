@@ -185,7 +185,7 @@ describe("Referral Service", () => {
   describe("activateAffiliate", () => {
     it("should return existing affiliate if already activated", async () => {
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_A);
-      const result = await activateAffiliate(USER_A, "Alice");
+      const result = await activateAffiliate(USER_A);
       expect(result).toEqual(AFF_A);
       expect(mockInsert).not.toHaveBeenCalled();
     });
@@ -204,7 +204,7 @@ describe("Referral Service", () => {
       mockSelectResult.mockResolvedValue([]);
       mockInsertReturning.mockResolvedValueOnce([created]);
 
-      const result = await activateAffiliate(USER_A, "Alice");
+      const result = await activateAffiliate(USER_A);
       expect(result).toEqual(created);
       expect(mockInsertValues).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -227,7 +227,7 @@ describe("Referral Service", () => {
         { id: "gen-id-001", referralSlug: "alice-newc" },
       ]);
 
-      await activateAffiliate(USER_A, "Alice");
+      await activateAffiliate(USER_A);
       const insertCall = mockInsertValues.mock.calls[0]![0] as Record<
         string,
         unknown
@@ -247,7 +247,7 @@ describe("Referral Service", () => {
         { id: "gen-id-001", parentAffiliateId: AFF_A.id },
       ]);
 
-      await activateAffiliate(USER_B, "Bob", undefined, "CODEA12345AB");
+      await activateAffiliate(USER_B, undefined, "CODEA12345AB");
       expect(mockInsertValues).toHaveBeenCalledWith(
         expect.objectContaining({
           parentAffiliateId: AFF_A.id,
@@ -270,7 +270,7 @@ describe("Referral Service", () => {
         { id: "gen-id-001", parentAffiliateId: null },
       ]);
 
-      await activateAffiliate(USER_A, "Alice", undefined, "CODEA12345AB");
+      await activateAffiliate(USER_A, undefined, "CODEA12345AB");
 
       expect(mockInsertValues).toHaveBeenCalledWith(
         expect.objectContaining({ parentAffiliateId: null }),
@@ -297,7 +297,7 @@ describe("Referral Service", () => {
         { id: "gen-id-001", parentAffiliateId: null },
       ]);
 
-      await activateAffiliate(USER_A, "Alice", undefined, AFF_B.referralCode);
+      await activateAffiliate(USER_A, undefined, AFF_B.referralCode);
 
       expect(mockInsertValues).toHaveBeenCalledWith(
         expect.objectContaining({ parentAffiliateId: null }),
