@@ -5,6 +5,7 @@ import { HttpStatusCode } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
 import { enforceAuth } from "../../middleware";
+import { db } from "@workspace/db/server";
 
 import {
   activateAffiliate,
@@ -47,7 +48,6 @@ export const referralRouter = new Hono()
     // Only admin accounts can activate without an active subscription
     const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
     if (!ADMIN_EMAILS.includes(user.email)) {
-      const { db } = await import("@workspace/db/server");
       const sub = await db.query.subscription.findFirst({
         where: (t, { eq: eqFn }) => eqFn(t.userId, user.id),
       });

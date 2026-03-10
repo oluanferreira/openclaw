@@ -27,7 +27,7 @@ vi.mock("@workspace/shared/constants", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    HttpStatusCode: { BAD_REQUEST: 400, NOT_FOUND: 404, CREATED: 201 },
+    HttpStatusCode: { BAD_REQUEST: 400, NOT_FOUND: 404, CREATED: 201, PAYMENT_REQUIRED: 402 },
   };
 });
 
@@ -58,6 +58,18 @@ vi.mock("../../../middleware", () => ({
   enforceSubscription: vi.fn((_c: unknown, next: () => Promise<void>) => next()),
 }));
 
+
+// Mock db for subscription check in activate route (non-admin users)
+const mockSubscriptionFindFirst = vi.fn();
+vi.mock("@workspace/db/server", () => ({
+  db: {
+    query: {
+      subscription: {
+        findFirst: (...args: unknown[]) => mockSubscriptionFindFirst(...args),
+      },
+    },
+  },
+}));
 // ---------------------------------------------------------------------------
 // Import AFTER mocks
 // ---------------------------------------------------------------------------
@@ -147,6 +159,7 @@ describe("Referral Router", () => {
   // =========================================================================
   describe("POST /activate", () => {
     it("should activate affiliate with valid BEP20 wallet", async () => {
+      mockSubscriptionFindFirst.mockResolvedValueOnce({ status: "active" });
       mockActivateAffiliate.mockResolvedValueOnce(AFF);
 
       const res = await sendRequest("POST", "/activate", {
@@ -176,6 +189,7 @@ describe("Referral Router", () => {
     });
 
     it("should pass parentReferralCode when provided", async () => {
+      mockSubscriptionFindFirst.mockResolvedValueOnce({ status: "active" });
       mockActivateAffiliate.mockResolvedValueOnce(AFF);
 
       await sendRequest("POST", "/activate", {
@@ -190,6 +204,17 @@ describe("Referral Router", () => {
         "0xabcdef1234567890abcdef1234567890abcdef12",
         "PARENT123456",
       );
+    });
+
+
+    it("should reject non-admin user without active subscription", async () => {
+      mockSubscriptionFindFirst.mockResolvedValueOnce(null);
+
+      const res = await sendRequest("POST", "/activate", {
+        walletAddress: "0xabcdef1234567890abcdef1234567890abcdef12",
+        acceptedTerms: true,
+      });
+      expect(res.status).toBeGreaterThanOrEqual(400);
     });
   });
 
