@@ -585,12 +585,17 @@ export const ReferralView = () => {
         </DashboardHeader>
         <div className="flex w-full flex-col gap-4">
           <ActivateForm
-            onActivate={(wallet) =>
+            onActivate={(wallet) => {
+              const refCookie = document.cookie
+                .split("; ")
+                .find((c) => c.startsWith("ref="))
+                ?.split("=")[1];
               activate.mutate({
                 walletAddress: wallet,
                 acceptedTerms: true,
-              })
-            }
+                ...(refCookie ? { parentReferralCode: refCookie } : {}),
+              });
+            }}
             isPending={activate.isPending}
             t={t as (k: string) => string}
           />
