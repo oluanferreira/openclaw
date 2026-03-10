@@ -1,9 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 
-import { useMutation } from "@tanstack/react-query";
 
 import { SocialProvider } from "@workspace/auth";
 import { useTranslation } from "@workspace/i18n";
