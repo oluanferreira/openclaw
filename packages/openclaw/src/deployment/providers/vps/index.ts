@@ -115,103 +115,116 @@ chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/.local" "$STATE_DIR/.npm" "
 mkdir -p "$STATE_DIR/.openclaw/workspace"
 
 cat > "$STATE_DIR/.openclaw/workspace/TOOLS.md" << 'TOOLSEOF'
-# TOOLS.md - Ambiente Operacional
+# TOOLS.md — Seu Ambiente Operacional
 
-## Onde voce esta
+## Arquitetura
 
-Voce roda dentro de um **container Docker isolado** gerenciado pela plataforma ClaWin1Click.
-- **OS:** Debian Bookworm (414+ pacotes pre-instalados)
-- **Container:** read-only filesystem, 2GB RAM, 1.5 CPUs
-- **Home:** /opt/openclaw
-- **Workspace:** /opt/openclaw/.openclaw/workspace/
-- **Skills dir:** /opt/openclaw/skills/ (instaladas via clawhub)
-- **Binarios locais:** /opt/openclaw/.local/bin/ (clawhub CLI, gog, etc.)
-- **Config principal:** /opt/openclaw/openclaw.json
-- **Tmpfs:** /tmp (64MB, apagado a cada restart)
-- **Internet:** acesso total (outbound) — voce pode fazer HTTP requests, DNS, npm install, etc.
-- **Sem acesso SSH externo** — voce nao tem acesso ao host nem a outros containers
+Voce roda dentro de um container Docker na plataforma **ClaWin1Click**.
+Seu processo e o OpenClaw Gateway — um servidor Node.js que recebe mensagens
+via Telegram e Web UI, processa com LLM, e executa comandos no container.
 
-## O que voce PODE fazer
+## Caminhos
 
-- Ler/escrever em /opt/openclaw/ (volume persistente — sobrevive restarts)
-- Ler/escrever em /tmp (tmpfs 64MB — apagado a cada restart)
-- Instalar pacotes Node.js: npm install --prefix /opt/openclaw/.local <pacote>
-- Instalar binarios estaticos (Go, Rust): download + chmod +x em /opt/openclaw/.local/bin/
-- Instalar skills do ClawHub: clawhub install <slug>
-- Acessar a internet: curl, wget, APIs externas, npm registries
-- Executar scripts: node, bash, python3
-- Usar pip3 para instalar pacotes Python: pip3 install --user <pacote>
-- Usar ffmpeg para audio/video processing
-- Usar jq para processar JSON no shell
-- Usar yt-dlp para download de videos do YouTube e outros sites
-- Usar tesseract para OCR (reconhecimento de texto em imagens)
+| Caminho | O que e | Persistente? | Permissao |
+|---------|---------|:---:|:---:|
+| \`/opt/openclaw/\` | Seu home — tudo que importa fica aqui | SIM | rw |
+| \`/opt/openclaw/.openclaw/\` | Config do OpenClaw (openclaw.json, workspace/) | SIM | rw |
+| \`/opt/openclaw/.openclaw/workspace/\` | Seus arquivos de personalidade (SOUL, AGENTS, TOOLS, MEMORY, etc.) | SIM | rw |
+| \`/opt/openclaw/skills/\` | Skills instaladas via ClawHub | SIM | rw |
+| \`/opt/openclaw/.local/bin/\` | Binarios instalados (clawhub, gog, etc.) | SIM | rw |
+| \`/opt/openclaw/memory/\` | Notas diarias (YYYY-MM-DD.md) | SIM | rw |
+| \`/tmp/\` | Temporario (64MB, apagado no restart) | NAO | rw |
+| \`/app/\` | Codigo do OpenClaw e skills built-in | SIM | somente leitura |
+| \`/app/skills/\` | 52 skills built-in (somente leitura) | SIM | somente leitura |
 
-## O que voce NAO PODE fazer
+## Ferramentas Disponiveis
 
-- **apt/dpkg install:** apt e dpkg existem mas precisam de root. Voce roda como user node, sem sudo.
-- **Instalar pacotes de sistema:** nao pode instalar libs como libnspr4, libnss3, etc.
-- **Browsers/Chromium:** NAO tente instalar Playwright, Puppeteer, ou qualquer browser.
-  Mesmo baixando o binario, ele depende de libs de sistema que voce nao pode instalar.
-  Isso gasta centenas de MB e vai falhar com "cannot open shared object file".
-- **Escrever fora de /opt/openclaw/ e /tmp:** filesystem e read-only.
-- **Editar o Docker/imagem/compose:** voce nao controla o container. A plataforma gerencia.
-- **Acessar outros containers ou o host:** voce esta isolado.
+| Ferramenta | Versao | Caminho | Para que serve |
+|------------|--------|---------|---------------|
+| Node.js | v22 | \`/usr/local/bin/node\` | Runtime JS, npx, npm |
+| Python | 3.11 | \`/usr/bin/python3\` | Scripts, pip3 install --user |
+| Git | 2.39 | \`/usr/bin/git\` | Controle de versao |
+| cURL | — | \`/usr/bin/curl\` | HTTP requests |
+| wget | — | \`/usr/bin/wget\` | Downloads |
+| ffmpeg | 5.1 | \`/usr/bin/ffmpeg\` | Audio/video processing |
+| jq | — | \`/usr/bin/jq\` | JSON no shell |
+| yt-dlp | — | \`/usr/local/bin/yt-dlp\` | Download de videos |
+| tesseract | — | \`/usr/bin/tesseract\` | OCR (texto em imagens) |
+| clawhub | 0.7 | \`/opt/openclaw/.local/bin/clawhub\` | Gerenciar skills |
 
-## Env Vars Disponiveis
+## Instalar Pacotes
 
-Apenas 3 AI keys sao injetadas pelo host:
-- OPENAI_API_KEY — configuravel pelo user no dashboard
-- ANTHROPIC_API_KEY — configuravel pelo user no dashboard
-- GOOGLE_GENERATIVE_AI_API_KEY — configuravel pelo user no dashboard
+\`\`\`bash
+# Node.js (global para o user)
+npm install -g <pacote>
 
-**Nao ha** .env file. Para skills que precisam de env vars customizadas (ex: TAVILY_API_KEY),
-voce pode criar um .env em /opt/openclaw/.env e instruir o user sobre como definir.
-Porem, note que o processo principal do OpenClaw **nao le** esse arquivo automaticamente —
-as env vars ficam disponiveis apenas para scripts que voce executar com source .env && <comando>
-ou export CHAVE=valor && <comando>.
+# Python
+pip3 install --user <pacote>
 
-## ClawHub — Instalar Skills
+# Binarios estaticos (Go, Rust, etc.)
+curl -L <url> -o /opt/openclaw/.local/bin/<nome> && chmod +x /opt/openclaw/.local/bin/<nome>
+\`\`\`
 
-O CLI clawhub esta disponivel em /opt/openclaw/.local/bin/clawhub.
+## Skills — 52 Built-in + ClawHub
 
-### Instalar uma skill
+Skills built-in (em /app/skills/, sempre disponiveis):
+1password, apple-notes, apple-reminders, bear-notes, blogwatcher, blucli,
+bluebubbles, camsnap, canvas, clawhub, coding-agent, discord, eightctl,
+gemini, gh-issues, gifgrep, github, gog, goplaces, healthcheck, himalaya,
+imsg, mcporter, model-usage, nano-banana-pro, nano-pdf, notion,
+obsidian, openai-image-gen, openai-whisper, openai-whisper-api, openhue,
+oracle, ordercli, peekaboo, sag, session-logs, sherpa-onnx-tts,
+skill-creator, slack, songsee, sonoscli, spotify-player, summarize,
+things-mac, tmux, trello, video-frames, voice-call, wacli, weather, xurl
+
+### ClawHub — Instalar Skills Extras
+
+\`\`\`bash
+# Instalar
 clawhub install <slug> --workdir /opt/openclaw --dir skills --no-input
 
-### Listar skills instaladas
+# Listar instaladas
 clawhub list --workdir /opt/openclaw --dir skills
 
-### Desinstalar uma skill
-clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
-
-### Buscar skills
+# Buscar no catalogo
 clawhub search <query> --workdir /opt/openclaw --dir skills
 
-### Tipos de skills
+# Desinstalar
+clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
+\`\`\`
 
-| Tipo | Exemplo | Precisa de env? | Funciona automaticamente? |
-|------|---------|-----------------|---------------------------|
-| Instruction-only | shadcn, github, weather | Nao | SIM |
-| Scripts + env | tavily-search | TAVILY_API_KEY | Precisa config manual |
-| Binario + env | trello | TRELLO_API_KEY | Precisa config manual (env vars) |
+Se uma skill precisa de env vars (ex: TAVILY_API_KEY), peca a chave ao user
+e exporte antes de usar: \`export TAVILY_API_KEY=xxx && <comando>\`.
 
-Se o user pedir para instalar uma skill que requer env vars, ajude-o:
-1. Instale a skill com clawhub install
-2. Leia o SKILL.md da skill para ver requires.env
-3. Peca a API key ao user
-4. Exporte a var com export VAR=valor antes de executar scripts da skill
+## Variaveis de Ambiente
 
-## Limpeza
+3 API keys injetadas pelo host (configuraveis pelo user no dashboard):
+- \`OPENAI_API_KEY\`
+- \`ANTHROPIC_API_KEY\`
+- \`GOOGLE_GENERATIVE_AI_API_KEY\`
 
-- Limpe /opt/openclaw/.tmp/ periodicamente — downloads falhados se acumulam ali
-- NAO acumule binarios grandes sem necessidade
+## Limites do Container
 
-## Plataforma
+| Recurso | Limite |
+|---------|--------|
+| RAM | 2 GB |
+| CPUs | 1.5 |
+| Processos | 512 (PID limit) |
+| /tmp | 64 MB (tmpfs) |
+| Disco (/opt/openclaw) | ~63 GB disponivel |
+| Rede | Outbound total, sem inbound direto |
+| Usuario | \`node\` (UID 1000), sem root/sudo |
 
-- **Dashboard:** O user gerencia tudo pelo dashboard em clawin1click.com
-- **Skills curadas:** 9 skills pre-configuradas (toggle on/off no dashboard)
-- **Skills ClawHub:** User encontra em clawhub.ai, pede para voce instalar via chat
-- **AI Keys:** Configuradas no dashboard, criptografadas AES-256
-- **Comunicacao:** Telegram (configurado no deploy) ou Web UI
+O filesystem fora de /opt/openclaw e /tmp e somente leitura.
+Nao ha sudo. Pacotes de sistema (apt/dpkg) requerem root que voce nao tem.
+Browsers (Playwright/Puppeteer) dependem de libs de sistema — nao funcionam aqui.
+
+## Plataforma ClaWin1Click
+
+- **Dashboard:** clawin1click.com/dashboard — user gerencia instancia, billing, skills, API keys
+- **Web UI:** {instanceId}.clawin1click.com — chat direto, config, logs
+- **Comunicacao:** Telegram (canal primario) + Web UI
+- **AI Keys:** Criptografadas AES-256, configuraveis pelo user no dashboard
 TOOLSEOF
 
 chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/.openclaw"
