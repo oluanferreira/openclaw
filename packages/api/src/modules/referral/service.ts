@@ -320,3 +320,92 @@ export async function updateWallet(affiliateId: string, walletAddress: string) {
     .set({ walletAddress })
     .where(eq(affiliate.id, affiliateId));
 }
+
+
+// ─── Network (user dashboard) ────────────────────────────────
+
+type NetworkNode = {
+  id: string;
+  userName: string | null;
+  userEmail: string | null;
+  status: string;
+  createdAt: Date;
+  referralCode: string;
+  childrenCount: number;
+  children: NetworkNode[];
+};
+
+export async function getAffiliateNetwork(affiliateId: string): Promise<NetworkNode[]> {
+  // Level 1: direct referrals
+  const level1 = await db.query.affiliate.findMany({
+    where: (t, { eq: eqFn }) => eqFn(t.parentAffiliateId, affiliateId),
+    with: { user: { columns: { name: true, email: true } } },
+  });
+
+  const result: NetworkNode[] = [];
+
+  for (const l1 of level1) {
+    // Level 2: sub-referrals of each direct
+    const level2 = await db.query.affiliate.findMany({
+      where: (t, { eq: eqFn }) => eqFn(t.parentAffiliateId, l1.id),
+      with: { user: { columns: { name: true, email: true } } },
+    });
+
+    const l2Nodes: NetworkNode[] = [];
+    for (const l2 of level2) {
+      // Level 3: sub-sub-referrals
+      const level3 = await db.query.affiliate.findMany({
+        where: (t, { eq: eqFn }) => eqFn(t.parentAffiliateId, l2.id),
+        with: { user: { columns: { name: true, email: true } } },
+      });
+
+      const l3Nodes: NetworkNode[] = level3.map((l3) => ({
+        id: l3.id,
+        userName: l3.user?.name ?? null,
+        userEmail: l3.user?.email ?? null,
+        status: l3.status,
+        createdAt: l3.createdAt,
+        referralCode: l3.referralCode,
+        childrenCount: 0,
+        children: [],
+      }));
+
+      l2Nodes.push({
+        id: l2.id,
+        userName: l2.user?.name ?? null,
+        userEmail: l2.user?.email ?? null,
+        status: l2.status,
+        createdAt: l2.createdAt,
+        referralCode: l2.referralCode,
+        childrenCount: l3Nodes.length,
+        children: l3Nodes,
+      });
+    }
+
+    result.push({
+      id: l1.id,
+      userName: l1.user?.name ?? null,
+      userEmail: l1.user?.email ?? null,
+      status: l1.status,
+      createdAt: l1.createdAt,
+      referralCode: l1.referralCode,
+      childrenCount: 0, // calculated below
+      children: l2Nodes,
+    });
+  }
+
+  // Fix childrenCount for level 1 nodes
+  for (const node of result) {
+    node.childrenCount = countAllDescendants(node);
+  }
+
+  return result;
+}
+
+function countAllDescendants(node: NetworkNode): number {
+  let count = node.children.length;
+  for (const child of node.children) {
+    count += countAllDescendants(child);
+  }
+  return count;
+}

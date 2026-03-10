@@ -288,6 +288,117 @@ function ReferralLink({
   );
 }
 
+// ─── Network Tree ───────────────────────────────────────────
+
+type NetworkNode = {
+  id: string;
+  userName: string | null;
+  userEmail: string | null;
+  status: string;
+  createdAt: string;
+  referralCode: string;
+  childrenCount: number;
+  children: NetworkNode[];
+};
+
+function NetworkNodeRow({
+  node,
+  depth,
+  t,
+}: {
+  node: NetworkNode;
+  depth: number;
+  t: (key: string) => string;
+}) {
+  const [open, setOpen] = useState(depth === 0);
+  const hasChildren = node.children.length > 0;
+
+  const tierLabel = depth === 0 ? "T1" : depth === 1 ? "T2" : "T3";
+
+  return (
+    <div>
+      <div
+        className={`hover:bg-muted/50 flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ${hasChildren ? "cursor-pointer" : ""}`}
+        style={{ paddingLeft: `${depth * 24 + 8}px` }}
+        onClick={() => hasChildren && setOpen(!open)}
+      >
+        <div className="flex size-5 shrink-0 items-center justify-center">
+          {hasChildren ? (
+            <Icons.ChevronRight
+              className={`text-muted-foreground size-3.5 transition-transform ${open ? "rotate-90" : ""}`}
+            />
+          ) : (
+            <span className="bg-muted-foreground/30 size-1.5 rounded-full" />
+          )}
+        </div>
+
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="truncate text-sm font-medium">
+                {node.userName ?? node.userEmail ?? "?"}
+              </span>
+              <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
+                {tierLabel}
+              </Badge>
+              {node.status !== "active" && (
+                <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                  {node.status}
+                </Badge>
+              )}
+              {hasChildren && (
+                <span className="text-muted-foreground text-[10px]">
+                  {node.children.length} {t("referral.network.directReferrals")}
+                  {node.childrenCount > node.children.length && (
+                    <>, {node.childrenCount} total</>
+                  )}
+                </span>
+              )}
+            </div>
+            <div className="text-muted-foreground text-xs">
+              {node.userEmail}
+              <span className="ml-2">
+                {t("referral.network.joinedAt")}{" "}
+                {new Date(node.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {open &&
+        hasChildren &&
+        node.children.map((child) => (
+          <NetworkNodeRow key={child.id} node={child} depth={depth + 1} t={t} />
+        ))}
+    </div>
+  );
+}
+
+function NetworkPanel({
+  items,
+  t,
+}: {
+  items: NetworkNode[];
+  t: (key: string) => string;
+}) {
+  if (items.length === 0) {
+    return (
+      <p className="text-muted-foreground py-8 text-center text-sm">
+        {t("referral.network.empty")}
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {items.map((node) => (
+        <NetworkNodeRow key={node.id} node={node} depth={0} t={t} />
+      ))}
+    </div>
+  );
+}
+
 // ─── Commissions Table ──────────────────────────────────────
 
 const tierLabels: Record<string, string> = {
@@ -528,7 +639,7 @@ function WalletCard({
 
 export const ReferralView = () => {
   const { t } = useTranslation("dashboard");
-  const { me, commissions, payouts, activate, updateWallet } = useReferral();
+  const { me, commissions, payouts, network, activate, updateWallet } = useReferral();
 
   if (me.isLoading) {
     return (
@@ -626,6 +737,8 @@ export const ReferralView = () => {
     createdAt: string;
   }> })?.items ?? [];
 
+  const networkData = (network.data as { items: NetworkNode[] })?.items ?? [];
+
   return (
     <>
       <DashboardHeader>
@@ -649,6 +762,22 @@ export const ReferralView = () => {
           slug={data.referralSlug}
           t={t as (k: string) => string}
         />
+
+        {/* Network Tree */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icons.UsersRound className="size-4" />
+              {t("referral.network.title")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <NetworkPanel
+              items={networkData}
+              t={t as (k: string) => string}
+            />
+          </CardContent>
+        </Card>
 
         {/* Wallet */}
         <WalletCard

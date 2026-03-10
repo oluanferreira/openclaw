@@ -21,6 +21,10 @@ const queries = {
     queryKey: ["referral", "payouts"],
     queryFn: () => handle(api.referral.payouts.$get as never)(),
   }),
+  network: queryOptions({
+    queryKey: ["referral", "network"],
+    queryFn: () => handle(api.referral.network.$get as never)(),
+  }),
 };
 
 const mutations = {

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
@@ -403,7 +404,14 @@ function TreeNodeRow({ node, depth }: { node: TreeNode; depth: number }) {
               <p className="font-mono font-medium">{formatUsd(node.pendingCommissions)}</p>
             </div>
             {node.walletAddress && (
-              <div className="text-right">
+              <div
+                className="cursor-pointer text-right hover:bg-muted/50 rounded px-1 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void navigator.clipboard.writeText(node.walletAddress!).then(() => toast.success("Wallet copiada!"));
+                }}
+                title="Copiar wallet"
+              >
                 <p className="text-muted-foreground">Wallet</p>
                 <p className="font-mono">
                   {node.walletAddress.slice(0, 6)}...{node.walletAddress.slice(-4)}
@@ -491,7 +499,14 @@ function AffiliateRow({
         </TableCell>
         <TableCell>
           {a.walletAddress ? (
-            <code className="text-xs">
+            <code
+              className="cursor-pointer text-xs hover:bg-muted/50 rounded px-1 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                void navigator.clipboard.writeText(a.walletAddress!).then(() => toast.success("Wallet copiada!"));
+              }}
+              title="Copiar wallet"
+            >
               {a.walletAddress.slice(0, 6)}...{a.walletAddress.slice(-4)}
             </code>
           ) : (

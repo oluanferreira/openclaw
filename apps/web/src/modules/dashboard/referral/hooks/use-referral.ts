@@ -14,6 +14,7 @@ export const useReferral = () => {
   const me = useQuery(referralApi.queries.me);
   const commissions = useQuery(referralApi.queries.commissions());
   const payouts = useQuery(referralApi.queries.payouts);
+  const network = useQuery(referralApi.queries.network);
 
   const activate = useMutation({
     ...referralApi.mutations.activate,
@@ -37,5 +38,5 @@ export const useReferral = () => {
     },
   });
 
-  return { me, commissions, payouts, activate, updateWallet };
+  return { me, commissions, payouts, network, activate, updateWallet };
 };

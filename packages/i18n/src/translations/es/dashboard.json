@@ -370,6 +370,12 @@
         "paid": "Pagado",
         "failed": "Fallido"
       }
+    },
+    "network": {
+      "title": "Tu Red",
+      "empty": "Sin referidos aun. Comparte tu enlace para empezar a construir tu red!",
+      "directReferrals": "directo(s)",
+      "joinedAt": "Se unio"
     }
   }
 }

@@ -10,6 +10,7 @@ import { db } from "@workspace/db/server";
 import {
   activateAffiliate,
   getAffiliateByUserId,
+  getAffiliateNetwork,
   getAffiliateStats,
   getCommissions,
   getPayouts,
@@ -119,6 +120,20 @@ export const referralRouter = new Hono()
     }
 
     const items = await getPayouts(aff.id);
+    return c.json({ items });
+  })
+  // Get my referral network (up to 3 levels deep)
+  .get("/network", async (c) => {
+    const user = c.var.user;
+    const aff = await getAffiliateByUserId(user.id);
+
+    if (!aff) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "referral:notActive",
+      });
+    }
+
+    const items = await getAffiliateNetwork(aff.id);
     return c.json({ items });
   })
   // Update wallet address
