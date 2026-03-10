@@ -16,6 +16,7 @@ import { pathsConfig } from "~/config/paths";
 import { auth } from "~/modules/auth/lib/api";
 import { SocialProviders } from "~/modules/auth/social-providers";
 import { TurboLink } from "~/modules/common/turbo-link";
+import Link from "next/link";
 import {
   DeployInstanceForm,
   DeployInstanceFormNote,
@@ -127,7 +128,26 @@ export const Hero = ({ user }: HeroProps) => {
                 </TurboLink>
               </div>
             ) : (
-              <HeroLoginButtons className="flex-col items-stretch sm:flex-row" />
+              <>
+                <HeroLoginButtons className="flex-col items-stretch sm:flex-row" />
+                <p className="text-muted-foreground text-center text-sm">
+                  {t("login.consentPrefix", { ns: "common" })}{" "}
+                  <Link
+                    href={pathsConfig.legal.terms}
+                    className="hover:text-foreground underline"
+                  >
+                    {t("legal.terms", { ns: "common" })}
+                  </Link>{" "}
+                  {t("login.consentAnd", { ns: "common" })}{" "}
+                  <Link
+                    href={pathsConfig.legal.privacy}
+                    className="hover:text-foreground underline"
+                  >
+                    {t("legal.privacy", { ns: "common" })}
+                  </Link>
+                  .
+                </p>
+              </>
             )}
             <DeployInstanceFormNote />
           </DeployInstanceFormFooter>
