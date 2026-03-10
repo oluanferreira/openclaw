@@ -323,7 +323,7 @@ export function AdminOverview() {
                         </div>
                         <div>
                           <p className="text-sm leading-none font-medium">
-                            {u.name || "Usuário"}
+                            {u.name ?? "Usuário"}
                           </p>
                           <p className="text-muted-foreground mt-1 text-xs">
                             {when}

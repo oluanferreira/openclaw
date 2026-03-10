@@ -122,7 +122,7 @@ export async function activateAffiliate(
       userId,
       referralCode,
       referralSlug,
-      walletAddress: walletAddress || null,
+      walletAddress: walletAddress ?? null,
       parentAffiliateId,
       status: "active",
     })
@@ -389,8 +389,8 @@ export async function getAffiliateNetwork(
 
       const l3Nodes: NetworkNode[] = level3.map((l3) => ({
         id: l3.id,
-        userName: l3.user?.name ?? null,
-        userEmail: l3.user?.email ?? null,
+        userName: l3.user.name,
+        userEmail: l3.user.email,
         status: l3.status,
         createdAt: l3.createdAt,
         referralCode: l3.referralCode,
@@ -400,8 +400,8 @@ export async function getAffiliateNetwork(
 
       l2Nodes.push({
         id: l2.id,
-        userName: l2.user?.name ?? null,
-        userEmail: l2.user?.email ?? null,
+        userName: l2.user.name,
+        userEmail: l2.user.email,
         status: l2.status,
         createdAt: l2.createdAt,
         referralCode: l2.referralCode,
@@ -412,8 +412,8 @@ export async function getAffiliateNetwork(
 
     result.push({
       id: l1.id,
-      userName: l1.user?.name ?? null,
-      userEmail: l1.user?.email ?? null,
+      userName: l1.user.name,
+      userEmail: l1.user.email,
       status: l1.status,
       createdAt: l1.createdAt,
       referralCode: l1.referralCode,

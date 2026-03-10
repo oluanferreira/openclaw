@@ -178,7 +178,7 @@ export function AdminInstances() {
     null,
   );
 
-  const servers = (serversStats as any[]) ?? [];
+  const servers = (serversStats as any[] | undefined) ?? [];
 
   // Build a map: instanceId -> { vpsId, vpsName, container }
   const instanceVpsMap = useMemo(() => {
@@ -252,6 +252,7 @@ export function AdminInstances() {
 
     if (search.trim()) {
       const q = search.toLowerCase();
+      /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
       list = list.filter(
         (i: any) =>
           i.userName?.toLowerCase().includes(q) ||
@@ -259,6 +260,7 @@ export function AdminInstances() {
           i.model?.toLowerCase().includes(q) ||
           i.id?.toLowerCase().includes(q),
       );
+      /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
     }
 
     return list;
@@ -361,7 +363,7 @@ export function AdminInstances() {
           )}
           {servers.map((vps: any) => {
             const srv = vps.server;
-            const serverRecord = (serversData as any[])?.find(
+            const serverRecord = (serversData as any[] | undefined)?.find(
               (s: any) => s.id === vps.id,
             );
 
@@ -532,7 +534,7 @@ export function AdminInstances() {
           })}
 
           {/* Servers from DB not yet in stats */}
-          {(serversData as any[])
+          {(serversData as any[] | undefined)
             ?.filter((s: any) => !servers.some((sv: any) => sv.id === s.id))
             .map((s: any) => (
               <Card key={s.id} className="border-dashed">

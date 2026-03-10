@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
-
 import { handle } from "@workspace/api/utils";
 import { useTranslation } from "@workspace/i18n";
 import { Badge } from "@workspace/ui-web/badge";
@@ -34,8 +33,6 @@ import {
   DashboardHeaderDescription,
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
-
-
 
 import { support } from "../lib/api";
 
@@ -93,7 +90,7 @@ export const SupportView = () => {
     ...support.mutations.create,
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["support", "list"] });
-      if (attachFile && data?.id) {
+      if (attachFile && data.id) {
         await fetch(`/api/support/${data.id}/attachments`, {
           method: "POST",
           credentials: "include",
@@ -135,9 +132,9 @@ export const SupportView = () => {
     },
   });
 
-  const attachments = (ticketDetail.data as any)?.attachments as
-    | TicketAttachment[]
-    | undefined;
+  const attachments = (
+    ticketDetail.data as { attachments?: TicketAttachment[] } | undefined
+  )?.attachments;
 
   return (
     <>
@@ -348,13 +345,14 @@ export const SupportView = () => {
                   {t("dashboard:support.ticket.replies")}
                 </span>
 
-                {!ticketDetail.data?.replies?.length ? (
+                {!(ticketDetail.data as { replies?: unknown[] } | undefined)
+                  ?.replies?.length ? (
                   <p className="text-muted-foreground text-sm">
                     {t("dashboard:support.ticket.noReplies")}
                   </p>
                 ) : (
                   (
-                    ticketDetail.data.replies as {
+                    (ticketDetail.data as { replies: unknown[] }).replies as {
                       id: string;
                       message: string;
                       isAdmin: boolean;
@@ -495,9 +493,7 @@ const TicketRow = ({
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         <Badge
-          variant={
-            (statusVariant[ticket.status]!) ?? "secondary"
-          }
+          variant={statusVariant[ticket.status] ?? "secondary"}
           className="text-xs"
         >
           {t(`dashboard:support.ticket.status.${ticket.status}`)}

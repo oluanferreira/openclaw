@@ -65,6 +65,7 @@ export const ApiKeysView = () => {
     <>
       <DashboardHeader>
         <div>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <DashboardHeaderTitle>API Keys</DashboardHeaderTitle>
           <DashboardHeaderDescription>
             {t("instance.apiKeys.description")}
@@ -92,11 +93,7 @@ export const ApiKeysView = () => {
             </div>
             <Input
               type="password"
-              placeholder={
-                keys.data?.[config.id]
-                  ? keys.data[config.id]
-                  : config.placeholder
-              }
+              placeholder={keys.data?.[config.id] ?? config.placeholder}
               value={form[config.id]}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, [config.id]: e.target.value }))

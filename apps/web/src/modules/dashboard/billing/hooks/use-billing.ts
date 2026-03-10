@@ -26,14 +26,14 @@ export const useBilling = () => {
       } as never);
     },
     onSuccess: (data) => {
-      if (data?.url) window.location.href = data.url;
+      if (data.url) window.location.href = data.url;
     },
   });
 
   const portal = useMutation({
     ...billingApi.mutations.portal,
     onSuccess: (data) => {
-      if (data?.url) window.location.href = data.url;
+      if (data.url) window.location.href = data.url;
     },
   });
 

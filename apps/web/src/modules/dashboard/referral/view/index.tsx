@@ -259,7 +259,7 @@ function ReferralLink({
               )
             }
           >
-            WhatsApp
+            {"WhatsApp"}
           </Button>
           <Button
             variant="outline"
@@ -283,7 +283,7 @@ function ReferralLink({
               )
             }
           >
-            LinkedIn
+            {"LinkedIn"}
           </Button>
           <Button
             variant="outline"
@@ -295,7 +295,7 @@ function ReferralLink({
               )
             }
           >
-            Email
+            {"Email"}
           </Button>
         </div>
       </SettingsCardContent>
@@ -365,7 +365,7 @@ function NetworkNodeRow({
                 <span className="text-muted-foreground text-[10px]">
                   {node.children.length} {t("referral.network.directReferrals")}
                   {node.childrenCount > node.children.length && (
-                    <>, {node.childrenCount} total</>
+                    <>{", " + String(node.childrenCount) + " total"}</>
                   )}
                 </span>
               )}
@@ -700,7 +700,8 @@ export const ReferralView = () => {
           totalPaid: number;
           activeReferrals: number;
         };
-      };
+      }
+    | undefined;
 
   // Not activated yet — show activation form
   if (!data?.active) {
@@ -741,38 +742,31 @@ export const ReferralView = () => {
   }
 
   // Activated — show full dashboard
-  const commissionsData =
-    (
-      commissions.data as {
-        items: {
-          id: string;
-          commissionAmount: string;
-          commissionAmountUsd: string | null;
-          currency: string;
-          tier: string;
-          status: string;
-          periodMonth: string;
-          createdAt: string;
-        }[];
-      }
-    )?.items ?? [];
+  const commissionsData = ((commissions.data as { items?: unknown } | undefined)
+    ?.items ?? []) as {
+    id: string;
+    commissionAmount: string;
+    commissionAmountUsd: string | null;
+    currency: string;
+    tier: string;
+    status: string;
+    periodMonth: string;
+    createdAt: string;
+  }[];
 
-  const payoutsData =
-    (
-      payouts.data as {
-        items: {
-          id: string;
-          amountUsdt: string;
-          periodMonth: string;
-          status: string;
-          txHash: string | null;
-          paidAt: string | null;
-          createdAt: string;
-        }[];
-      }
-    )?.items ?? [];
+  const payoutsData = ((payouts.data as { items?: unknown } | undefined)
+    ?.items ?? []) as {
+    id: string;
+    amountUsdt: string;
+    periodMonth: string;
+    status: string;
+    txHash: string | null;
+    paidAt: string | null;
+    createdAt: string;
+  }[];
 
-  const networkData = (network.data as { items: NetworkNode[] })?.items ?? [];
+  const networkData = ((network.data as { items?: unknown } | undefined)
+    ?.items ?? []) as NetworkNode[];
 
   return (
     <>

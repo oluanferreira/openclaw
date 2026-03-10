@@ -138,7 +138,7 @@ const adminSupportRouter = new Hono<{ Variables: { user: User } }>()
     }
 
     const body = await c.req.parseBody();
-    const file = body.file as File;
+    const file = body.file;
     const replyId = body.replyId as string | undefined;
 
     if (!file || typeof file === "string") {
@@ -290,7 +290,7 @@ export const supportRouter = new Hono()
     }
 
     const body = await c.req.parseBody();
-    const file = body.file as File;
+    const file = body.file;
     const replyId = body.replyId as string | undefined;
 
     if (!file || typeof file === "string") {

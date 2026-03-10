@@ -85,7 +85,7 @@ const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
 
 let _stripe: Stripe | null = null;
 const getStripe = () => {
-  if (!_stripe) _stripe = new Stripe(env.STRIPE_SECRET_KEY);
+  _stripe ??= new Stripe(env.STRIPE_SECRET_KEY);
   return _stripe;
 };
 
@@ -107,7 +107,7 @@ const getMonthKey = (date: Date) => {
 };
 
 const getMonthLabel = (key: string) => {
-  const [year, month] = key.split("-");
+  const [_year, month] = key.split("-");
   const labels = [
     "Jan",
     "Fev",
@@ -157,8 +157,8 @@ export const adminRouter = new Hono()
         id: body.id,
         name: body.name,
         location: body.location,
-        endpoint: body.endpoint ?? "local",
-        token: body.token ?? "",
+        endpoint: body.endpoint,
+        token: body.token,
       })
       .returning();
 
@@ -585,7 +585,7 @@ export const adminRouter = new Hono()
     }
 
     const allUsers = await db.select({ createdAt: user.createdAt }).from(user);
-    const allInstances = await db
+    const _allInstances = await db
       .select({ createdAt: instance.createdAt })
       .from(instance);
     const allSubs = await db
@@ -813,7 +813,7 @@ export const adminRouter = new Hono()
         name: m.friendly_name,
         url: m.url,
         status: m.status,
-        uptimeRatio: parseFloat(m.all_time_uptime_ratio ?? "0"),
+        uptimeRatio: parseFloat(m.all_time_uptime_ratio),
         responseTime: m.response_times?.[0]?.value ?? null,
       }));
 
@@ -917,8 +917,8 @@ export const adminRouter = new Hono()
 
   .get("/referrals/:id/commissions", async (c) => {
     const affiliateId = c.req.param("id");
-    const limit = Math.min(Number(c.req.query("limit") || 100), 500);
-    const offset = Number(c.req.query("offset") || 0);
+    const limit = Math.min(Number(c.req.query("limit") ?? 100), 500);
+    const offset = Number(c.req.query("offset") ?? 0);
     const comms = await db
       .select({
         id: commission.id,
@@ -948,7 +948,7 @@ export const adminRouter = new Hono()
 
   .put("/referrals/:id/status", async (c) => {
     const affiliateId = c.req.param("id");
-    const body = (await c.req.json());
+    const body = await c.req.json<{ status: string }>();
     const validStatuses = ["active", "suspended"] as const;
 
     if (

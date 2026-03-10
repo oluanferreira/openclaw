@@ -13,10 +13,11 @@ export const useCommunication = () => {
 
   const updateCommunication = useMutation({
     ...instanceApi.mutations.updateCommunication,
+
     onSuccess: (data) => {
       void queryClient.invalidateQueries(instanceApi.queries.communication);
       void queryClient.invalidateQueries(instanceApi.queries.get);
-      const botName = (data as { botName?: string })?.botName;
+      const botName = (data as { botName?: string }).botName;
       toast.success(
         t("instance.settings.communication.success", {
           botName: botName ?? "Bot",

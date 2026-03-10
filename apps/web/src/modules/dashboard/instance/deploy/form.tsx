@@ -28,7 +28,6 @@ import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
-
 import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
 import { billingApi } from "~/modules/dashboard/billing/lib/api";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
@@ -40,6 +39,13 @@ import { CommunicationChannelIcon } from "../icons";
 import { TelegramConfiguration } from "./communication/telegram";
 
 import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
+
+interface ModelEntry {
+  id: string;
+  provider: string;
+  name: string;
+  tier: string;
+}
 
 export const DEPLOY_DATA_KEY = "openclaw:pending-deploy";
 
@@ -86,13 +92,16 @@ export const DeployInstanceForm = ({
   const { t, i18n } = useTranslation("dashboard");
   const { data: dbModels } = useModels();
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const _router = useRouter();
   const isCheckoutReturn = searchParams.get("checkout") === "success";
   const autoDeployAttempted = useRef(false);
   const pendingDeployData = useRef<DeployInstanceSchemaInput | null>(null);
 
   // Use DB models if available, fall back to static MODELS
-  const models = (dbModels as any[])?.length ? (dbModels as any[]) : MODELS;
+  const models: readonly ModelEntry[] = (dbModels as ModelEntry[] | undefined)
+    ?.length
+    ? (dbModels as ModelEntry[])
+    : MODELS;
 
   // Read saved data from localStorage once on mount
   if (pendingDeployData.current === null && typeof window !== "undefined") {
@@ -134,7 +143,7 @@ export const DeployInstanceForm = ({
       return;
 
     const interval = setInterval(() => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: billingApi.queries.subscription.queryKey,
       });
     }, 2000);
@@ -163,7 +172,7 @@ export const DeployInstanceForm = ({
     window.history.replaceState(null, "", url.pathname);
 
     deploy.mutate({ ...data, locale: i18n.language });
-  }, [isCheckoutReturn, subscriptionStatus, deploy]);
+  }, [isCheckoutReturn, subscriptionStatus, deploy, i18n.language]);
 
   return (
     <FormProvider {...form}>
@@ -210,7 +219,7 @@ export const DeployInstanceForm = ({
               </FieldLabel>
 
               <div className="flex flex-col flex-wrap gap-3 sm:flex-row sm:gap-4">
-                {models.map((model: any) => {
+                {models.map((model) => {
                   const Icon = getModelIcon(model.provider);
                   return (
                     <Button
@@ -310,8 +319,11 @@ const AiKeyField = () => {
   const selectedModel = useWatch({ control, name: "model" });
   const { data: dbModels } = useModels();
 
-  const models = (dbModels as any[])?.length ? (dbModels as any[]) : MODELS;
-  const modelEntry = models.find((m: any) => m.id === selectedModel);
+  const models: readonly ModelEntry[] = (dbModels as ModelEntry[] | undefined)
+    ?.length
+    ? (dbModels as ModelEntry[])
+    : MODELS;
+  const modelEntry = models.find((m) => m.id === selectedModel);
   const config = modelEntry
     ? PROVIDER_KEY_CONFIG[modelEntry.provider]
     : undefined;

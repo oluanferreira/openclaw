@@ -29,7 +29,7 @@ import {
 const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
 let _stripe: Stripe | null = null;
 const getStripe = () => {
-  if (!_stripe) _stripe = new Stripe(env.STRIPE_SECRET_KEY);
+  _stripe ??= new Stripe(env.STRIPE_SECRET_KEY);
   return _stripe;
 };
 
@@ -136,7 +136,9 @@ export const billingRouter = new Hono()
             await notifyAgent(
               inst.id,
               `ALERTA: Pagamento da assinatura falhou. Seu OpenClaw será desligado em ${deadlineStr} se o pagamento não for regularizado. Por favor, avise seu usuário imediatamente pelo canal de comunicação.`,
-            ).catch(() => {});
+            ).catch(() => {
+              /* intentional noop */
+            });
           }
         }
       }
@@ -164,7 +166,9 @@ export const billingRouter = new Hono()
           await notifyAgent(
             inst.id,
             "Assinatura cancelada. Este OpenClaw será desligado agora.",
-          ).catch(() => {});
+          ).catch(() => {
+            /* intentional noop */
+          });
           await destroyInstanceFull(inst.id).catch((e) =>
             logger.error("destroyInstanceFull failed", e),
           );
@@ -197,7 +201,9 @@ export const billingRouter = new Hono()
             await notifyAgent(
               inst.id,
               "ALERTA URGENTE: Tentativa de cobrança da sua assinatura falhou. Regularize o pagamento em até 3 dias para evitar o desligamento. Avise seu usuário imediatamente.",
-            ).catch(() => {});
+            ).catch(() => {
+              /* intentional noop */
+            });
           }
         }
       }
@@ -221,7 +227,7 @@ export const billingRouter = new Hono()
 
           if (subId) {
             const stripeSub = await getStripe().subscriptions.retrieve(subId);
-            const referralCode = stripeSub.metadata?.referralCode;
+            const referralCode = stripeSub.metadata.referralCode;
 
             if (referralCode) {
               // Find the referred user
@@ -234,11 +240,9 @@ export const billingRouter = new Hono()
                 // Resolve the affiliate who referred this user
                 const referrerAffiliate = await resolveAffiliate(referralCode);
 
-                if (
-                  referrerAffiliate?.status === "active"
-                ) {
-                  const grossAmount = (invoice.amount_paid ?? 0) / 100;
-                  const currency = invoice.currency ?? "usd";
+                if (referrerAffiliate?.status === "active") {
+                  const grossAmount = invoice.amount_paid / 100;
+                  const currency = invoice.currency;
 
                   // Convert to USD if payment was in another currency
                   let usdConversion: {
@@ -308,9 +312,7 @@ export const billingRouter = new Hono()
     if (event.type === "charge.dispute.created") {
       const dispute = event.data.object;
       const chargeId =
-        typeof dispute.charge === "string"
-          ? dispute.charge
-          : (dispute.charge?.id ?? null);
+        typeof dispute.charge === "string" ? dispute.charge : dispute.charge.id;
 
       if (chargeId) {
         try {
@@ -337,7 +339,7 @@ export const billingRouter = new Hono()
         const chargeId =
           typeof dispute.charge === "string"
             ? dispute.charge
-            : (dispute.charge?.id ?? null);
+            : dispute.charge.id;
 
         if (chargeId) {
           try {
@@ -360,7 +362,7 @@ export const billingRouter = new Hono()
     // ─── Referral: void future commissions on cancel ─────────
     if (event.type === "customer.subscription.deleted") {
       const sub = event.data.object;
-      const referralCode = sub.metadata?.referralCode;
+      const referralCode = sub.metadata.referralCode;
 
       if (referralCode) {
         const customerId =
@@ -406,7 +408,10 @@ export const billingRouter = new Hono()
   .post("/checkout", async (c) => {
     const user = c.var.user;
     const baseUrl = env.URL;
-    const body = await c.req.json().catch(() => ({}));
+    const body = (await c.req.json().catch(() => ({}))) as {
+      currency?: string;
+      referralCode?: string;
+    };
     const currency: "usd" | "brl" = body.currency === "brl" ? "brl" : "usd";
 
     const referralCode: string | undefined = body.referralCode;

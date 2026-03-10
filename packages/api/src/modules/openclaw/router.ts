@@ -52,7 +52,6 @@ import { selectBestVps } from "../admin/vps-selector";
 
 import type { AiKeysInput } from "@workspace/openclaw";
 
-
 const maskKey = (key: string | null | undefined): string => {
   if (!key || key.length < 8) return "";
   return `${key.slice(0, 7)}...${key.slice(-4)}`;
@@ -193,14 +192,15 @@ export const openclawRouter = new Hono()
       }
 
       const rawKeys = {
-        openaiApiKey: payload.aiKeys?.openaiApiKey || null,
-        anthropicApiKey: payload.aiKeys?.anthropicApiKey || null,
-        googleApiKey: payload.aiKeys?.googleApiKey || null,
+        openaiApiKey: payload.aiKeys.openaiApiKey ?? null,
+        anthropicApiKey: payload.aiKeys.anthropicApiKey ?? null,
+        googleApiKey: payload.aiKeys.googleApiKey ?? null,
       };
       const encryptedKeys = await encryptKeys(rawKeys, env.ENCRYPTION_KEY);
 
       // Encrypt communication token (Telegram bot token) for DB storage
       const communicationToken =
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         payload.communication.channel === "telegram"
           ? env.ENCRYPTION_KEY
             ? await encrypt(payload.communication.token, env.ENCRYPTION_KEY)
@@ -237,7 +237,7 @@ export const openclawRouter = new Hono()
       const updates: Record<string, unknown> = {};
 
       // Sync model (skip redacted values — see isRedactedValue)
-      const liveModel = liveConfig?.agents?.defaults?.model?.primary;
+      const liveModel = liveConfig.agents?.defaults?.model?.primary;
       if (
         liveModel &&
         typeof liveModel === "string" &&
@@ -252,7 +252,7 @@ export const openclawRouter = new Hono()
       }
 
       // Sync Telegram bot token (skip redacted values — see isRedactedValue)
-      const liveBotToken = liveConfig?.channels?.telegram?.botToken;
+      const liveBotToken = liveConfig.channels?.telegram?.botToken;
       if (
         liveBotToken &&
         typeof liveBotToken === "string" &&
@@ -371,10 +371,10 @@ export const openclawRouter = new Hono()
 
     // Only update keys that were actually provided (non-empty)
     const mergedKeys = {
-      openaiApiKey: payload.openaiApiKey || existingDecrypted.openaiApiKey,
+      openaiApiKey: payload.openaiApiKey ?? existingDecrypted.openaiApiKey,
       anthropicApiKey:
-        payload.anthropicApiKey || existingDecrypted.anthropicApiKey,
-      googleApiKey: payload.googleApiKey || existingDecrypted.googleApiKey,
+        payload.anthropicApiKey ?? existingDecrypted.anthropicApiKey,
+      googleApiKey: payload.googleApiKey ?? existingDecrypted.googleApiKey,
     };
 
     // Detect which key was provided and auto-select the corresponding model
@@ -439,14 +439,14 @@ export const openclawRouter = new Hono()
     let botNm = "";
 
     if (inst) {
-      channel = inst.communicationChannel ?? "";
+      channel = inst.communicationChannel;
       if (inst.communicationToken) {
         try {
           const plainToken = env.ENCRYPTION_KEY
             ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
             : inst.communicationToken;
           if (plainToken && !isRedactedValue(plainToken)) {
-            maskedTk = maskToken(plainToken) ?? "";
+            maskedTk = maskToken(plainToken);
             const tgUrl =
               "https://api.telegram.org/bot" + plainToken + "/getMe";
             const res = await fetch(tgUrl, {
@@ -473,8 +473,8 @@ export const openclawRouter = new Hono()
     validate("json", updateCommunicationSchema),
     async (c) => {
       const instanceId = c.var.instanceId;
-      const vpsId = c.var.vpsId;
-      const userId = c.var.user.id;
+      const _vpsId = c.var.vpsId;
+      const _userId = c.var.user.id;
       const payload = c.req.valid("json");
 
       // Validate token with Telegram API
@@ -532,7 +532,7 @@ export const openclawRouter = new Hono()
   )
   .put("/model", enforceInstance, async (c) => {
     const instanceId = c.var.instanceId;
-    const vpsId = c.var.vpsId;
+    const _vpsId = c.var.vpsId;
     const body = await c.req.json<{ model: string }>();
 
     if (!body.model || typeof body.model !== "string") {
@@ -822,9 +822,7 @@ export const openclawRouter = new Hono()
       "healthcheck",
       "skill-creator",
     ]) {
-      if (!skillsEntries[name]) {
-        skillsEntries[name] = { enabled: true };
-      }
+      skillsEntries[name] ??= { enabled: true };
     }
 
     try {
@@ -870,7 +868,7 @@ export const openclawRouter = new Hono()
           .keyringPassword!;
         if (env.ENCRYPTION_KEY) {
           const decrypted = await decrypt(stored, env.ENCRYPTION_KEY);
-          keyringPassword = decrypted ?? stored;
+          keyringPassword = decrypted;
         } else {
           keyringPassword = stored;
         }
@@ -908,6 +906,7 @@ export const openclawRouter = new Hono()
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (body.step === 2) {
       if (!body.callbackUrl) {
         return c.json({ error: "callbackUrl is required for step 2" }, 400);
@@ -927,7 +926,7 @@ export const openclawRouter = new Hono()
           config.keyringPassword,
           env.ENCRYPTION_KEY,
         );
-        keyringPassword = decrypted ?? config.keyringPassword;
+        keyringPassword = decrypted;
       } else {
         keyringPassword = config.keyringPassword;
       }
@@ -960,9 +959,7 @@ export const openclawRouter = new Hono()
           "healthcheck",
           "skill-creator",
         ]) {
-          if (!skillsEntries[name]) {
-            skillsEntries[name] = { enabled: true };
-          }
+          skillsEntries[name] ??= { enabled: true };
         }
 
         await updateOpenclawJson(instanceId, {

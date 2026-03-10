@@ -116,7 +116,7 @@ export function AdminModels() {
   const [form, setForm] = useState<ModelFormData>(emptyForm);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const allModels = (models as any[]) ?? [];
+  const allModels = (models as any[] | undefined) ?? [];
   const active = allModels.filter((m: any) => m.isActive).length;
   const inactive = allModels.length - active;
 

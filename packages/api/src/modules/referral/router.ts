@@ -64,7 +64,7 @@ export const referralRouter = new Hono()
       }
     }
 
-    const raw = await c.req.json();
+    const raw: unknown = await c.req.json();
     const body = activateSchema.parse(raw);
 
     const aff = await activateAffiliate(
@@ -107,8 +107,8 @@ export const referralRouter = new Hono()
       });
     }
 
-    const limit = Number(c.req.query("limit") || 50);
-    const offset = Number(c.req.query("offset") || 0);
+    const limit = Number(c.req.query("limit") ?? 50);
+    const offset = Number(c.req.query("offset") ?? 0);
     const items = await getCommissions(aff.id, limit, offset);
 
     return c.json({ items });
@@ -152,7 +152,7 @@ export const referralRouter = new Hono()
       });
     }
 
-    const raw = await c.req.json();
+    const raw: unknown = await c.req.json();
     const body = walletSchema.parse(raw);
     await updateWallet(aff.id, body.walletAddress);
 

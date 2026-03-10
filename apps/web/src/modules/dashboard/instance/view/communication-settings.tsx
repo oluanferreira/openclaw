@@ -81,7 +81,7 @@ export const CommunicationSettings = () => {
         <div className="inline-flex items-center gap-2">
           <Icons.Telegram className="size-5" />
           <span className="font-medium">
-            {currentBotName || t("instance.settings.communication.noBot")}
+            {currentBotName ?? t("instance.settings.communication.noBot")}
           </span>
         </div>
         {maskedToken ? (

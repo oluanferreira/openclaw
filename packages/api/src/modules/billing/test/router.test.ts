@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type Stripe from "stripe";
@@ -14,7 +15,7 @@ vi.mock("stripe", () => {
   class StripeMock {
     webhooks = { constructEvent: mockConstructEvent };
     subscriptions = { retrieve: mockSubscriptionsRetrieve };
-     
+
     constructor(_key: string) {
       // Intentionally empty — mock constructor
     }
@@ -124,6 +125,7 @@ vi.mock("../../../middleware", () => ({
 // ---------------------------------------------------------------------------
 // Import the router AFTER mocks are set up
 // ---------------------------------------------------------------------------
+// eslint-disable-next-line import/order
 import { billingRouter } from "../router";
 
 // ---------------------------------------------------------------------------

@@ -41,7 +41,9 @@ export function rateLimit(
       c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
       c.req.header("x-real-ip") ??
       "unknown";
-    const key = keyFn ? keyFn(c) : `rl:${ip}:${c.req.path}`;
+    const key = keyFn
+      ? keyFn(c as Parameters<typeof keyFn>[0])
+      : `rl:${ip}:${c.req.path}`;
     const now = Date.now();
 
     let entry = rateLimitStore.get(key);
@@ -118,7 +120,7 @@ export const enforceInstance = createMiddleware<{
   }
 
   c.set("instanceId", instance.id);
-  c.set("vpsId", (instance as any).vpsId ?? "vps-main");
+  c.set("vpsId", instance.vpsId);
   await next();
 });
 
@@ -144,7 +146,7 @@ export const enforceAdmin = createMiddleware<{
   };
 }>(async (c, next) => {
   const user = c.var.user;
-  if (!user || !ADMIN_EMAILS.includes(user.email)) {
+  if (!ADMIN_EMAILS.includes(user.email)) {
     throw new HttpException(HttpStatusCode.FORBIDDEN, {
       code: "error.forbidden",
     });

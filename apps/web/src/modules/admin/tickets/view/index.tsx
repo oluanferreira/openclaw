@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
-
 import { handle } from "@workspace/api/utils";
 import { useTranslation } from "@workspace/i18n";
 import { Badge } from "@workspace/ui-web/badge";
@@ -32,8 +31,6 @@ import {
   DashboardHeaderDescription,
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
-
-
 
 import { adminSupport } from "../lib/api";
 
@@ -142,10 +139,7 @@ export const AdminTicketsView = () => {
           </DashboardHeaderDescription>
         </div>
 
-        <Select
-          value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v!)}
-        >
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v!)}>
           <SelectTrigger className="w-44">
             <SelectValue />
           </SelectTrigger>
@@ -192,10 +186,7 @@ export const AdminTicketsView = () => {
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <Badge
-                    variant={
-                      statusVariant[ticket.status as TicketStatus] ??
-                      "secondary"
-                    }
+                    variant={statusVariant[ticket.status as TicketStatus]}
                     className="text-xs"
                   >
                     {t(`dashboard:support.ticket.status.${ticket.status}`)}
@@ -227,8 +218,7 @@ export const AdminTicketsView = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <Badge
                   variant={
-                    statusVariant[ticketDetail.data.status as TicketStatus] ??
-                    "secondary"
+                    statusVariant[ticketDetail.data.status as TicketStatus]
                   }
                 >
                   {t(
@@ -238,9 +228,7 @@ export const AdminTicketsView = () => {
 
                 <Select
                   value={ticketDetail.data.status}
-                  onValueChange={(v) =>
-                    changeStatus.mutate({ status: v! })
-                  }
+                  onValueChange={(v) => changeStatus.mutate({ status: v! })}
                 >
                   <SelectTrigger className="h-7 w-36 text-xs">
                     <SelectValue />
@@ -299,7 +287,7 @@ export const AdminTicketsView = () => {
                   {t("dashboard:support.ticket.replies")}
                 </span>
 
-                {!ticketDetail.data?.replies?.length ? (
+                {!ticketDetail.data?.replies.length ? (
                   <p className="text-muted-foreground text-sm">
                     {t("dashboard:support.ticket.noReplies")}
                   </p>
@@ -322,6 +310,7 @@ export const AdminTicketsView = () => {
                       }`}
                     >
                       <p className="text-muted-foreground mb-1 text-xs font-medium uppercase">
+                        {/* eslint-disable-next-line @typescript-eslint/no-base-to-string */}
                         {reply.isAdmin ? String(t("admin")) : String(t("user"))}
                       </p>
                       <p>{reply.message}</p>

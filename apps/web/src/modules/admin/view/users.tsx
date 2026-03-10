@@ -88,11 +88,13 @@ export function AdminUsers() {
 
     if (search.trim()) {
       const q = search.toLowerCase();
+      /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
       list = list.filter(
         (u: any) =>
           u.name?.toLowerCase().includes(q) ||
           u.email?.toLowerCase().includes(q),
       );
+      /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
     }
 
     return list;
@@ -241,7 +243,6 @@ export function AdminUsers() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       {u.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={u.image}
                           alt={u.name}

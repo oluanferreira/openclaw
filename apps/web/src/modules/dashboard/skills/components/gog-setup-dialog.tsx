@@ -58,7 +58,7 @@ export function GogSetupDialog({
         authUrl?: string;
         error?: string;
       };
-      if (!res.ok) throw new Error(data.error || "Step 1 failed");
+      if (!res.ok) throw new Error(data.error ?? "Step 1 failed");
       setAuthUrl(data.authUrl ?? "");
       setStep(2);
     } catch (err) {
@@ -84,7 +84,7 @@ export function GogSetupDialog({
         account?: string;
         error?: string;
       };
-      if (!res.ok) throw new Error(data.error || "Step 2 failed");
+      if (!res.ok) throw new Error(data.error ?? "Step 2 failed");
       setAccount(data.account ?? email);
       setStep(3);
     } catch (err) {
@@ -269,6 +269,7 @@ export function GogSetupDialog({
             <p className="text-muted-foreground text-sm">
               {t("skills.gog.setup.connectedAs", { account })}
             </p>
+            {/* eslint-disable-next-line i18next/no-literal-string */}
             <p className="text-muted-foreground text-xs">
               Gmail, Calendar, Drive, Contacts, Sheets, Docs
             </p>

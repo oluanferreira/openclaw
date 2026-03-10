@@ -164,7 +164,7 @@ function InvoicesPanel({
               {invoices.map((inv: any) => (
                 <TableRow key={inv.id}>
                   <TableCell className="font-mono text-xs">
-                    {inv.number || inv.id.slice(0, 20)}
+                    {inv.number ?? inv.id.slice(0, 20)}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -181,7 +181,7 @@ function InvoicesPanel({
                   </TableCell>
                   <TableCell>
                     {formatCurrency(
-                      inv.amountPaid || inv.amountDue,
+                      inv.amountPaid ?? inv.amountDue,
                       inv.currency,
                     )}
                   </TableCell>
@@ -241,11 +241,13 @@ export function AdminSubscriptions() {
 
     if (search.trim()) {
       const q = search.toLowerCase();
+      /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
       list = list.filter(
         (s: any) =>
           s.userName?.toLowerCase().includes(q) ||
           s.userEmail?.toLowerCase().includes(q),
       );
+      /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
     }
 
     return list;
@@ -272,7 +274,7 @@ export function AdminSubscriptions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${stats?.mrr?.toFixed(2) ?? "0.00"}
+              ${stats?.mrr.toFixed(2) ?? "0.00"}
             </div>
           </CardContent>
         </Card>

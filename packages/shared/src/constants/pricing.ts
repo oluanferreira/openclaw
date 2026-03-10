@@ -21,7 +21,7 @@ export interface PricingEntry {
 }
 
 const getEnv = (key: string): string =>
-  (typeof process !== "undefined" ? process.env?.[key] : undefined) ?? "";
+  (typeof process !== "undefined" ? process.env[key] : undefined) ?? "";
 
 export const getPricing = (): Record<
   Uppercase<CurrencyCode>,

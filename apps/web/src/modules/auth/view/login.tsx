@@ -37,7 +37,9 @@ export function UserLogin() {
       <Card className="w-full max-w-md">
         <CardHeader className="items-center text-center">
           <Icons.Logo className="text-primary mb-2 h-10" />
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <CardTitle className="text-xl">Acessar meu ClaW</CardTitle>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <p className="text-muted-foreground text-sm">
             Faça login para acessar seu dashboard e gerenciar sua instância.
           </p>

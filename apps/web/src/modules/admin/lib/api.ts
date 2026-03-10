@@ -6,7 +6,6 @@ import { api } from "~/lib/api/client";
 
 import type { ManageInstanceAction } from "@workspace/openclaw";
 
-
 const KEY = "admin";
 
 const queries = {

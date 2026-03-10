@@ -50,7 +50,9 @@ const collectRemoteStats = async (
     });
     if (!res.ok) return null;
 
-    const data = (await res.json()) as any;
+    const data = (await res.json()) as {
+      server?: { cpuPercent?: number; memPercent?: number };
+    };
     return {
       cpuPercent: data.server?.cpuPercent ?? 100,
       memPercent: data.server?.memPercent ?? 100,
