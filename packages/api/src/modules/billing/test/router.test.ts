@@ -485,6 +485,7 @@ describe("Billing Webhook Router", () => {
       const sub = {
         customer: CUSTOMER_ID,
         status: "canceled",
+        metadata: {},
       } as unknown as Stripe.Subscription;
 
       mockConstructEvent.mockReturnValue(
@@ -520,6 +521,7 @@ describe("Billing Webhook Router", () => {
     it("should not destroy instance if no DB subscription found", async () => {
       const sub = {
         customer: CUSTOMER_ID,
+        metadata: {},
       } as unknown as Stripe.Subscription;
 
       mockConstructEvent.mockReturnValue(
@@ -538,6 +540,7 @@ describe("Billing Webhook Router", () => {
     it("should not destroy instance if no instance found for user", async () => {
       const sub = {
         customer: CUSTOMER_ID,
+        metadata: {},
       } as unknown as Stripe.Subscription;
 
       mockConstructEvent.mockReturnValue(
@@ -555,6 +558,7 @@ describe("Billing Webhook Router", () => {
     it("should still delete instance even if destroyInstanceFull fails", async () => {
       const sub = {
         customer: CUSTOMER_ID,
+        metadata: {},
       } as unknown as Stripe.Subscription;
 
       mockConstructEvent.mockReturnValue(
@@ -573,6 +577,7 @@ describe("Billing Webhook Router", () => {
     it("should still proceed if notifyAgent fails", async () => {
       const sub = {
         customer: CUSTOMER_ID,
+        metadata: {},
       } as unknown as Stripe.Subscription;
 
       mockConstructEvent.mockReturnValue(
@@ -819,6 +824,7 @@ describe("Billing Webhook Router", () => {
       const subDeleted = {
         customer: CUSTOMER_ID,
         status: "canceled",
+        metadata: {},
       } as unknown as Stripe.Subscription;
 
       mockConstructEvent.mockReturnValue(
