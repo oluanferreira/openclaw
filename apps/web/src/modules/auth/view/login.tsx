@@ -1,12 +1,17 @@
+/* eslint-disable i18next/no-literal-string */
 "use client";
+
+import Link from "next/link";
 
 import { useMutation } from "@tanstack/react-query";
 
 import { SocialProvider } from "@workspace/auth";
+import { useTranslation } from "@workspace/i18n";
 import { Button } from "@workspace/ui-web/button";
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui-web/card";
@@ -31,15 +36,14 @@ const providers = [
 
 export function UserLogin() {
   const signIn = useMutation(auth.mutations.signIn.social);
+  const { t } = useTranslation("common");
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="items-center text-center">
           <Icons.Logo className="text-primary mb-2 h-10" />
-          {/* eslint-disable-next-line i18next/no-literal-string */}
           <CardTitle className="text-xl">Acessar meu ClaW</CardTitle>
-          {/* eslint-disable-next-line i18next/no-literal-string */}
           <p className="text-muted-foreground text-sm">
             Faça login para acessar seu dashboard e gerenciar sua instância.
           </p>
@@ -67,6 +71,25 @@ export function UserLogin() {
             </Button>
           ))}
         </CardContent>
+        <CardFooter className="justify-center">
+          <p className="text-muted-foreground text-center text-xs">
+            {t("login.consentPrefix")}{" "}
+            <Link
+              href={pathsConfig.legal.terms}
+              className="hover:text-foreground underline"
+            >
+              {t("legal.terms")}
+            </Link>{" "}
+            {t("login.consentAnd")}{" "}
+            <Link
+              href={pathsConfig.legal.privacy}
+              className="hover:text-foreground underline"
+            >
+              {t("legal.privacy")}
+            </Link>
+            .
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -249,5 +249,9 @@
     "copyright": "© 2026 LPJ SERVICES LLC. All rights reserved.",
     "allRightsReserved": "All rights reserved."
   },
-  "referral": "Referral Program"
+  "referral": "Referral Program",
+  "login": {
+    "consentPrefix": "By continuing, you agree to our",
+    "consentAnd": "and"
+  }
 }

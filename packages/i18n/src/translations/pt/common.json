@@ -249,5 +249,9 @@
     "copyright": "© 2026 LPJ SERVICES LLC. Todos os direitos reservados.",
     "allRightsReserved": "Todos os direitos reservados."
   },
-  "referral": "Programa de Indicação"
+  "referral": "Programa de Indicação",
+  "login": {
+    "consentPrefix": "Ao continuar, você concorda com os",
+    "consentAnd": "e a"
+  }
 }
