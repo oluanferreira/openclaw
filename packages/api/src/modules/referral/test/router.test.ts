@@ -16,7 +16,8 @@ const mockUpdateWallet = vi.fn();
 vi.mock("../service", () => ({
   resolveAffiliate: (...args: unknown[]) => mockResolveAffiliate(...args),
   activateAffiliate: (...args: unknown[]) => mockActivateAffiliate(...args),
-  getAffiliateByUserId: (...args: unknown[]) => mockGetAffiliateByUserId(...args),
+  getAffiliateByUserId: (...args: unknown[]) =>
+    mockGetAffiliateByUserId(...args),
   getAffiliateStats: (...args: unknown[]) => mockGetAffiliateStats(...args),
   getCommissions: (...args: unknown[]) => mockGetCommissions(...args),
   getPayouts: (...args: unknown[]) => mockGetPayouts(...args),
@@ -27,7 +28,12 @@ vi.mock("@workspace/shared/constants", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    HttpStatusCode: { BAD_REQUEST: 400, NOT_FOUND: 404, CREATED: 201, PAYMENT_REQUIRED: 402 },
+    HttpStatusCode: {
+      BAD_REQUEST: 400,
+      NOT_FOUND: 404,
+      CREATED: 201,
+      PAYMENT_REQUIRED: 402,
+    },
   };
 });
 
@@ -38,7 +44,10 @@ vi.mock("@workspace/shared/utils", async (importOriginal) => {
     HttpException: class HttpException extends Error {
       status: number;
       code?: string;
-      constructor(status?: number, options?: { code?: string; message?: string }) {
+      constructor(
+        status?: number,
+        options?: { code?: string; message?: string },
+      ) {
         super(options?.message ?? `HTTP ${status}`);
         this.status = status ?? 500;
         this.code = options?.code;
@@ -48,16 +57,26 @@ vi.mock("@workspace/shared/utils", async (importOriginal) => {
 });
 
 // Mock middleware — enforceAuth injects c.var.user, enforceSubscription is no-op
-const mockUser = { id: "user-123", name: "Test User", email: "test@example.com" };
+const mockUser = {
+  id: "user-123",
+  name: "Test User",
+  email: "test@example.com",
+};
 
 vi.mock("../../../middleware", () => ({
-  enforceAuth: vi.fn((c: { set: (key: string, val: unknown) => void }, next: () => Promise<void>) => {
-    c.set("user", mockUser);
-    return next();
-  }),
-  enforceSubscription: vi.fn((_c: unknown, next: () => Promise<void>) => next()),
+  enforceAuth: vi.fn(
+    (
+      c: { set: (key: string, val: unknown) => void },
+      next: () => Promise<void>,
+    ) => {
+      c.set("user", mockUser);
+      return next();
+    },
+  ),
+  enforceSubscription: vi.fn((_c: unknown, next: () => Promise<void>) =>
+    next(),
+  ),
 }));
-
 
 // Mock db for subscription check in activate route (non-admin users)
 const mockSubscriptionFindFirst = vi.fn();
@@ -84,7 +103,10 @@ async function sendRequest(
   path: string,
   body?: Record<string, unknown>,
 ): Promise<Response> {
-  const options: RequestInit = { method, headers: { "content-type": "application/json" } };
+  const options: RequestInit = {
+    method,
+    headers: { "content-type": "application/json" },
+  };
   if (body) options.body = JSON.stringify(body);
   return referralRouter.fetch(new Request(`http://localhost${path}`, options));
 }
@@ -144,7 +166,10 @@ describe("Referral Router", () => {
     });
 
     it("should return valid=false when affiliate is suspended", async () => {
-      mockResolveAffiliate.mockResolvedValueOnce({ ...AFF, status: "suspended" });
+      mockResolveAffiliate.mockResolvedValueOnce({
+        ...AFF,
+        status: "suspended",
+      });
 
       const res = await sendRequest("GET", "/resolve/TESTCODE1234");
       expect(res.status).toBe(200);
@@ -205,7 +230,6 @@ describe("Referral Router", () => {
         "PARENT123456",
       );
     });
-
 
     it("should reject non-admin user without active subscription", async () => {
       mockSubscriptionFindFirst.mockResolvedValueOnce(null);

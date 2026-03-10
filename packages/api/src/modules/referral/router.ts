@@ -22,7 +22,9 @@ const BEP20_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
 const activateSchema = z.object({
   walletAddress: z.string().regex(BEP20_REGEX, "Invalid BEP20 wallet address"),
-  acceptedTerms: z.literal(true, { message: "You must accept the referral terms" }),
+  acceptedTerms: z.literal(true, {
+    message: "You must accept the referral terms",
+  }),
   parentReferralCode: z.string().optional(),
 });
 
@@ -47,7 +49,10 @@ export const referralRouter = new Hono()
     const user = c.var.user;
 
     // Only admin accounts can activate without an active subscription
-    const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
+    const ADMIN_EMAILS = [
+      "luanferreira.emp@gmail.com",
+      "luizjuniorbjj@gmail.com",
+    ];
     if (!ADMIN_EMAILS.includes(user.email)) {
       const sub = await db.query.subscription.findFirst({
         where: (t, { eq: eqFn }) => eqFn(t.userId, user.id),

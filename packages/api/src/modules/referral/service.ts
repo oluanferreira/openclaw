@@ -5,7 +5,7 @@ import { generateId } from "@workspace/shared/utils";
 
 // ─── Commission Rates (3-tier) ──────────────────────────────
 const TIER_RATES = {
-  tier1: 0.20, // 20% — direct referrer
+  tier1: 0.2, // 20% — direct referrer
   tier2: 0.08, // 8%  — referrer's parent
   tier3: 0.02, // 2%  — referrer's grandparent
 } as const;
@@ -95,13 +95,17 @@ export async function activateAffiliate(
     if (parent && parent.status === "active") {
       // Anti-fraud: prevent self-referral
       if (parent.userId === userId) {
-        console.warn(`[referral] Self-referral blocked: user ${userId} tried own code ${parentReferralCode}`);
+        console.warn(
+          `[referral] Self-referral blocked: user ${userId} tried own code ${parentReferralCode}`,
+        );
       }
       // Anti-fraud: prevent circular chain (A refers B, B refers A)
       else if (parent.parentAffiliateId) {
         const grandparent = await getAffiliateById(parent.parentAffiliateId);
         if (grandparent?.userId === userId) {
-          console.warn(`[referral] Circular chain blocked: user ${userId} -> ${parent.id} -> ${grandparent.id}`);
+          console.warn(
+            `[referral] Circular chain blocked: user ${userId} -> ${parent.id} -> ${grandparent.id}`,
+          );
         } else {
           parentAffiliateId = parent.id;
         }
@@ -178,19 +182,26 @@ export async function createCommissionChain(
   currency: string,
   usdConversion?: { grossAmountUsd: number; exchangeRate: number } | null,
 ) {
-  const tiers: Array<{ affiliateId: string; tier: "tier1" | "tier2" | "tier3" }> = [];
+  const tiers: Array<{
+    affiliateId: string;
+    tier: "tier1" | "tier2" | "tier3";
+  }> = [];
   const periodMonth = getCurrentPeriodMonth();
 
   // Anti-fraud: check tier1 affiliate is active
   const tier1Affiliate = await getAffiliateById(referrerAffiliateId);
   if (!tier1Affiliate || tier1Affiliate.status !== "active") {
-    console.warn(`[referral] Commission blocked: affiliate ${referrerAffiliateId} not active`);
+    console.warn(
+      `[referral] Commission blocked: affiliate ${referrerAffiliateId} not active`,
+    );
     return [];
   }
 
   // Anti-fraud: prevent self-payment commission
   if (tier1Affiliate.userId === referredUserId) {
-    console.warn(`[referral] Self-payment blocked: affiliate ${referrerAffiliateId} == referred ${referredUserId}`);
+    console.warn(
+      `[referral] Self-payment blocked: affiliate ${referrerAffiliateId} == referred ${referredUserId}`,
+    );
     return [];
   }
 
@@ -203,7 +214,9 @@ export async function createCommissionChain(
       ),
   });
   if (existingForInvoice) {
-    console.warn(`[referral] Duplicate blocked: invoice ${stripeInvoiceId} already has commission for ${referrerAffiliateId}`);
+    console.warn(
+      `[referral] Duplicate blocked: invoice ${stripeInvoiceId} already has commission for ${referrerAffiliateId}`,
+    );
     return [];
   }
 
@@ -241,11 +254,21 @@ export async function createCommissionChain(
         grossAmount: String(grossAmount),
         commissionAmount: String(commissionAmount),
         currency,
-        grossAmountUsd: usdConversion ? String(usdConversion.grossAmountUsd) : (currency === "usd" ? String(grossAmount) : null),
+        grossAmountUsd: usdConversion
+          ? String(usdConversion.grossAmountUsd)
+          : currency === "usd"
+            ? String(grossAmount)
+            : null,
         commissionAmountUsd: usdConversion
           ? String(Math.round(usdConversion.grossAmountUsd * rate * 100) / 100)
-          : (currency === "usd" ? String(commissionAmount) : null),
-        exchangeRate: usdConversion ? String(usdConversion.exchangeRate) : (currency === "usd" ? "1" : null),
+          : currency === "usd"
+            ? String(commissionAmount)
+            : null,
+        exchangeRate: usdConversion
+          ? String(usdConversion.exchangeRate)
+          : currency === "usd"
+            ? "1"
+            : null,
         tier,
         status: "pending",
         periodMonth,
@@ -258,7 +281,11 @@ export async function createCommissionChain(
   return created;
 }
 
-export async function getCommissions(affiliateId: string, limit = 50, offset = 0) {
+export async function getCommissions(
+  affiliateId: string,
+  limit = 50,
+  offset = 0,
+) {
   return db.query.commission.findMany({
     where: (t, { eq: eqFn }) => eqFn(t.affiliateId, affiliateId),
     orderBy: (t, { desc: descFn }) => descFn(t.createdAt),
@@ -321,7 +348,6 @@ export async function updateWallet(affiliateId: string, walletAddress: string) {
     .where(eq(affiliate.id, affiliateId));
 }
 
-
 // ─── Network (user dashboard) ────────────────────────────────
 
 type NetworkNode = {
@@ -335,7 +361,9 @@ type NetworkNode = {
   children: NetworkNode[];
 };
 
-export async function getAffiliateNetwork(affiliateId: string): Promise<NetworkNode[]> {
+export async function getAffiliateNetwork(
+  affiliateId: string,
+): Promise<NetworkNode[]> {
   // Level 1: direct referrals
   const level1 = await db.query.affiliate.findMany({
     where: (t, { eq: eqFn }) => eqFn(t.parentAffiliateId, affiliateId),

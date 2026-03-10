@@ -6,7 +6,12 @@ import { toast } from "sonner";
 import { useTranslation } from "@workspace/i18n";
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui-web/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import { Label } from "@workspace/ui-web/label";
@@ -48,7 +53,9 @@ function formatUsd(value: number) {
 }
 
 function copyToClipboard(text: string, successMsg: string) {
-  void navigator.clipboard.writeText(text).then(() => toast.success(successMsg));
+  void navigator.clipboard
+    .writeText(text)
+    .then(() => toast.success(successMsg));
 }
 
 // ─── Info Tooltip ────────────────────────────────────────────
@@ -59,14 +66,20 @@ function CommissionInfoTooltip({ t }: { t: (key: string) => string }) {
       <TooltipTrigger className="text-muted-foreground hover:text-foreground inline-flex cursor-help transition-colors">
         <Icons.Info className="size-4" />
       </TooltipTrigger>
-      <TooltipContent side="bottom" align="start" className="max-w-xs space-y-2 p-3">
+      <TooltipContent
+        side="bottom"
+        align="start"
+        className="max-w-xs space-y-2 p-3"
+      >
         <p className="font-medium">{t("referral.home.tooltipTiers")}</p>
         <ul className="list-inside list-disc space-y-0.5 text-xs">
           <li>{t("referral.home.tooltipTier1")}</li>
           <li>{t("referral.home.tooltipTier2")}</li>
           <li>{t("referral.home.tooltipTier3")}</li>
         </ul>
-        <p className="text-xs opacity-80">{t("referral.home.tooltipRecurring")}</p>
+        <p className="text-xs opacity-80">
+          {t("referral.home.tooltipRecurring")}
+        </p>
         <p className="text-xs opacity-80">{t("referral.home.tooltipPayout")}</p>
       </TooltipContent>
     </Tooltip>
@@ -228,7 +241,9 @@ function ReferralLink({
           <Button
             variant="outline"
             size="icon-sm"
-            onClick={() => copyToClipboard(vanityUrl, t("referral.link.copied"))}
+            onClick={() =>
+              copyToClipboard(vanityUrl, t("referral.link.copied"))
+            }
           >
             <Icons.Copy className="size-4" />
           </Button>
@@ -407,7 +422,10 @@ const tierLabels: Record<string, string> = {
   tier3: "Tier 3 (2%)",
 };
 
-const statusVariant: Record<string, "default" | "success" | "warning" | "destructive"> = {
+const statusVariant: Record<
+  string,
+  "default" | "success" | "warning" | "destructive"
+> = {
   pending: "warning",
   paid: "success",
   voided: "destructive",
@@ -457,14 +475,17 @@ function CommissionsTable({
               </TableCell>
               <TableCell className="text-sm">{c.periodMonth}</TableCell>
               <TableCell>
-                <Badge variant="secondary">{tierLabels[c.tier] ?? c.tier}</Badge>
+                <Badge variant="secondary">
+                  {tierLabels[c.tier] ?? c.tier}
+                </Badge>
               </TableCell>
               <TableCell className="font-mono text-sm">
                 {c.commissionAmountUsd ? (
                   <>
                     ${Number(c.commissionAmountUsd).toFixed(2)}
                     <span className="text-muted-foreground ml-1.5 text-xs">
-                      ({c.currency.toUpperCase()} {Number(c.commissionAmount).toFixed(2)})
+                      ({c.currency.toUpperCase()}{" "}
+                      {Number(c.commissionAmount).toFixed(2)})
                     </span>
                   </>
                 ) : (
@@ -486,7 +507,10 @@ function CommissionsTable({
 
 // ─── Payouts Table ──────────────────────────────────────────
 
-const payoutStatusVariant: Record<string, "default" | "success" | "warning" | "destructive"> = {
+const payoutStatusVariant: Record<
+  string,
+  "default" | "success" | "warning" | "destructive"
+> = {
   pending: "warning",
   paid: "success",
   failed: "destructive",
@@ -544,7 +568,7 @@ function PayoutsTable({
                     href={`https://bscscan.com/tx/${p.txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary flex items-center gap-1 text-xs font-mono hover:underline"
+                    className="text-primary flex items-center gap-1 font-mono text-xs hover:underline"
                   >
                     {p.txHash.slice(0, 10)}...
                     <Icons.ExternalLink className="size-3" />
@@ -639,7 +663,8 @@ function WalletCard({
 
 export const ReferralView = () => {
   const { t } = useTranslation("dashboard");
-  const { me, commissions, payouts, network, activate, updateWallet } = useReferral();
+  const { me, commissions, payouts, network, activate, updateWallet } =
+    useReferral();
 
   if (me.isLoading) {
     return (
@@ -716,26 +741,36 @@ export const ReferralView = () => {
   }
 
   // Activated — show full dashboard
-  const commissionsData = (commissions.data as { items: Array<{
-    id: string;
-    commissionAmount: string;
-    commissionAmountUsd: string | null;
-    currency: string;
-    tier: string;
-    status: string;
-    periodMonth: string;
-    createdAt: string;
-  }> })?.items ?? [];
+  const commissionsData =
+    (
+      commissions.data as {
+        items: Array<{
+          id: string;
+          commissionAmount: string;
+          commissionAmountUsd: string | null;
+          currency: string;
+          tier: string;
+          status: string;
+          periodMonth: string;
+          createdAt: string;
+        }>;
+      }
+    )?.items ?? [];
 
-  const payoutsData = (payouts.data as { items: Array<{
-    id: string;
-    amountUsdt: string;
-    periodMonth: string;
-    status: string;
-    txHash: string | null;
-    paidAt: string | null;
-    createdAt: string;
-  }> })?.items ?? [];
+  const payoutsData =
+    (
+      payouts.data as {
+        items: Array<{
+          id: string;
+          amountUsdt: string;
+          periodMonth: string;
+          status: string;
+          txHash: string | null;
+          paidAt: string | null;
+          createdAt: string;
+        }>;
+      }
+    )?.items ?? [];
 
   const networkData = (network.data as { items: NetworkNode[] })?.items ?? [];
 
@@ -772,10 +807,7 @@ export const ReferralView = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <NetworkPanel
-              items={networkData}
-              t={t as (k: string) => string}
-            />
+            <NetworkPanel items={networkData} t={t as (k: string) => string} />
           </CardContent>
         </Card>
 
@@ -806,10 +838,7 @@ export const ReferralView = () => {
             <CardTitle>{t("referral.payouts.title")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <PayoutsTable
-              items={payoutsData}
-              t={t as (k: string) => string}
-            />
+            <PayoutsTable items={payoutsData} t={t as (k: string) => string} />
           </CardContent>
         </Card>
       </div>

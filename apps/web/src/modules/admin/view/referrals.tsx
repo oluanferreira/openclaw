@@ -357,7 +357,7 @@ function TreeNodeRow({ node, depth }: { node: TreeNode; depth: number }) {
         <div className="flex size-5 shrink-0 items-center justify-center">
           {hasChildren ? (
             <Icons.ChevronRight
-              className={`size-3.5 text-muted-foreground transition-transform ${open ? "rotate-90" : ""}`}
+              className={`text-muted-foreground size-3.5 transition-transform ${open ? "rotate-90" : ""}`}
             />
           ) : (
             <span className="bg-muted-foreground/30 size-1.5 rounded-full" />
@@ -371,12 +371,16 @@ function TreeNodeRow({ node, depth }: { node: TreeNode; depth: number }) {
               <span className="truncate text-sm font-medium">
                 {node.userName ?? node.userEmail ?? "?"}
               </span>
-              <Badge variant={statusVariant(node.status)} className="text-[10px] px-1.5 py-0">
+              <Badge
+                variant={statusVariant(node.status)}
+                className="px-1.5 py-0 text-[10px]"
+              >
                 {node.status}
               </Badge>
               {hasChildren && (
                 <span className="text-muted-foreground text-[10px]">
-                  {node.children.length} direto{node.children.length !== 1 ? "s" : ""}
+                  {node.children.length} direto
+                  {node.children.length !== 1 ? "s" : ""}
                   {totalDescendants > node.children.length && (
                     <>, {totalDescendants} total</>
                   )}
@@ -397,24 +401,31 @@ function TreeNodeRow({ node, depth }: { node: TreeNode; depth: number }) {
             </div>
             <div className="text-right">
               <p className="text-muted-foreground">Ganho</p>
-              <p className="font-mono font-medium">{formatUsd(node.totalCommissions)}</p>
+              <p className="font-mono font-medium">
+                {formatUsd(node.totalCommissions)}
+              </p>
             </div>
             <div className="text-right">
               <p className="text-muted-foreground">Pendente</p>
-              <p className="font-mono font-medium">{formatUsd(node.pendingCommissions)}</p>
+              <p className="font-mono font-medium">
+                {formatUsd(node.pendingCommissions)}
+              </p>
             </div>
             {node.walletAddress && (
               <div
-                className="cursor-pointer text-right hover:bg-muted/50 rounded px-1 transition-colors"
+                className="hover:bg-muted/50 cursor-pointer rounded px-1 text-right transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
-                  void navigator.clipboard.writeText(node.walletAddress!).then(() => toast.success("Wallet copiada!"));
+                  void navigator.clipboard
+                    .writeText(node.walletAddress!)
+                    .then(() => toast.success("Wallet copiada!"));
                 }}
                 title="Copiar wallet"
               >
                 <p className="text-muted-foreground">Wallet</p>
                 <p className="font-mono">
-                  {node.walletAddress.slice(0, 6)}...{node.walletAddress.slice(-4)}
+                  {node.walletAddress.slice(0, 6)}...
+                  {node.walletAddress.slice(-4)}
                 </p>
               </div>
             )}
@@ -477,9 +488,7 @@ function AffiliateRow({
             <span className="text-sm font-medium">
               {a.userName ?? "\u2014"}
             </span>
-            <span className="text-muted-foreground text-xs">
-              {a.userEmail}
-            </span>
+            <span className="text-muted-foreground text-xs">{a.userEmail}</span>
           </div>
         </TableCell>
         <TableCell>
@@ -500,10 +509,12 @@ function AffiliateRow({
         <TableCell>
           {a.walletAddress ? (
             <code
-              className="cursor-pointer text-xs hover:bg-muted/50 rounded px-1 transition-colors"
+              className="hover:bg-muted/50 cursor-pointer rounded px-1 text-xs transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                void navigator.clipboard.writeText(a.walletAddress!).then(() => toast.success("Wallet copiada!"));
+                void navigator.clipboard
+                  .writeText(a.walletAddress!)
+                  .then(() => toast.success("Wallet copiada!"));
               }}
               title="Copiar wallet"
             >
@@ -606,7 +617,8 @@ function CommissionsPanel({ affiliateId }: { affiliateId: string }) {
                   <span>
                     {formatUsd(Number(c.grossAmountUsd))}
                     <span className="text-muted-foreground ml-1">
-                      ({c.currency.toUpperCase()} {Number(c.grossAmount).toFixed(2)})
+                      ({c.currency.toUpperCase()}{" "}
+                      {Number(c.grossAmount).toFixed(2)})
                     </span>
                   </span>
                 ) : (
@@ -618,7 +630,8 @@ function CommissionsPanel({ affiliateId }: { affiliateId: string }) {
                   <span>
                     {formatUsd(Number(c.commissionAmountUsd))}
                     <span className="text-muted-foreground ml-1">
-                      ({c.currency.toUpperCase()} {Number(c.commissionAmount).toFixed(2)})
+                      ({c.currency.toUpperCase()}{" "}
+                      {Number(c.commissionAmount).toFixed(2)})
                     </span>
                   </span>
                 ) : (

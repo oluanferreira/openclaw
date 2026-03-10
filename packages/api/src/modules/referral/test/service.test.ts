@@ -202,7 +202,7 @@ describe("Referral Service", () => {
         status: "active",
       };
       mockSelectResult.mockResolvedValue([]);
-    mockInsertReturning.mockResolvedValueOnce([created]);
+      mockInsertReturning.mockResolvedValueOnce([created]);
 
       const result = await activateAffiliate(USER_A, "Alice");
       expect(result).toEqual(created);
@@ -223,7 +223,7 @@ describe("Referral Service", () => {
       });
 
       mockSelectResult.mockResolvedValue([]);
-    mockInsertReturning.mockResolvedValueOnce([
+      mockInsertReturning.mockResolvedValueOnce([
         { id: "gen-id-001", referralSlug: "alice-newc" },
       ]);
 
@@ -243,7 +243,7 @@ describe("Referral Service", () => {
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_A);
 
       mockSelectResult.mockResolvedValue([]);
-    mockInsertReturning.mockResolvedValueOnce([
+      mockInsertReturning.mockResolvedValueOnce([
         { id: "gen-id-001", parentAffiliateId: AFF_A.id },
       ]);
 
@@ -256,9 +256,7 @@ describe("Referral Service", () => {
     });
 
     it("should block self-referral", async () => {
-      const consoleSpy = vi
-        .spyOn(console, "warn")
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       mockFindFirstAffiliate.mockResolvedValueOnce(null);
       mockFindFirstAffiliate.mockResolvedValueOnce(null);
@@ -268,7 +266,7 @@ describe("Referral Service", () => {
       });
 
       mockSelectResult.mockResolvedValue([]);
-    mockInsertReturning.mockResolvedValueOnce([
+      mockInsertReturning.mockResolvedValueOnce([
         { id: "gen-id-001", parentAffiliateId: null },
       ]);
 
@@ -284,9 +282,7 @@ describe("Referral Service", () => {
     });
 
     it("should block circular chain (A->B->A)", async () => {
-      const consoleSpy = vi
-        .spyOn(console, "warn")
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       mockFindFirstAffiliate.mockResolvedValueOnce(null);
       mockFindFirstAffiliate.mockResolvedValueOnce(null);
@@ -297,7 +293,7 @@ describe("Referral Service", () => {
       });
 
       mockSelectResult.mockResolvedValue([]);
-    mockInsertReturning.mockResolvedValueOnce([
+      mockInsertReturning.mockResolvedValueOnce([
         { id: "gen-id-001", parentAffiliateId: null },
       ]);
 
@@ -319,7 +315,9 @@ describe("Referral Service", () => {
   describe("getAffiliateStats", () => {
     it("should return zeros when no commissions or payouts", async () => {
       mockSelectResult
-        .mockResolvedValueOnce([{ pending: "0", totalEarned: "0", activeReferrals: 0 }])
+        .mockResolvedValueOnce([
+          { pending: "0", totalEarned: "0", activeReferrals: 0 },
+        ])
         .mockResolvedValueOnce([{ totalPaid: "0" }]);
 
       const stats = await getAffiliateStats("aff-x");
@@ -335,7 +333,9 @@ describe("Referral Service", () => {
     it("should calculate correct stats with mixed commissions", async () => {
       // pending = 20+15+8 = 43, totalEarned = 20+20+15+8 = 63, activeReferrals = 2 (u1,u2 tier1 non-voided)
       mockSelectResult
-        .mockResolvedValueOnce([{ pending: "43", totalEarned: "63", activeReferrals: 2 }])
+        .mockResolvedValueOnce([
+          { pending: "43", totalEarned: "63", activeReferrals: 2 },
+        ])
         .mockResolvedValueOnce([{ totalPaid: "20" }]);
 
       const stats = await getAffiliateStats("aff-a");
@@ -348,7 +348,9 @@ describe("Referral Service", () => {
 
     it("should not count voided in activeReferrals", async () => {
       mockSelectResult
-        .mockResolvedValueOnce([{ pending: "0", totalEarned: "0", activeReferrals: 0 }])
+        .mockResolvedValueOnce([
+          { pending: "0", totalEarned: "0", activeReferrals: 0 },
+        ])
         .mockResolvedValueOnce([{ totalPaid: "0" }]);
 
       const stats = await getAffiliateStats("aff-a");
@@ -358,7 +360,9 @@ describe("Referral Service", () => {
 
     it("should clamp available to 0 when negative", async () => {
       mockSelectResult
-        .mockResolvedValueOnce([{ pending: "0", totalEarned: "10", activeReferrals: 1 }])
+        .mockResolvedValueOnce([
+          { pending: "0", totalEarned: "10", activeReferrals: 1 },
+        ])
         .mockResolvedValueOnce([{ totalPaid: "15" }]);
 
       const stats = await getAffiliateStats("aff-a");
@@ -377,10 +381,21 @@ describe("Referral Service", () => {
       });
       mockFindFirstCommission.mockResolvedValueOnce(null);
 
-      const row = { id: "gen-id-001", affiliateId: AFF_A.id, tier: "tier1", commissionAmount: "20.00" };
+      const row = {
+        id: "gen-id-001",
+        affiliateId: AFF_A.id,
+        tier: "tier1",
+        commissionAmount: "20.00",
+      };
       mockInsertReturning.mockResolvedValue([row]);
 
-      const result = await createCommissionChain(AFF_A.id, "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_A.id,
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(row);
@@ -399,7 +414,10 @@ describe("Referral Service", () => {
     it("should create tier1+tier2 when parent exists", async () => {
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_B);
       mockFindFirstCommission.mockResolvedValueOnce(null);
-      mockFindFirstAffiliate.mockResolvedValueOnce({ ...AFF_A, parentAffiliateId: null });
+      mockFindFirstAffiliate.mockResolvedValueOnce({
+        ...AFF_A,
+        parentAffiliateId: null,
+      });
 
       const rows = [
         { id: "id-1", tier: "tier1", commissionAmount: "20.00" },
@@ -412,7 +430,13 @@ describe("Referral Service", () => {
         return Promise.resolve([row]);
       });
 
-      const result = await createCommissionChain(AFF_B.id, "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_B.id,
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toHaveLength(2);
       expect(result[0]!.tier).toBe("tier1");
       expect(result[1]!.tier).toBe("tier2");
@@ -422,7 +446,10 @@ describe("Referral Service", () => {
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_C);
       mockFindFirstCommission.mockResolvedValueOnce(null);
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_B);
-      mockFindFirstAffiliate.mockResolvedValueOnce({ ...AFF_A, parentAffiliateId: null });
+      mockFindFirstAffiliate.mockResolvedValueOnce({
+        ...AFF_A,
+        parentAffiliateId: null,
+      });
 
       const rows = [
         { id: "id-1", tier: "tier1" },
@@ -436,15 +463,30 @@ describe("Referral Service", () => {
         return Promise.resolve([row]);
       });
 
-      const result = await createCommissionChain(AFF_C.id, "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_C.id,
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toHaveLength(3);
     });
 
     it("should block commission when affiliate is inactive", async () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      mockFindFirstAffiliate.mockResolvedValueOnce({ ...AFF_A, status: "suspended" });
+      mockFindFirstAffiliate.mockResolvedValueOnce({
+        ...AFF_A,
+        status: "suspended",
+      });
 
-      const result = await createCommissionChain(AFF_A.id, "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_A.id,
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toEqual([]);
       expect(mockInsert).not.toHaveBeenCalled();
       consoleSpy.mockRestore();
@@ -452,9 +494,18 @@ describe("Referral Service", () => {
 
     it("should block self-payment commission", async () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      mockFindFirstAffiliate.mockResolvedValueOnce({ ...AFF_A, userId: "self-user" });
+      mockFindFirstAffiliate.mockResolvedValueOnce({
+        ...AFF_A,
+        userId: "self-user",
+      });
 
-      const result = await createCommissionChain(AFF_A.id, "self-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_A.id,
+        "self-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toEqual([]);
       consoleSpy.mockRestore();
     });
@@ -462,9 +513,18 @@ describe("Referral Service", () => {
     it("should block duplicate invoice commission", async () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_A);
-      mockFindFirstCommission.mockResolvedValueOnce({ id: "existing", stripeInvoiceId: "inv_123" });
+      mockFindFirstCommission.mockResolvedValueOnce({
+        id: "existing",
+        stripeInvoiceId: "inv_123",
+      });
 
-      const result = await createCommissionChain(AFF_A.id, "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_A.id,
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toEqual([]);
       consoleSpy.mockRestore();
     });
@@ -472,21 +532,39 @@ describe("Referral Service", () => {
     it("should skip tier2 when parent is suspended", async () => {
       mockFindFirstAffiliate.mockResolvedValueOnce(AFF_B);
       mockFindFirstCommission.mockResolvedValueOnce(null);
-      mockFindFirstAffiliate.mockResolvedValueOnce({ ...AFF_A, status: "suspended" });
+      mockFindFirstAffiliate.mockResolvedValueOnce({
+        ...AFF_A,
+        status: "suspended",
+      });
 
       const row = { id: "id-1", tier: "tier1" };
       mockInsertReturning.mockResolvedValue([row]);
 
-      const result = await createCommissionChain(AFF_B.id, "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        AFF_B.id,
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toHaveLength(1);
     });
 
     it("should round commission to 2 decimal places", async () => {
-      mockFindFirstAffiliate.mockResolvedValueOnce({ ...AFF_A, parentAffiliateId: null });
+      mockFindFirstAffiliate.mockResolvedValueOnce({
+        ...AFF_A,
+        parentAffiliateId: null,
+      });
       mockFindFirstCommission.mockResolvedValueOnce(null);
       mockInsertReturning.mockResolvedValue([{ id: "id-1" }]);
 
-      await createCommissionChain(AFF_A.id, "referred-user", "inv_123", 29.85, "usd");
+      await createCommissionChain(
+        AFF_A.id,
+        "referred-user",
+        "inv_123",
+        29.85,
+        "usd",
+      );
 
       expect(mockInsertValues).toHaveBeenCalledWith(
         expect.objectContaining({ commissionAmount: "5.97" }),
@@ -497,7 +575,13 @@ describe("Referral Service", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       mockFindFirstAffiliate.mockResolvedValueOnce(null);
 
-      const result = await createCommissionChain("nonexistent", "referred-user", "inv_123", 100, "usd");
+      const result = await createCommissionChain(
+        "nonexistent",
+        "referred-user",
+        "inv_123",
+        100,
+        "usd",
+      );
       expect(result).toEqual([]);
       consoleSpy.mockRestore();
     });
