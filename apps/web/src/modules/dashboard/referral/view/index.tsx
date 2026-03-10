@@ -796,7 +796,6 @@ export const ReferralView = () => {
           <TermsBanner
             onAccept={() => acceptTerms.mutate()}
             isPending={acceptTerms.isPending}
-            t={t as (k: string) => string}
           />
         )}
 
