@@ -1,6 +1,6 @@
 import { db } from "@workspace/db/server";
 import { affiliate, commission, affiliatePayout } from "@workspace/db/schema";
-import { eq, and } from "@workspace/db";
+import { eq, and, sql } from "@workspace/db";
 import { generateId } from "@workspace/shared/utils";
 
 // ─── Commission Rates (3-tier) ──────────────────────────────
@@ -130,32 +130,25 @@ export async function activateAffiliate(
 // ─── Stats ───────────────────────────────────────────────────
 
 export async function getAffiliateStats(affiliateId: string) {
-  const commissions = await db.query.commission.findMany({
-    where: (t, { eq: eqFn }) => eqFn(t.affiliateId, affiliateId),
-  });
+  const [commStats] = await db
+    .select({
+      pending: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} = 'pending' THEN COALESCE(${commission.commissionAmountUsd}, ${commission.commissionAmount})::numeric ELSE 0 END), 0)::text`,
+      totalEarned: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} != 'voided' THEN COALESCE(${commission.commissionAmountUsd}, ${commission.commissionAmount})::numeric ELSE 0 END), 0)::text`,
+      activeReferrals: sql<number>`COUNT(DISTINCT CASE WHEN ${commission.status} != 'voided' AND ${commission.tier} = 'tier1' THEN ${commission.referredUserId} END)::int`,
+    })
+    .from(commission)
+    .where(eq(commission.affiliateId, affiliateId));
 
-  const pending = commissions
-    .filter((c) => c.status === "pending")
-    .reduce((sum, c) => sum + Number(c.commissionAmountUsd ?? c.commissionAmount), 0);
+  const [payoutStats] = await db
+    .select({
+      totalPaid: sql<string>`COALESCE(SUM(CASE WHEN ${affiliatePayout.status} = 'paid' THEN ${affiliatePayout.amountUsdt}::numeric ELSE 0 END), 0)::text`,
+    })
+    .from(affiliatePayout)
+    .where(eq(affiliatePayout.affiliateId, affiliateId));
 
-  const totalEarned = commissions
-    .filter((c) => c.status !== "voided")
-    .reduce((sum, c) => sum + Number(c.commissionAmountUsd ?? c.commissionAmount), 0);
-
-  const activeReferrals = new Set(
-    commissions
-      .filter((c) => c.status !== "voided" && c.tier === "tier1")
-      .map((c) => c.referredUserId),
-  ).size;
-
-  const paidOut = await db.query.affiliatePayout.findMany({
-    where: (t, { eq: eqFn }) => eqFn(t.affiliateId, affiliateId),
-  });
-
-  const totalPaid = paidOut
-    .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + Number(p.amountUsdt), 0);
-
+  const pending = Number(commStats?.pending ?? 0);
+  const totalEarned = Number(commStats?.totalEarned ?? 0);
+  const totalPaid = Number(payoutStats?.totalPaid ?? 0);
   const available = totalEarned - totalPaid - pending;
 
   return {
@@ -163,7 +156,7 @@ export async function getAffiliateStats(affiliateId: string) {
     pending,
     totalEarned,
     totalPaid,
-    activeReferrals,
+    activeReferrals: commStats?.activeReferrals ?? 0,
   };
 }
 

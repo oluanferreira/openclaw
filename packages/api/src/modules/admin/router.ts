@@ -833,54 +833,49 @@ export const adminRouter = new Hono()
   })
 
   .get("/referrals/stats", async (c) => {
-    const allAffiliates = await db.select({ id: affiliate.id, status: affiliate.status }).from(affiliate);
-    const allCommissions = await db
+    const [affStats] = await db
       .select({
-        status: commission.status,
-        commissionAmount: commission.commissionAmount,
-        tier: commission.tier,
+        total: count(),
+        active: sql<number>`COUNT(CASE WHEN ${affiliate.status} = 'active' THEN 1 END)::int`,
+        suspended: sql<number>`COUNT(CASE WHEN ${affiliate.status} = 'suspended' THEN 1 END)::int`,
+      })
+      .from(affiliate);
+
+    const [commStats] = await db
+      .select({
+        totalEarned: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} != 'voided' THEN ${commission.commissionAmount}::numeric ELSE 0 END), 0)::text`,
+        pendingAmount: sql<string>`COALESCE(SUM(CASE WHEN ${commission.status} = 'pending' THEN ${commission.commissionAmount}::numeric ELSE 0 END), 0)::text`,
+        totalCommissions: count(),
+        tier1Count: sql<number>`COUNT(CASE WHEN ${commission.tier} = 'tier1' AND ${commission.status} != 'voided' THEN 1 END)::int`,
+        tier2Count: sql<number>`COUNT(CASE WHEN ${commission.tier} = 'tier2' AND ${commission.status} != 'voided' THEN 1 END)::int`,
+        tier3Count: sql<number>`COUNT(CASE WHEN ${commission.tier} = 'tier3' AND ${commission.status} != 'voided' THEN 1 END)::int`,
       })
       .from(commission);
-    const allPayouts = await db
+
+    const [payoutStats] = await db
       .select({
-        status: affiliatePayout.status,
-        amountUsdt: affiliatePayout.amountUsdt,
+        paidAmount: sql<string>`COALESCE(SUM(CASE WHEN ${affiliatePayout.status} = 'paid' THEN ${affiliatePayout.amountUsdt}::numeric ELSE 0 END), 0)::text`,
       })
       .from(affiliatePayout);
 
-    const active = allAffiliates.filter((a) => a.status === "active").length;
-    const suspended = allAffiliates.filter((a) => a.status === "suspended").length;
-
-    const totalEarned = allCommissions
-      .filter((c) => c.status !== "voided")
-      .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
-    const pendingAmount = allCommissions
-      .filter((c) => c.status === "pending")
-      .reduce((sum, c) => sum + Number(c.commissionAmount), 0);
-    const paidAmount = allPayouts
-      .filter((p) => p.status === "paid")
-      .reduce((sum, p) => sum + Number(p.amountUsdt), 0);
-
-    const tier1Count = allCommissions.filter((c) => c.tier === "tier1" && c.status !== "voided").length;
-    const tier2Count = allCommissions.filter((c) => c.tier === "tier2" && c.status !== "voided").length;
-    const tier3Count = allCommissions.filter((c) => c.tier === "tier3" && c.status !== "voided").length;
-
     return c.json({
-      totalAffiliates: allAffiliates.length,
-      active,
-      suspended,
-      totalEarned: Math.round(totalEarned * 100) / 100,
-      pendingAmount: Math.round(pendingAmount * 100) / 100,
-      paidAmount: Math.round(paidAmount * 100) / 100,
-      totalCommissions: allCommissions.length,
-      tier1Count,
-      tier2Count,
-      tier3Count,
+      totalAffiliates: affStats?.total ?? 0,
+      active: affStats?.active ?? 0,
+      suspended: affStats?.suspended ?? 0,
+      totalEarned: Math.round(Number(commStats?.totalEarned ?? 0) * 100) / 100,
+      pendingAmount: Math.round(Number(commStats?.pendingAmount ?? 0) * 100) / 100,
+      paidAmount: Math.round(Number(payoutStats?.paidAmount ?? 0) * 100) / 100,
+      totalCommissions: commStats?.totalCommissions ?? 0,
+      tier1Count: commStats?.tier1Count ?? 0,
+      tier2Count: commStats?.tier2Count ?? 0,
+      tier3Count: commStats?.tier3Count ?? 0,
     });
   })
 
   .get("/referrals/:id/commissions", async (c) => {
     const affiliateId = c.req.param("id");
+    const limit = Math.min(Number(c.req.query("limit") || 100), 500);
+    const offset = Number(c.req.query("offset") || 0);
     const comms = await db
       .select({
         id: commission.id,
@@ -888,6 +883,8 @@ export const adminRouter = new Hono()
         stripeInvoiceId: commission.stripeInvoiceId,
         grossAmount: commission.grossAmount,
         commissionAmount: commission.commissionAmount,
+        grossAmountUsd: commission.grossAmountUsd,
+        commissionAmountUsd: commission.commissionAmountUsd,
         currency: commission.currency,
         tier: commission.tier,
         status: commission.status,
@@ -899,7 +896,9 @@ export const adminRouter = new Hono()
       .from(commission)
       .leftJoin(user, eq(commission.referredUserId, user.id))
       .where(eq(commission.affiliateId, affiliateId))
-      .orderBy(desc(commission.createdAt));
+      .orderBy(desc(commission.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     return c.json(comms);
   })

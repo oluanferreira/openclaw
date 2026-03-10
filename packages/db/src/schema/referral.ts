@@ -83,6 +83,7 @@ export const commission = pgTable(
     index("idx_commission_affiliate").on(t.affiliateId),
     index("idx_commission_status").on(t.status),
     index("idx_commission_period").on(t.periodMonth),
+    index("idx_commission_invoice_affiliate").on(t.stripeInvoiceId, t.affiliateId),
   ],
 );
 

@@ -132,10 +132,11 @@ function buildTree(affiliates: Affiliate[]): TreeNode[] {
   return roots;
 }
 
-function countDescendants(node: TreeNode): number {
+function countDescendants(node: TreeNode, maxDepth = 50): number {
+  if (maxDepth <= 0) return 0;
   let count = node.children.length;
   for (const child of node.children) {
-    count += countDescendants(child);
+    count += countDescendants(child, maxDepth - 1);
   }
   return count;
 }
