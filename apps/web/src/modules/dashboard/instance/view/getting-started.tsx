@@ -5,7 +5,12 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "@workspace/i18n";
 import { cn } from "@workspace/ui";
 import { Button } from "@workspace/ui-web/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui-web/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 
 const STORAGE_KEY = "openclaw-getting-started-dismissed";
@@ -18,7 +23,11 @@ const STEP_ICONS = [
   Icons.Gift,
 ];
 
-export const InstanceGettingStarted = ({ instanceUrl }: { instanceUrl: string }) => {
+export const InstanceGettingStarted = ({
+  instanceUrl,
+}: {
+  instanceUrl: string;
+}) => {
   const { t } = useTranslation("dashboard");
   const [dismissed, setDismissed] = useState(true);
 
@@ -78,7 +87,7 @@ export const InstanceGettingStarted = ({ instanceUrl }: { instanceUrl: string })
                     {step.title}
                   </span>
                   <span
-                    className="text-muted-foreground [&_.instance-open-link]:text-primary [&_.instance-open-link]:underline [&_.instance-open-link]:font-medium [&_.instance-open-link]:mt-1 [&_.instance-open-link]:inline-flex [&_.instance-open-link]:items-center [&_.instance-open-link]:gap-1 text-xs"
+                    className="text-muted-foreground [&_.instance-open-link]:text-primary text-xs [&_.instance-open-link]:mt-1 [&_.instance-open-link]:inline-flex [&_.instance-open-link]:items-center [&_.instance-open-link]:gap-1 [&_.instance-open-link]:font-medium [&_.instance-open-link]:underline"
                     dangerouslySetInnerHTML={{ __html: step.description }}
                   />
                 </div>
@@ -86,7 +95,12 @@ export const InstanceGettingStarted = ({ instanceUrl }: { instanceUrl: string })
             );
           })}
         </ol>
-        <Button variant="outline" size="sm" className="mt-1 self-end" onClick={dismiss}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-1 self-end"
+          onClick={dismiss}
+        >
           {t("instance.gettingStarted.dismiss")}
         </Button>
       </CardContent>

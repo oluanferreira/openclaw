@@ -60,3 +60,9 @@ dist/
 .content-collections
 # deploy backups
 .deploy-backups/
+
+# Secrets
+.env
+
+# User uploads
+apps/web/uploads/

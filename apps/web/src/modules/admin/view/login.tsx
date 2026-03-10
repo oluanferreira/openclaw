@@ -4,7 +4,12 @@ import { useMutation } from "@tanstack/react-query";
 
 import { SocialProvider } from "@workspace/auth";
 import { Button } from "@workspace/ui-web/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui-web/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 import { Spinner } from "@workspace/ui-web/spinner";
 

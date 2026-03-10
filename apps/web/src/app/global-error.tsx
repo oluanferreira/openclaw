@@ -1,9 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
-import * as Sentry from "@sentry/nextjs";
 import { logger } from "@workspace/shared/logger";
 
 export default function GlobalError({

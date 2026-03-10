@@ -2,7 +2,10 @@ import envConfig from "env.config";
 
 import { Trans } from "@workspace/i18n";
 import { getTranslation } from "@workspace/i18n/server";
-import { getDisplayPrice, getNextDisplayPrice } from "@workspace/shared/constants";
+import {
+  getDisplayPrice,
+  getNextDisplayPrice,
+} from "@workspace/shared/constants";
 
 import { appConfig } from "~/config/app";
 import {
@@ -123,10 +126,8 @@ export const Comparison = async () => {
             {t("comparison.product.description")}
           </p>
           <p className="text-muted-foreground mt-2 text-sm font-medium sm:text-base">
-            {t("comparison.product.currentPrice", { price: currentPrice })}
-            {' '}
-            <span className="mx-0.5">·</span>
-            {' '}
+            {t("comparison.product.currentPrice", { price: currentPrice })}{" "}
+            <span className="mx-0.5">·</span>{" "}
             <span className="text-primary bg-primary/10 rounded px-1.5 py-0.5">
               {t("comparison.product.nextPrice", { nextPrice })}
             </span>

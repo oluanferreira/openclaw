@@ -1,7 +1,7 @@
+import { cn } from "@workspace/ui";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
 import { buttonVariants } from "@workspace/ui-web/button";
 import { Icons } from "@workspace/ui-web/icons";
-import { cn } from "@workspace/ui";
 
 import { pathsConfig } from "~/config/paths";
 import { TurboLink } from "~/modules/common/turbo-link";

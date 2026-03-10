@@ -16,14 +16,10 @@ export const PrivacyPolicy = async () => {
 const PrivacyEN = () => (
   <>
     <h1>Privacy Policy</h1>
-    <p className="text-muted-foreground text-sm">
-      Last updated: March 7, 2026
-    </p>
+    <p className="text-muted-foreground text-sm">Last updated: March 7, 2026</p>
 
     <h2>1. Data Controller</h2>
-    <p>
-      The data controller for your personal information is:
-    </p>
+    <p>The data controller for your personal information is:</p>
     <p>
       <strong>LPJ SERVICES LLC</strong>
       <br />
@@ -291,9 +287,7 @@ const PrivacyPT = () => (
     </p>
 
     <h2>1. Controlador dos Dados</h2>
-    <p>
-      O controlador dos seus dados pessoais é:
-    </p>
+    <p>O controlador dos seus dados pessoais é:</p>
     <p>
       <strong>LPJ SERVICES LLC</strong>
       <br />
@@ -505,8 +499,8 @@ const PrivacyPT = () => (
         estruturado
       </li>
       <li>
-        <strong>Oposição:</strong> Opor-se ao processamento baseado em
-        interesse legítimo
+        <strong>Oposição:</strong> Opor-se ao processamento baseado em interesse
+        legítimo
       </li>
       <li>
         <strong>Revogação do consentimento:</strong> Revogar consentimento a

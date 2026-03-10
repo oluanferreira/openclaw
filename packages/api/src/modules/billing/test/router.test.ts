@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import type Stripe from "stripe";
 
 // ---------------------------------------------------------------------------
@@ -13,7 +14,7 @@ vi.mock("stripe", () => {
   class StripeMock {
     webhooks = { constructEvent: mockConstructEvent };
     subscriptions = { retrieve: mockSubscriptionsRetrieve };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     constructor(_key: string) {
       // Intentionally empty — mock constructor
     }
@@ -99,12 +100,10 @@ const mockNotifyAgent = vi.fn();
 const mockDestroyInstanceFull = vi.fn();
 
 vi.mock("@workspace/openclaw/server", () => ({
-  getInstanceByUserId: (...args: unknown[]) =>
-    mockGetInstanceByUserId(...args),
+  getInstanceByUserId: (...args: unknown[]) => mockGetInstanceByUserId(...args),
   deleteInstance: (...args: unknown[]) => mockDeleteInstance(...args),
   notifyAgent: (...args: unknown[]) => mockNotifyAgent(...args),
-  destroyInstanceFull: (...args: unknown[]) =>
-    mockDestroyInstanceFull(...args),
+  destroyInstanceFull: (...args: unknown[]) => mockDestroyInstanceFull(...args),
 }));
 
 // -- Env (relative to test file: test/ -> billing/ -> modules/ -> src/env) --
@@ -560,9 +559,7 @@ describe("Billing Webhook Router", () => {
         makeEvent("customer.subscription.deleted", sub),
       );
 
-      mockDestroyInstanceFull.mockRejectedValue(
-        new Error("VPS unreachable"),
-      );
+      mockDestroyInstanceFull.mockRejectedValue(new Error("VPS unreachable"));
 
       const res = await sendWebhook("{}");
       expect(res.status).toBe(200);

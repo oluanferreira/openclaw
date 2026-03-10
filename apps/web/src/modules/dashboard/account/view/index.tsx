@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { useTranslation } from "@workspace/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
@@ -137,9 +137,7 @@ export const AccountView = ({ user }: AccountViewProps) => {
               }}
             >
               <DialogTrigger
-                render={
-                  <Button variant="destructive" size="sm" />
-                }
+                render={<Button variant="destructive" size="sm" />}
               >
                 {t("dashboard:account.dangerZone.cta")}
               </DialogTrigger>
@@ -176,7 +174,9 @@ export const AccountView = ({ user }: AccountViewProps) => {
                     disabled={!isConfirmed || deleteAccount.isPending}
                     onClick={() => deleteAccount.mutate()}
                   >
-                    {deleteAccount.isPending && <Spinner className="mr-2 size-3" />}
+                    {deleteAccount.isPending && (
+                      <Spinner className="mr-2 size-3" />
+                    )}
                     {t("dashboard:account.dangerZone.cta")}
                   </Button>
                 </DialogFooter>

@@ -26,7 +26,6 @@ import { pathsConfig } from "~/config/paths";
 import { TurboLink } from "~/modules/common/turbo-link";
 import { UserNavigation } from "~/modules/user/user-navigation";
 
-import { ROOT_MENU_HREF } from "./types";
 import { useMenu } from "./use-menu";
 
 import type { Menu } from "./types";

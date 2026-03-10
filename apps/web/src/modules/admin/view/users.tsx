@@ -4,11 +4,7 @@ import { useState, useMemo } from "react";
 
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@workspace/ui-web/card";
+import { Card, CardContent, CardHeader } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import {
@@ -49,7 +45,9 @@ const planInfo = (u: any) => {
 };
 
 const relativeDate = (dateStr: string) => {
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  const diff = Math.floor(
+    (Date.now() - new Date(dateStr).getTime()) / 86400000,
+  );
   if (diff === 0) return "Hoje";
   if (diff === 1) return "Ontem";
   if (diff < 7) return `${diff} dias atrás`;
@@ -67,15 +65,13 @@ export function AdminUsers() {
   const total = users?.length ?? 0;
   const withSub =
     users?.filter((u: any) => u.subscription?.status === "active").length ?? 0;
-  const withInstance =
-    users?.filter((u: any) => u.instance?.id).length ?? 0;
+  const withInstance = users?.filter((u: any) => u.instance?.id).length ?? 0;
   const now = new Date();
   const thisMonth =
     users?.filter((u: any) => {
       const d = new Date(u.createdAt);
       return (
-        d.getMonth() === now.getMonth() &&
-        d.getFullYear() === now.getFullYear()
+        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
       );
     }).length ?? 0;
 
@@ -201,7 +197,7 @@ export function AdminUsers() {
           ))}
         </div>
         <div className="relative w-full sm:w-64">
-          <Icons.Search className="text-muted-foreground absolute left-2.5 top-2.5 size-4" />
+          <Icons.Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
           <Input
             placeholder="Buscar por nome ou email..."
             className="pl-8"
@@ -237,9 +233,7 @@ export function AdminUsers() {
                 ? new Date(u.subscription.currentPeriodEnd)
                 : null;
               const expiryDays = expiry
-                ? Math.floor(
-                    (expiry.getTime() - Date.now()) / 86400000,
-                  )
+                ? Math.floor((expiry.getTime() - Date.now()) / 86400000)
                 : null;
 
               return (
@@ -261,7 +255,7 @@ export function AdminUsers() {
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-medium leading-none">
+                        <p className="text-sm leading-none font-medium">
                           {u.name}
                         </p>
                         <p className="text-muted-foreground mt-0.5 text-xs">
@@ -276,9 +270,7 @@ export function AdminUsers() {
                   <TableCell>
                     {u.instance?.id ? (
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          {u.instance.model}
-                        </Badge>
+                        <Badge variant="secondary">{u.instance.model}</Badge>
                         <span className="text-muted-foreground text-xs">
                           {u.instance.communicationChannel}
                         </span>
@@ -296,7 +288,7 @@ export function AdminUsers() {
                           expiryDays !== null && expiryDays < 0
                             ? "text-destructive font-medium"
                             : expiryDays !== null && expiryDays < 7
-                              ? "text-yellow-500 font-medium"
+                              ? "font-medium text-yellow-500"
                               : "text-muted-foreground"
                         }`}
                       >
@@ -313,9 +305,7 @@ export function AdminUsers() {
                           )}
                       </span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">
-                        —
-                      </span>
+                      <span className="text-muted-foreground text-xs">—</span>
                     )}
                   </TableCell>
                   <TableCell>

@@ -12,7 +12,7 @@ export const clawhubExec = async (
   args: string[],
 ): Promise<RunRemoteScriptResult> => {
   const script = `docker exec ${escapeShell(instanceId)} sh -c ${escapeShell(
-    `HOME=/opt/openclaw /opt/openclaw/.local/bin/clawhub ${args.join(" ")} --workdir /opt/openclaw --dir skills --no-input`
+    `HOME=/opt/openclaw /opt/openclaw/.local/bin/clawhub ${args.join(" ")} --workdir /opt/openclaw --dir skills --no-input`,
   )}`;
 
   return execute(script);

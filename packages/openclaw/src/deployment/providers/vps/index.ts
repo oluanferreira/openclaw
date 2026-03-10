@@ -6,10 +6,10 @@ import { getProvisionRouteScript } from "./caddy";
 import { env as vpsEnv } from "./env";
 import { execute, parseOutput, escapeShell } from "./sdk";
 import { getStatus } from "./status";
+import { getToolsMd } from "./tools-md";
 
 import type { DeployInstanceSchemaInput, AiKeysInput } from "../../schema";
 import type { OpenClawDeploymentProviderStrategy } from "../types";
-import { getToolsMd } from "./tools-md";
 
 const PORT_RANGE_START = 20000;
 const PORT_RANGE_END = 40000;
@@ -152,7 +152,12 @@ echo "container_id=$CONTAINER_ID"
 `;
 };
 
-const getUpdateKeysScript = (id: string, aiKeys: AiKeysInput, model?: string, token?: string) => {
+const getUpdateKeysScript = (
+  id: string,
+  aiKeys: AiKeysInput,
+  model?: string,
+  token?: string,
+) => {
   const STATE_DIR = toStateDir(id);
   const origin = getUrl(id);
 
@@ -245,12 +250,27 @@ export const strategy = {
   restart: async (id) => executeDocker(["restart", id]),
   destroy: async (id) => executeDocker(["rm", "-f", id]),
   getLogs: async (id) =>
-    execute(`docker logs --timestamps --details --tail 500 ${escapeShell(id)} 2>&1`),
+    execute(
+      `docker logs --timestamps --details --tail 500 ${escapeShell(id)} 2>&1`,
+    ),
   getUrl,
-  updateKeys: async (id: string, aiKeys: AiKeysInput, model?: string, token?: string) => {
+  updateKeys: async (
+    id: string,
+    aiKeys: AiKeysInput,
+    model?: string,
+    token?: string,
+  ) => {
     const script = getUpdateKeysScript(id, aiKeys, model, token);
     return execute(script);
   },
 } satisfies OpenClawDeploymentProviderStrategy;
-export { findToolBinary, downloadSkillBinary, readOpenclawJson, updateOpenclawJson, restartContainer, gogSetupStep1, gogSetupStep2 } from "./sdk";
+export {
+  findToolBinary,
+  downloadSkillBinary,
+  readOpenclawJson,
+  updateOpenclawJson,
+  restartContainer,
+  gogSetupStep1,
+  gogSetupStep2,
+} from "./sdk";
 export { clawhubExec } from "./clawhub";

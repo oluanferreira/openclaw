@@ -9,7 +9,7 @@ const ALGORITHM = "AES-GCM";
 const IV_LENGTH = 12; // 96-bit IV recommended for GCM
 
 function hexToBytes(hex: string): Uint8Array<ArrayBuffer> {
-  const bytes = new Uint8Array(hex.length / 2) as Uint8Array<ArrayBuffer>;
+  const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
     bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
   }
@@ -39,7 +39,7 @@ async function importKey(hexKey: string): Promise<CryptoKey> {
 export async function encrypt(value: string, hexKey: string): Promise<string> {
   const key = await importKey(hexKey);
   const iv = crypto.getRandomValues(
-    new Uint8Array(IV_LENGTH) as Uint8Array<ArrayBuffer>,
+    new Uint8Array(IV_LENGTH),
   );
   const encoded = new TextEncoder().encode(value);
 
@@ -73,7 +73,7 @@ export async function decrypt(token: string, hexKey: string): Promise<string> {
   const iv = hexToBytes(ivHex);
   const ciphertextBytes = Uint8Array.from(atob(ciphertextB64), (c) =>
     c.charCodeAt(0),
-  ) as Uint8Array<ArrayBuffer>;
+  );
 
   const key = await importKey(hexKey);
   const decrypted = await crypto.subtle.decrypt(

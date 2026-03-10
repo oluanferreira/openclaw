@@ -28,7 +28,6 @@ interface GatewayConfigInput {
   skills?: SkillsConfig;
 }
 
-
 interface SkillEntry {
   enabled: boolean;
   credentials?: Record<string, string>;
@@ -43,7 +42,9 @@ const DEFAULT_SKILLS: SkillsConfig = {
   "skill-creator": { enabled: true },
 };
 
-const getSkillsConfig = (dbSkills?: SkillsConfig): { entries: SkillsConfig } => {
+const getSkillsConfig = (
+  dbSkills?: SkillsConfig,
+): { entries: SkillsConfig } => {
   const merged = { ...DEFAULT_SKILLS };
 
   if (dbSkills) {

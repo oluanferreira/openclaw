@@ -46,7 +46,11 @@ const queries = {
     queryFn: async () => {
       const res = await api.openclaw.communication.$get();
       if (!res.ok) return { channel: "", maskedToken: "", botName: "" };
-      return (await res.json()) as { channel: string; maskedToken: string; botName: string };
+      return (await res.json()) as {
+        channel: string;
+        maskedToken: string;
+        botName: string;
+      };
     },
   }),
 };

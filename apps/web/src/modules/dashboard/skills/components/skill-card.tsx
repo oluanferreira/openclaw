@@ -1,13 +1,15 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useTranslation } from "@workspace/i18n";
-import { useQueryClient } from "@tanstack/react-query";
+
+import { skills as skillsApi } from "../lib/api";
+
+import { GogSetupDialog } from "./gog-setup-dialog";
 
 import type { SkillData } from "../lib/api";
-import { skills as skillsApi } from "../lib/api";
-import { GogSetupDialog } from "./gog-setup-dialog";
 
 interface SkillCardProps {
   skill: SkillData;
@@ -73,14 +75,14 @@ export function SkillCard({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="border-border bg-card rounded-lg border p-4">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="font-medium">{skill.displayName}</h3>
             {statusBadge()}
           </div>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-0.5 text-sm">
             {skill.description}
           </p>
           {skill.lastError && (
@@ -93,11 +95,19 @@ export function SkillCard({
               href={skill.credentialUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              className="text-primary flex items-center gap-1 text-xs font-medium hover:underline"
             >
               {t("skills.getCredential")}
-              <svg className="size-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3.5 3C3.22386 3 3 3.22386 3 3.5C3 3.77614 3.22386 4 3.5 4V3ZM8.5 3.5H9C9 3.22386 8.77614 3 8.5 3V3.5ZM8 8.5C8 8.77614 8.22386 9 8.5 9C8.77614 9 9 8.77614 9 8.5H8ZM2.64645 8.64645C2.45118 8.84171 2.45118 9.15829 2.64645 9.35355C2.84171 9.54882 3.15829 9.54882 3.35355 9.35355L2.64645 8.64645ZM3.5 4H8.5V3H3.5V4ZM8 3.5V8.5H9V3.5H8ZM8.85355 3.14645L2.64645 9.35355L3.35355 8.64645L9.56066 2.43934L8.85355 3.14645Z" fill="currentColor"/>
+              <svg
+                className="size-3"
+                viewBox="0 0 12 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.5 3C3.22386 3 3 3.22386 3 3.5C3 3.77614 3.22386 4 3.5 4V3ZM8.5 3.5H9C9 3.22386 8.77614 3 8.5 3V3.5ZM8 8.5C8 8.77614 8.22386 9 8.5 9C8.77614 9 9 8.77614 9 8.5H8ZM2.64645 8.64645C2.45118 8.84171 2.45118 9.15829 2.64645 9.35355C2.84171 9.54882 3.15829 9.54882 3.35355 9.35355L2.64645 8.64645ZM3.5 4H8.5V3H3.5V4ZM8 3.5V8.5H9V3.5H8ZM8.85355 3.14645L2.64645 9.35355L3.35355 8.64645L9.56066 2.43934L8.85355 3.14645Z"
+                  fill="currentColor"
+                />
               </svg>
             </a>
           )}
@@ -105,7 +115,7 @@ export function SkillCard({
             <button
               type="button"
               onClick={() => setShowGogSetup(true)}
-              className="rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent"
+              className="border-border hover:bg-accent rounded-md border px-3 py-1.5 text-xs"
             >
               {t("skills.gog.configure")}
             </button>
@@ -116,7 +126,7 @@ export function SkillCard({
               <button
                 type="button"
                 onClick={() => setShowCredentials(!showCredentials)}
-                className="rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent"
+                className="border-border hover:bg-accent rounded-md border px-3 py-1.5 text-xs"
               >
                 {t("skills.configure")}
               </button>
@@ -140,11 +150,11 @@ export function SkillCard({
         </div>
       </div>
       {showCredentials && skill.credentialFields && (
-        <div className="mt-3 space-y-2 border-t border-border pt-3">
+        <div className="border-border mt-3 space-y-2 border-t pt-3">
           {skill.credentialFields.map((field) => (
             <div key={field}>
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-muted-foreground">
+                <label className="text-muted-foreground block text-xs font-medium">
                   {field}
                 </label>
                 {skill.credentialUrl && (
@@ -152,11 +162,19 @@ export function SkillCard({
                     href={skill.credentialUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                    className="text-primary flex items-center gap-1 text-xs font-medium hover:underline"
                   >
                     {t("skills.getCredential")}
-                    <svg className="size-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3.5 3C3.22386 3 3 3.22386 3 3.5C3 3.77614 3.22386 4 3.5 4V3ZM8.5 3.5H9C9 3.22386 8.77614 3 8.5 3V3.5ZM8 8.5C8 8.77614 8.22386 9 8.5 9C8.77614 9 9 8.77614 9 8.5H8ZM2.64645 8.64645C2.45118 8.84171 2.45118 9.15829 2.64645 9.35355C2.84171 9.54882 3.15829 9.54882 3.35355 9.35355L2.64645 8.64645ZM3.5 4H8.5V3H3.5V4ZM8 3.5V8.5H9V3.5H8ZM8.85355 3.14645L2.64645 9.35355L3.35355 8.64645L9.56066 2.43934L8.85355 3.14645Z" fill="currentColor"/>
+                    <svg
+                      className="size-3"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.5 3C3.22386 3 3 3.22386 3 3.5C3 3.77614 3.22386 4 3.5 4V3ZM8.5 3.5H9C9 3.22386 8.77614 3 8.5 3V3.5ZM8 8.5C8 8.77614 8.22386 9 8.5 9C8.77614 9 9 8.77614 9 8.5H8ZM2.64645 8.64645C2.45118 8.84171 2.45118 9.15829 2.64645 9.35355C2.84171 9.54882 3.15829 9.54882 3.35355 9.35355L2.64645 8.64645ZM3.5 4H8.5V3H3.5V4ZM8 3.5V8.5H9V3.5H8ZM8.85355 3.14645L2.64645 9.35355L3.35355 8.64645L9.56066 2.43934L8.85355 3.14645Z"
+                        fill="currentColor"
+                      />
                     </svg>
                   </a>
                 )}
@@ -171,7 +189,7 @@ export function SkillCard({
                   }))
                 }
                 placeholder={`Enter ${field}`}
-                className="mt-1 w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+                className="border-border bg-background mt-1 w-full rounded-md border px-3 py-1.5 text-sm"
               />
             </div>
           ))}
@@ -182,7 +200,7 @@ export function SkillCard({
               isLoading ||
               !skill.credentialFields.every((f) => credentialValues[f])
             }
-            className="rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1.5 text-xs disabled:opacity-50"
           >
             {t("skills.saveCredentials")}
           </button>

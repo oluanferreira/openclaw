@@ -1,34 +1,42 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
 
-import { db } from "@workspace/db/server";
-import { subscription } from "@workspace/db/schema";
 import { eq } from "@workspace/db";
-import { generateId } from "@workspace/shared/utils";
+import { subscription } from "@workspace/db/schema";
+import { db } from "@workspace/db/server";
+import {
+  getInstanceByUserId,
+  deleteInstance,
+  notifyAgent,
+  destroyInstanceFull,
+} from "@workspace/openclaw/server";
 import { HttpStatusCode } from "@workspace/shared/constants";
-import { HttpException } from "@workspace/shared/utils";
-
-import { getInstanceByUserId, deleteInstance, notifyAgent, destroyInstanceFull } from "@workspace/openclaw/server";
+import { getPriceId } from "@workspace/shared/constants";
 import { logger } from "@workspace/shared/logger";
+import { generateId } from "@workspace/shared/utils";
+import { HttpException } from "@workspace/shared/utils";
 
 import { env } from "../../env";
 import { enforceAuth } from "../../middleware";
-import { getPriceId } from "@workspace/shared/constants";
 import {
   createCommissionChain,
-  getAffiliateByUserId,
   resolveAffiliate,
   voidCommissionsByInvoice,
   restoreCommissionsByInvoice,
   voidPendingCommissionsForUser,
 } from "../referral/service";
 
-
 const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
 let _stripe: Stripe | null = null;
 const getStripe = () => {
   if (!_stripe) _stripe = new Stripe(env.STRIPE_SECRET_KEY);
   return _stripe;
+};
+
+const safeDate = (epoch: number | null | undefined): Date | null => {
+  if (epoch == null) return null;
+  const d = new Date(epoch * 1000);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
 export const billingRouter = new Hono()
@@ -52,19 +60,20 @@ export const billingRouter = new Hono()
     }
 
     if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object;
       const userId = session.client_reference_id;
       if (!userId) return c.json({ received: true });
 
       const stripeSubscriptionId =
         typeof session.subscription === "string"
           ? session.subscription
-          : session.subscription?.id ?? null;
+          : (session.subscription?.id ?? null);
 
       let currentPeriodEnd: Date | null = null;
       if (stripeSubscriptionId) {
-        const sub = await getStripe().subscriptions.retrieve(stripeSubscriptionId);
-        currentPeriodEnd = new Date(sub.current_period_end * 1000);
+        const sub =
+          await getStripe().subscriptions.retrieve(stripeSubscriptionId);
+        currentPeriodEnd = safeDate(sub.current_period_end);
       }
 
       await db
@@ -98,7 +107,7 @@ export const billingRouter = new Hono()
     }
 
     if (event.type === "customer.subscription.updated") {
-      const sub = event.data.object as Stripe.Subscription;
+      const sub = event.data.object;
       const customerId =
         typeof sub.customer === "string" ? sub.customer : sub.customer.id;
 
@@ -106,7 +115,7 @@ export const billingRouter = new Hono()
         .update(subscription)
         .set({
           status: sub.status === "active" ? "active" : sub.status,
-          currentPeriodEnd: new Date(sub.current_period_end * 1000),
+          currentPeriodEnd: safeDate(sub.current_period_end),
           updatedAt: new Date(),
         })
         .where(eq(subscription.stripeCustomerId, customerId));
@@ -118,9 +127,12 @@ export const billingRouter = new Hono()
         if (dbSub) {
           const inst = await getInstanceByUserId(dbSub.userId);
           if (inst) {
-            const deadline = new Date(sub.current_period_end * 1000);
-            deadline.setDate(deadline.getDate() + 3);
-            const deadlineStr = deadline.toLocaleDateString("pt-BR");
+            const deadline = safeDate(sub.current_period_end);
+            if (deadline) {
+              deadline.setDate(deadline.getDate() + 3);
+            }
+            const deadlineStr =
+              deadline?.toLocaleDateString("pt-BR") ?? "em breve";
             await notifyAgent(
               inst.id,
               `ALERTA: Pagamento da assinatura falhou. Seu OpenClaw será desligado em ${deadlineStr} se o pagamento não for regularizado. Por favor, avise seu usuário imediatamente pelo canal de comunicação.`,
@@ -131,7 +143,7 @@ export const billingRouter = new Hono()
     }
 
     if (event.type === "customer.subscription.deleted") {
-      const sub = event.data.object as Stripe.Subscription;
+      const sub = event.data.object;
       const customerId =
         typeof sub.customer === "string" ? sub.customer : sub.customer.id;
 
@@ -162,11 +174,11 @@ export const billingRouter = new Hono()
     }
 
     if (event.type === "invoice.payment_failed") {
-      const invoice = event.data.object as Stripe.Invoice;
+      const invoice = event.data.object;
       const customerId =
         typeof invoice.customer === "string"
           ? invoice.customer
-          : invoice.customer?.id ?? null;
+          : (invoice.customer?.id ?? null);
       if (customerId) {
         await db
           .update(subscription)
@@ -193,11 +205,11 @@ export const billingRouter = new Hono()
 
     // ─── Referral: commission on successful payment ─────────
     if (event.type === "invoice.payment_succeeded") {
-      const invoice = event.data.object as Stripe.Invoice;
+      const invoice = event.data.object;
       const customerId =
         typeof invoice.customer === "string"
           ? invoice.customer
-          : invoice.customer?.id ?? null;
+          : (invoice.customer?.id ?? null);
 
       if (customerId && invoice.id) {
         try {
@@ -205,7 +217,7 @@ export const billingRouter = new Hono()
           const subId =
             typeof invoice.subscription === "string"
               ? invoice.subscription
-              : invoice.subscription?.id ?? null;
+              : (invoice.subscription?.id ?? null);
 
           if (subId) {
             const stripeSub = await getStripe().subscriptions.retrieve(subId);
@@ -214,29 +226,38 @@ export const billingRouter = new Hono()
             if (referralCode) {
               // Find the referred user
               const dbSub = await db.query.subscription.findFirst({
-                where: (t, { eq: eqFn }) => eqFn(t.stripeCustomerId, customerId),
+                where: (t, { eq: eqFn }) =>
+                  eqFn(t.stripeCustomerId, customerId),
               });
 
               if (dbSub) {
                 // Resolve the affiliate who referred this user
                 const referrerAffiliate = await resolveAffiliate(referralCode);
 
-                if (referrerAffiliate && referrerAffiliate.status === "active") {
+                if (
+                  referrerAffiliate?.status === "active"
+                ) {
                   const grossAmount = (invoice.amount_paid ?? 0) / 100;
                   const currency = invoice.currency ?? "usd";
 
                   // Convert to USD if payment was in another currency
-                  let usdConversion: { grossAmountUsd: number; exchangeRate: number } | null = null;
+                  let usdConversion: {
+                    grossAmountUsd: number;
+                    exchangeRate: number;
+                  } | null = null;
                   if (currency !== "usd") {
                     try {
                       const chargeId =
                         typeof invoice.charge === "string"
                           ? invoice.charge
-                          : invoice.charge?.id ?? null;
+                          : (invoice.charge?.id ?? null);
                       if (chargeId) {
-                        const charge = await getStripe().charges.retrieve(chargeId, {
-                          expand: ["balance_transaction"],
-                        });
+                        const charge = await getStripe().charges.retrieve(
+                          chargeId,
+                          {
+                            expand: ["balance_transaction"],
+                          },
+                        );
                         const bt = charge.balance_transaction;
                         if (bt && typeof bt !== "string") {
                           if (bt.currency === "usd") {
@@ -248,14 +269,20 @@ export const billingRouter = new Hono()
                           } else if (bt.exchange_rate) {
                             // Account settles in another currency but has exchange rate
                             usdConversion = {
-                              grossAmountUsd: Math.round((grossAmount / bt.exchange_rate) * 100) / 100,
+                              grossAmountUsd:
+                                Math.round(
+                                  (grossAmount / bt.exchange_rate) * 100,
+                                ) / 100,
                               exchangeRate: bt.exchange_rate,
                             };
                           }
                         }
                       }
                     } catch (e) {
-                      logger.error("referral: failed to get USD exchange rate", e);
+                      logger.error(
+                        "referral: failed to get USD exchange rate",
+                        e,
+                      );
                     }
                   }
 
@@ -279,11 +306,11 @@ export const billingRouter = new Hono()
 
     // ─── Referral: void commissions on dispute ───────────────
     if (event.type === "charge.dispute.created") {
-      const dispute = event.data.object as Stripe.Dispute;
+      const dispute = event.data.object;
       const chargeId =
         typeof dispute.charge === "string"
           ? dispute.charge
-          : dispute.charge?.id ?? null;
+          : (dispute.charge?.id ?? null);
 
       if (chargeId) {
         try {
@@ -291,7 +318,7 @@ export const billingRouter = new Hono()
           const invoiceId =
             typeof charge.invoice === "string"
               ? charge.invoice
-              : charge.invoice?.id ?? null;
+              : (charge.invoice?.id ?? null);
 
           if (invoiceId) {
             await voidCommissionsByInvoice(invoiceId);
@@ -304,13 +331,13 @@ export const billingRouter = new Hono()
 
     // ─── Referral: restore commissions if dispute won ────────
     if (event.type === "charge.dispute.closed") {
-      const dispute = event.data.object as Stripe.Dispute;
+      const dispute = event.data.object;
 
       if (dispute.status === "won") {
         const chargeId =
           typeof dispute.charge === "string"
             ? dispute.charge
-            : dispute.charge?.id ?? null;
+            : (dispute.charge?.id ?? null);
 
         if (chargeId) {
           try {
@@ -318,7 +345,7 @@ export const billingRouter = new Hono()
             const invoiceId =
               typeof charge.invoice === "string"
                 ? charge.invoice
-                : charge.invoice?.id ?? null;
+                : (charge.invoice?.id ?? null);
 
             if (invoiceId) {
               await restoreCommissionsByInvoice(invoiceId);
@@ -332,7 +359,7 @@ export const billingRouter = new Hono()
 
     // ─── Referral: void future commissions on cancel ─────────
     if (event.type === "customer.subscription.deleted") {
-      const sub = event.data.object as Stripe.Subscription;
+      const sub = event.data.object;
       const referralCode = sub.metadata?.referralCode;
 
       if (referralCode) {
@@ -380,8 +407,7 @@ export const billingRouter = new Hono()
     const user = c.var.user;
     const baseUrl = env.URL;
     const body = await c.req.json().catch(() => ({}));
-    const currency: "usd" | "brl" =
-      body.currency === "brl" ? "brl" : "usd";
+    const currency: "usd" | "brl" = body.currency === "brl" ? "brl" : "usd";
 
     const referralCode: string | undefined = body.referralCode;
 
@@ -389,15 +415,19 @@ export const billingRouter = new Hono()
       mode: "subscription",
       payment_method_types: ["card"],
       currency,
-      line_items: [{ price: getPriceId(currency) || env.STRIPE_PRICE_ID, quantity: 1 }],
+      line_items: [
+        { price: getPriceId(currency) || env.STRIPE_PRICE_ID, quantity: 1 },
+      ],
       success_url: `${baseUrl}/dashboard?checkout=success`,
       cancel_url: `${baseUrl}/dashboard/billing`,
       client_reference_id: user.id,
       customer_email: user.email,
-      ...(referralCode ? {
-        metadata: { referralCode },
-        subscription_data: { metadata: { referralCode } },
-      } : {}),
+      ...(referralCode
+        ? {
+            metadata: { referralCode },
+            subscription_data: { metadata: { referralCode } },
+          }
+        : {}),
     });
 
     return c.json({ url: session.url });

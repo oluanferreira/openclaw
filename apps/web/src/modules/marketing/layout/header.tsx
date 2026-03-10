@@ -1,11 +1,11 @@
 import { getTranslation } from "@workspace/i18n/server";
+import { Icons } from "@workspace/ui-web/icons";
 
 import { pathsConfig } from "~/config/paths";
 import { getSession } from "~/lib/auth/server";
 import { I18nControls } from "~/modules/common/i18n/controls";
 import { ThemeSwitcher } from "~/modules/common/theme";
 import { TurboLink } from "~/modules/common/turbo-link";
-import { Icons } from "@workspace/ui-web/icons";
 import { HeaderAuth } from "~/modules/marketing/layout/header-auth";
 
 export const Header = async () => {

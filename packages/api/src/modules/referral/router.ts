@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { z } from "zod";
 
+import { db } from "@workspace/db/server";
 import { HttpStatusCode } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
 import { enforceAuth } from "../../middleware";
-import { db } from "@workspace/db/server";
 
 import {
   activateAffiliate,
@@ -37,7 +37,7 @@ export const referralRouter = new Hono()
   .get("/resolve/:ref", async (c) => {
     const ref = c.req.param("ref");
     const aff = await resolveAffiliate(ref);
-    if (!aff || aff.status !== "active") {
+    if (aff?.status !== "active") {
       return c.json({ valid: false });
     }
     return c.json({ valid: true, code: aff.referralCode });
@@ -57,7 +57,7 @@ export const referralRouter = new Hono()
       const sub = await db.query.subscription.findFirst({
         where: (t, { eq: eqFn }) => eqFn(t.userId, user.id),
       });
-      if (!sub || sub.status !== "active") {
+      if (sub?.status !== "active") {
         throw new HttpException(HttpStatusCode.PAYMENT_REQUIRED, {
           code: "billing:subscription.required",
         });

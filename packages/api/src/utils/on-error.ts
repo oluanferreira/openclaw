@@ -41,7 +41,8 @@ export const onError = async (
   const path = c?.req.raw.url ? new URL(c.req.raw.url).pathname : "/api";
 
   // Suppress noisy but expected client errors (401/403/404) from server logs
-  const isExpectedClientError = status === 401 || status === 403 || status === 404;
+  const isExpectedClientError =
+    status === 401 || status === 403 || status === 404;
 
   if (isError(e)) {
     if (!isExpectedClientError) {

@@ -14,12 +14,15 @@ interface RateLimitEntry {
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 // Prune expired entries every 5 minutes to avoid unbounded growth
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore) {
-    if (now > entry.resetAt) rateLimitStore.delete(key);
-  }
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of rateLimitStore) {
+      if (now > entry.resetAt) rateLimitStore.delete(key);
+    }
+  },
+  5 * 60 * 1000,
+);
 
 /**
  * Creates a rate-limiting middleware.
@@ -69,13 +72,13 @@ export function rateLimit(
 }
 
 import { auth } from "@workspace/auth/server";
+import { db } from "@workspace/db/server";
 import { makeZodI18nMap } from "@workspace/i18n";
 import { getLocaleFromRequest, getTranslation } from "@workspace/i18n/server";
 import { getInstanceByUserId } from "@workspace/openclaw/server";
 import { HttpStatusCode, NodeEnv } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
-import { db } from "@workspace/db/server";
 import type { User } from "@workspace/auth";
 import type { TFunction } from "@workspace/i18n";
 import type { ValidationTargets } from "hono";
@@ -218,7 +221,7 @@ export const enforceSubscription = createMiddleware<{
     where: (t, { eq: eqFn }) => eqFn(t.userId, c.var.user.id),
   });
 
-  if (!sub || sub.status !== "active") {
+  if (sub?.status !== "active") {
     throw new HttpException(HttpStatusCode.PAYMENT_REQUIRED, {
       code: "billing:subscription.required",
     });

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import dayjs from "dayjs";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@workspace/ui-web/badge";
@@ -26,7 +26,7 @@ import {
 
 // ─── Types ──────────────────────────────────────────────────
 
-type Affiliate = {
+interface Affiliate {
   id: string;
   userId: string;
   referralCode: string;
@@ -43,9 +43,9 @@ type Affiliate = {
   paidCommissions: number;
   referralCount: number;
   commissionCount: number;
-};
+}
 
-type ReferralStats = {
+interface ReferralStats {
   totalAffiliates: number;
   active: number;
   suspended: number;
@@ -56,9 +56,9 @@ type ReferralStats = {
   tier1Count: number;
   tier2Count: number;
   tier3Count: number;
-};
+}
 
-type Commission = {
+interface Commission {
   id: string;
   referredUserId: string;
   stripeInvoiceId: string;
@@ -73,7 +73,7 @@ type Commission = {
   createdAt: string;
   referredName: string | null;
   referredEmail: string | null;
-};
+}
 
 // ─── Helpers ────────────────────────────────────────────────
 

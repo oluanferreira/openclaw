@@ -1,9 +1,10 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { handle } from "@workspace/api/utils";
 import { useTranslation } from "@workspace/i18n";
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
@@ -27,19 +28,18 @@ import { Skeleton } from "@workspace/ui-web/skeleton";
 import { Spinner } from "@workspace/ui-web/spinner";
 import { Textarea } from "@workspace/ui-web/textarea";
 
+import { api } from "~/lib/api/client";
 import {
   DashboardHeader,
   DashboardHeaderDescription,
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
 
-import { handle } from "@workspace/api/utils";
 
-import { api } from "~/lib/api/client";
 
 import { support } from "../lib/api";
 
-type TicketAttachment = {
+interface TicketAttachment {
   id: string;
   ticketId: string;
   replyId: string | null;
@@ -48,7 +48,7 @@ type TicketAttachment = {
   fileSize: number;
   storedName: string;
   createdAt: string | Date;
-};
+}
 
 const statusVariant: Record<string, "success" | "warning" | "secondary"> = {
   open: "success",
@@ -114,11 +114,17 @@ export const SupportView = () => {
   const replyToTicket = useMutation({
     mutationFn: async (data: { message: string }) => {
       if (!selectedTicketId) return;
-      return handle(api.support[":id"].reply.$post)({ param: { id: selectedTicketId }, json: data });
+      return handle(api.support[":id"].reply.$post)({
+        param: { id: selectedTicketId },
+        json: data,
+      });
     },
     onSuccess: async (data) => {
       if (replyFile && selectedTicketId && data?.id) {
-        await uploadAttachment.mutateAsync({ file: replyFile, replyId: data.id });
+        await uploadAttachment.mutateAsync({
+          file: replyFile,
+          replyId: data.id,
+        });
       } else {
         await queryClient.invalidateQueries({
           queryKey: ["support", "detail", selectedTicketId],
@@ -162,7 +168,15 @@ export const SupportView = () => {
             <p>{t("dashboard:support.ticket.empty")}</p>
           </div>
         ) : (
-          (tickets.data as Array<{ id: string; subject: string; description: string; status: string; createdAt: string | Date }>).map((ticket) => (
+          (
+            tickets.data as {
+              id: string;
+              subject: string;
+              description: string;
+              status: string;
+              createdAt: string | Date;
+            }[]
+          ).map((ticket) => (
             <TicketRow
               key={ticket.id}
               ticket={ticket}
@@ -216,9 +230,7 @@ export const SupportView = () => {
                   onClick={() => attachFileRef.current?.click()}
                 >
                   <Icons.Paperclip className="size-4" />
-                  <span className="text-xs">
-                    {"Attach image"}
-                  </span>
+                  <span className="text-xs">{"Attach image"}</span>
                 </Button>
                 <input
                   ref={attachFileRef}
@@ -241,7 +253,8 @@ export const SupportView = () => {
                       type="button"
                       onClick={() => {
                         setAttachFile(null);
-                        if (attachFileRef.current) attachFileRef.current.value = "";
+                        if (attachFileRef.current)
+                          attachFileRef.current.value = "";
                       }}
                       className="text-muted-foreground hover:text-foreground"
                     >
@@ -285,9 +298,7 @@ export const SupportView = () => {
             </SheetTitle>
             {ticketDetail.data && (
               <Badge
-                variant={
-                  statusVariant[ticketDetail.data.status] ?? "secondary"
-                }
+                variant={statusVariant[ticketDetail.data.status] ?? "secondary"}
                 className="w-fit"
               >
                 {t(
@@ -342,13 +353,15 @@ export const SupportView = () => {
                     {t("dashboard:support.ticket.noReplies")}
                   </p>
                 ) : (
-                  (ticketDetail.data.replies as Array<{
-                    id: string;
-                    message: string;
-                    isAdmin: boolean;
-                    createdAt: string | Date;
-                    attachments?: TicketAttachment[];
-                  }>).map((reply) => (
+                  (
+                    ticketDetail.data.replies as {
+                      id: string;
+                      message: string;
+                      isAdmin: boolean;
+                      createdAt: string | Date;
+                      attachments?: TicketAttachment[];
+                    }[]
+                  ).map((reply) => (
                     <div
                       key={reply.id}
                       className={`rounded-md p-3 text-sm ${
@@ -391,9 +404,7 @@ export const SupportView = () => {
               <Textarea
                 value={replyMessage}
                 onChange={(e) => setReplyMessage(e.target.value)}
-                placeholder={t(
-                  "dashboard:support.ticket.reply.placeholder",
-                )}
+                placeholder={t("dashboard:support.ticket.reply.placeholder")}
                 rows={3}
               />
               {/* Anexo para reply */}
@@ -406,9 +417,7 @@ export const SupportView = () => {
                   onClick={() => replyFileRef.current?.click()}
                 >
                   <Icons.Paperclip className="size-4" />
-                  <span className="text-xs">
-                    {"Attach image"}
-                  </span>
+                  <span className="text-xs">{"Attach image"}</span>
                 </Button>
                 <input
                   ref={replyFileRef}
@@ -431,7 +440,8 @@ export const SupportView = () => {
                       type="button"
                       onClick={() => {
                         setReplyFile(null);
-                        if (replyFileRef.current) replyFileRef.current.value = "";
+                        if (replyFileRef.current)
+                          replyFileRef.current.value = "";
                       }}
                       className="text-muted-foreground hover:text-foreground"
                     >
@@ -443,9 +453,7 @@ export const SupportView = () => {
               <Button
                 className="self-end"
                 size="sm"
-                onClick={() =>
-                  replyToTicket.mutate({ message: replyMessage })
-                }
+                onClick={() => replyToTicket.mutate({ message: replyMessage })}
                 disabled={!replyMessage.trim() || replyToTicket.isPending}
               >
                 {replyToTicket.isPending && <Spinner />}
@@ -464,7 +472,13 @@ const TicketRow = ({
   onClick,
   t,
 }: {
-  ticket: { id: string; subject: string; description: string; status: string; createdAt: string | Date };
+  ticket: {
+    id: string;
+    subject: string;
+    description: string;
+    status: string;
+    createdAt: string | Date;
+  };
   onClick: () => void;
   t: (key: string) => string;
 }) => (
@@ -482,8 +496,7 @@ const TicketRow = ({
       <div className="flex shrink-0 flex-col items-end gap-1">
         <Badge
           variant={
-            (statusVariant[ticket.status] as "success" | "warning" | "secondary") ??
-            "secondary"
+            (statusVariant[ticket.status]!) ?? "secondary"
           }
           className="text-xs"
         >

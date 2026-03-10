@@ -79,9 +79,7 @@ export const ApiKeysView = () => {
         {AI_KEYS.map((config) => (
           <Field key={config.id} className="gap-2">
             <div className="flex items-center justify-between gap-2">
-              <FieldLabel className="text-base">
-                {config.provider}
-              </FieldLabel>
+              <FieldLabel className="text-base">{config.provider}</FieldLabel>
               <a
                 href={config.link}
                 target="_blank"

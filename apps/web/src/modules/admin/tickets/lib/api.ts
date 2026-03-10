@@ -14,8 +14,7 @@ const queries = {
   detail: (id: string) =>
     queryOptions({
       queryKey: [KEY, "detail", id],
-      queryFn: () =>
-        handle(api.support.admin[":id"].$get)({ param: { id } }),
+      queryFn: () => handle(api.support.admin[":id"].$get)({ param: { id } }),
     }),
 };
 

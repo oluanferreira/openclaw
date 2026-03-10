@@ -1,6 +1,5 @@
 import * as z from "zod";
 
-import { getModelKeyField } from "../config/ai";
 import { openclawConfigSchema } from "../config";
 
 export const aiKeysSchema = z.object({

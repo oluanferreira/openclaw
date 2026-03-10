@@ -5,9 +5,9 @@ import { SidebarInset, SidebarProvider } from "@workspace/ui-web/sidebar";
 
 import { pathsConfig } from "~/config/paths";
 import { getSession } from "~/lib/auth/server";
+import { AdminLogin } from "~/modules/admin/view/login";
 import { DashboardActionBar } from "~/modules/common/layout/dashboard/action-bar";
 import { DashboardSidebar } from "~/modules/common/layout/dashboard/sidebar/index";
-import { AdminLogin } from "~/modules/admin/view/login";
 
 import type { Menu } from "~/modules/common/layout/dashboard/sidebar/types";
 

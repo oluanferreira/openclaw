@@ -7,15 +7,15 @@ import { db } from "@workspace/db/server";
 import { logger } from "@workspace/shared/logger";
 
 import { localize, delay, rateLimit } from "./middleware";
+import { seedAiModels } from "./modules/admin/models-config";
+import { modelsRouter } from "./modules/admin/models-router";
+import { adminRouter } from "./modules/admin/router";
+import { seedVpsServers } from "./modules/admin/vps-config";
 import { authRouter } from "./modules/auth/router";
 import { billingRouter } from "./modules/billing/router";
 import { openclawRouter } from "./modules/openclaw/router";
-import { adminRouter } from "./modules/admin/router";
-import { supportRouter } from "./modules/support/router";
 import { referralRouter } from "./modules/referral/router";
-import { seedVpsServers } from "./modules/admin/vps-config";
-import { seedAiModels } from "./modules/admin/models-config";
-import { modelsRouter } from "./modules/admin/models-router";
+import { supportRouter } from "./modules/support/router";
 import { onError } from "./utils/on-error";
 
 const monitor = statusMonitor({

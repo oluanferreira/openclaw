@@ -3,8 +3,17 @@ import { createMiddleware } from "hono/factory";
 import Stripe from "stripe";
 import * as z from "zod";
 
-import { asc, desc, eq, sql, and, count } from "@workspace/db";
-import { user, instance, subscription, vpsServer, aiModel, affiliate, commission, affiliatePayout } from "@workspace/db/schema";
+import { asc, desc, eq, sql, count } from "@workspace/db";
+import {
+  user,
+  instance,
+  subscription,
+  vpsServer,
+  aiModel,
+  affiliate,
+  commission,
+  affiliatePayout,
+} from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import {
   ManageInstanceAction,
@@ -39,7 +48,13 @@ const updateServerSchema = z.object({
 });
 
 const createModelSchema = z.object({
-  id: z.string().min(1).regex(/^[a-z0-9._-]+$/, "ID must be lowercase alphanumeric with dots, dashes, underscores"),
+  id: z
+    .string()
+    .min(1)
+    .regex(
+      /^[a-z0-9._-]+$/,
+      "ID must be lowercase alphanumeric with dots, dashes, underscores",
+    ),
   provider: z.string().min(1),
   name: z.string().min(1),
   tier: z.string().default("flagship"),
@@ -56,10 +71,12 @@ const updateModelSchema = z.object({
 });
 
 const reorderModelsSchema = z.object({
-  order: z.array(z.object({
-    id: z.string(),
-    sortOrder: z.number().int(),
-  })),
+  order: z.array(
+    z.object({
+      id: z.string(),
+      sortOrder: z.number().int(),
+    }),
+  ),
 });
 
 import type { User } from "@workspace/auth";
@@ -232,10 +249,11 @@ export const adminRouter = new Hono()
 
     // Auto sortOrder: max + 1
     if (body.sortOrder === undefined) {
-      const all = await db.select({ sortOrder: aiModel.sortOrder }).from(aiModel);
-      body.sortOrder = all.length > 0
-        ? Math.max(...all.map((m) => m.sortOrder)) + 1
-        : 0;
+      const all = await db
+        .select({ sortOrder: aiModel.sortOrder })
+        .from(aiModel);
+      body.sortOrder =
+        all.length > 0 ? Math.max(...all.map((m) => m.sortOrder)) + 1 : 0;
     }
 
     const [created] = await db
@@ -258,10 +276,7 @@ export const adminRouter = new Hono()
 
     await Promise.all(
       order.map(({ id, sortOrder }) =>
-        db
-          .update(aiModel)
-          .set({ sortOrder })
-          .where(eq(aiModel.id, id)),
+        db.update(aiModel).set({ sortOrder }).where(eq(aiModel.id, id)),
       ),
     );
 
@@ -474,9 +489,7 @@ export const adminRouter = new Hono()
   .get("/subscriptions/stats", async (c) => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const sevenDaysFromNow = new Date(
-      now.getTime() + 7 * 24 * 60 * 60 * 1000,
-    );
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     const thirtyDaysFromNow = new Date(
       now.getTime() + 30 * 24 * 60 * 60 * 1000,
     );
@@ -571,14 +584,15 @@ export const adminRouter = new Hono()
       days.push(getDayKey(d));
     }
 
-    const allUsers = await db
-      .select({ createdAt: user.createdAt })
-      .from(user);
+    const allUsers = await db.select({ createdAt: user.createdAt }).from(user);
     const allInstances = await db
       .select({ createdAt: instance.createdAt })
       .from(instance);
     const allSubs = await db
-      .select({ createdAt: subscription.createdAt, status: subscription.status })
+      .select({
+        createdAt: subscription.createdAt,
+        status: subscription.status,
+      })
       .from(subscription);
 
     const usersByMonth = months.map((month) => {
@@ -661,7 +675,9 @@ export const adminRouter = new Hono()
       const uptimeRaw = exec("cat /proc/uptime");
       const uptimeSeconds = parseFloat(uptimeRaw.split(" ")[0] ?? "0");
 
-      const dockerRaw = exec("docker stats --no-stream --format '{{.Name}}|{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}|{{.NetIO}}|{{.PIDs}}'");
+      const dockerRaw = exec(
+        "docker stats --no-stream --format '{{.Name}}|{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}|{{.NetIO}}|{{.PIDs}}'",
+      );
       const containers = dockerRaw
         .split("\n")
         .filter(Boolean)
@@ -684,10 +700,14 @@ export const adminRouter = new Hono()
           cpuPercent: Math.round(cpuPercent * 100) / 100,
           memTotal,
           memUsed,
-          memPercent: memTotal > 0 ? Math.round((memUsed / memTotal) * 10000) / 100 : 0,
+          memPercent:
+            memTotal > 0 ? Math.round((memUsed / memTotal) * 10000) / 100 : 0,
           diskTotal,
           diskUsed,
-          diskPercent: diskTotal > 0 ? Math.round((diskUsed / diskTotal) * 10000) / 100 : 0,
+          diskPercent:
+            diskTotal > 0
+              ? Math.round((diskUsed / diskTotal) * 10000) / 100
+              : 0,
           uptimeSeconds,
         },
         containers,
@@ -711,13 +731,32 @@ export const adminRouter = new Hono()
       servers.map(async (vps) => {
         if (vps.endpoint === "local") {
           const stats = await collectLocalStats();
-          return { id: vps.id, name: vps.name, location: vps.location, online: true, ...stats };
+          return {
+            id: vps.id,
+            name: vps.name,
+            location: vps.location,
+            online: true,
+            ...stats,
+          };
         }
         const stats = await collectRemoteStats(vps.endpoint, vps.token ?? "");
         if (!stats) {
-          return { id: vps.id, name: vps.name, location: vps.location, online: false, server: null, containers: [] };
+          return {
+            id: vps.id,
+            name: vps.name,
+            location: vps.location,
+            online: false,
+            server: null,
+            containers: [],
+          };
         }
-        return { id: vps.id, name: vps.name, location: vps.location, online: true, ...stats };
+        return {
+          id: vps.id,
+          name: vps.name,
+          location: vps.location,
+          online: true,
+          ...stats,
+        };
       }),
     );
 
@@ -729,7 +768,10 @@ export const adminRouter = new Hono()
   .get("/stats/uptime", async (c) => {
     const apiKey = env.UPTIMEROBOT_API_KEY;
     if (!apiKey) {
-      return c.json({ monitors: [], error: "UPTIMEROBOT_API_KEY not configured" });
+      return c.json({
+        monitors: [],
+        error: "UPTIMEROBOT_API_KEY not configured",
+      });
     }
 
     try {
@@ -752,14 +794,14 @@ export const adminRouter = new Hono()
 
       const data = (await res.json()) as {
         stat: string;
-        monitors?: Array<{
+        monitors?: {
           id: number;
           friendly_name: string;
           url: string;
           status: number;
           all_time_uptime_ratio: string;
-          response_times?: Array<{ value: number }>;
-        }>;
+          response_times?: { value: number }[];
+        }[];
       };
 
       if (data.stat !== "ok" || !data.monitors) {
@@ -863,7 +905,8 @@ export const adminRouter = new Hono()
       active: affStats?.active ?? 0,
       suspended: affStats?.suspended ?? 0,
       totalEarned: Math.round(Number(commStats?.totalEarned ?? 0) * 100) / 100,
-      pendingAmount: Math.round(Number(commStats?.pendingAmount ?? 0) * 100) / 100,
+      pendingAmount:
+        Math.round(Number(commStats?.pendingAmount ?? 0) * 100) / 100,
       paidAmount: Math.round(Number(payoutStats?.paidAmount ?? 0) * 100) / 100,
       totalCommissions: commStats?.totalCommissions ?? 0,
       tier1Count: commStats?.tier1Count ?? 0,
@@ -905,10 +948,12 @@ export const adminRouter = new Hono()
 
   .put("/referrals/:id/status", async (c) => {
     const affiliateId = c.req.param("id");
-    const body = await c.req.json() as { status: string };
+    const body = (await c.req.json());
     const validStatuses = ["active", "suspended"] as const;
 
-    if (!validStatuses.includes(body.status as typeof validStatuses[number])) {
+    if (
+      !validStatuses.includes(body.status as (typeof validStatuses)[number])
+    ) {
       throw new HttpException(HttpStatusCode.BAD_REQUEST, {
         code: "error.invalidStatus",
       });

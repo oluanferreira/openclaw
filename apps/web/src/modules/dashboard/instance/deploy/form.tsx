@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import {
   Controller,
   FormProvider,
@@ -9,16 +11,16 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { useSearchParams, useRouter } from "next/navigation";
 
+import { ApiError } from "@workspace/api/utils";
 import { Trans, useTranslation } from "@workspace/i18n";
-import { getDisplayPrice } from "@workspace/shared/constants";
 import { deployInstanceSchema } from "@workspace/openclaw";
 import {
   MODELS,
   COMMUNICATION_CHANNELS,
   CommunicatonChannel,
 } from "@workspace/openclaw/config";
+import { getDisplayPrice } from "@workspace/shared/constants";
 import { cn } from "@workspace/ui";
 import { Button } from "@workspace/ui-web/button";
 import { Field, FieldLabel } from "@workspace/ui-web/field";
@@ -26,11 +28,9 @@ import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
-import { useQueryClient } from "@tanstack/react-query";
 
 import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
 import { billingApi } from "~/modules/dashboard/billing/lib/api";
-import { ApiError } from "@workspace/api/utils";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 import { useModels } from "~/modules/dashboard/instance/hooks/use-models";
 
@@ -98,7 +98,10 @@ export const DeployInstanceForm = ({
   if (pendingDeployData.current === null && typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem(DEPLOY_DATA_KEY);
-      if (raw) pendingDeployData.current = JSON.parse(raw) as DeployInstanceSchemaInput;
+      if (raw)
+        pendingDeployData.current = JSON.parse(
+          raw,
+        ) as DeployInstanceSchemaInput;
     } catch {
       // ignore
     }
@@ -123,10 +126,17 @@ export const DeployInstanceForm = ({
 
   // Poll subscription status while waiting for Stripe webhook after checkout
   useEffect(() => {
-    if (!isCheckoutReturn || !pendingDeployData.current || autoDeployAttempted.current) return;
+    if (
+      !isCheckoutReturn ||
+      !pendingDeployData.current ||
+      autoDeployAttempted.current
+    )
+      return;
 
     const interval = setInterval(() => {
-      queryClient.invalidateQueries({ queryKey: billingApi.queries.subscription.queryKey });
+      queryClient.invalidateQueries({
+        queryKey: billingApi.queries.subscription.queryKey,
+      });
     }, 2000);
 
     return () => clearInterval(interval);
@@ -163,8 +173,11 @@ export const DeployInstanceForm = ({
           className,
         )}
         onSubmit={form.handleSubmit(async (data) => {
-          if (!subscription.data || subscription.data.status !== "active") {
-            localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify({ ...data, locale: i18n.language }));
+          if (subscription.data?.status !== "active") {
+            localStorage.setItem(
+              DEPLOY_DATA_KEY,
+              JSON.stringify({ ...data, locale: i18n.language }),
+            );
             checkout.mutate();
             return;
           }
@@ -172,8 +185,14 @@ export const DeployInstanceForm = ({
             await deploy.mutateAsync({ ...data, locale: i18n.language });
           } catch (error) {
             // Edge case: subscription expired between frontend check and API call
-            if (error instanceof ApiError && error.code === "billing:subscription.required") {
-              localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify({ ...data, locale: i18n.language }));
+            if (
+              error instanceof ApiError &&
+              error.code === "billing:subscription.required"
+            ) {
+              localStorage.setItem(
+                DEPLOY_DATA_KEY,
+                JSON.stringify({ ...data, locale: i18n.language }),
+              );
               checkout.mutate();
             }
             // Other errors are already handled by deploy's onError toast
@@ -293,7 +312,9 @@ const AiKeyField = () => {
 
   const models = (dbModels as any[])?.length ? (dbModels as any[]) : MODELS;
   const modelEntry = models.find((m: any) => m.id === selectedModel);
-  const config = modelEntry ? PROVIDER_KEY_CONFIG[modelEntry.provider] : undefined;
+  const config = modelEntry
+    ? PROVIDER_KEY_CONFIG[modelEntry.provider]
+    : undefined;
   if (!config) return null;
 
   return (
@@ -386,8 +407,10 @@ export const DeployInstanceFormNote = ({
       className={cn("text-muted-foreground text-sm font-medium", className)}
       {...props}
     >
-      {note && <>{note}{" "}</>}
-      {!note && !form.formState.isValid && <>{t("instance.deploy.note.invalid")}{" "}</>}
+      {note && <>{note} </>}
+      {!note && !form.formState.isValid && (
+        <>{t("instance.deploy.note.invalid")} </>
+      )}
       <Trans
         i18nKey="instance.deploy.note.pricing"
         t={t}

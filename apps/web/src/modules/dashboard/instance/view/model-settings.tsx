@@ -39,12 +39,18 @@ export const ModelSettings = () => {
   const updateModel = useMutation({
     ...instanceApi.mutations.updateModel,
     onMutate: () => {
-      toast.loading(t("instance.settings.model.restarting"), { id: "model-update" });
+      toast.loading(t("instance.settings.model.restarting"), {
+        id: "model-update",
+      });
     },
     onSuccess: async (data) => {
       toast.dismiss("model-update");
       await queryClient.invalidateQueries(instanceApi.queries.get);
-      toast.success(t("instance.settings.model.success", { model: MODELS.find((m) => m.id === data.model)?.name ?? data.model }));
+      toast.success(
+        t("instance.settings.model.success", {
+          model: MODELS.find((m) => m.id === data.model)?.name ?? data.model,
+        }),
+      );
     },
     onError: (error) => {
       toast.dismiss("model-update");
@@ -119,7 +125,7 @@ export const ModelSettings = () => {
                     >
                       <span>{model.name}</span>
                       {!group.hasKey && (
-                        <span className="text-muted-foreground text-xs ml-1">
+                        <span className="text-muted-foreground ml-1 text-xs">
                           ({t("instance.settings.model.noKey")})
                         </span>
                       )}

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { pathsConfig } from "~/config/paths";
-import { getMetadata } from "~/lib/metadata";
 import { getSession } from "~/lib/auth/server";
+import { getMetadata } from "~/lib/metadata";
 import { AccountView } from "~/modules/dashboard/account/view";
 
 export const generateMetadata = getMetadata({

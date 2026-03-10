@@ -11,7 +11,7 @@ export default async function BillingPage() {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     ...billingApi.queries.subscription,
-    queryFn: handle(api.billing.subscription["$get"]),
+    queryFn: handle(api.billing.subscription.$get),
   });
 
   return (

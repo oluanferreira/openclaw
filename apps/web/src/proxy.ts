@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import env from "env.config";
+import { NextResponse } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 
 import { config as i18nConfig } from "@workspace/i18n";
@@ -19,7 +19,7 @@ export const proxy = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
   // ─── Referral tracking ──────────────────────────────────
-  const refMatch = pathname.match(REFERRAL_REGEX);
+  const refMatch = REFERRAL_REGEX.exec(pathname);
   if (refMatch?.[1]) {
     const refCode = refMatch[1];
     const url = request.nextUrl.clone();

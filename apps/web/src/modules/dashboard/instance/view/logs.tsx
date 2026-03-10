@@ -41,7 +41,9 @@ export const InstanceLogs = () => {
   const queryClient = useQueryClient();
 
   // Only poll logs when instance data is available in cache
-  const instanceData = queryClient.getQueryData(instanceApi.queries.get.queryKey);
+  const instanceData = queryClient.getQueryData(
+    instanceApi.queries.get.queryKey,
+  );
   const logs = useQuery({
     ...instanceApi.queries.logs,
     enabled: !!instanceData,

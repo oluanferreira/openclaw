@@ -1,7 +1,7 @@
 "use client";
 
-import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { useTranslation } from "@workspace/i18n";
 

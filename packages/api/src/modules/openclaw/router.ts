@@ -1,5 +1,5 @@
-import crypto from "node:crypto";
 import { Hono } from "hono";
+import crypto from "node:crypto";
 
 import {
   deployInstanceSchema,
@@ -7,8 +7,12 @@ import {
   manageInstanceSchema,
   aiKeysSchema,
 } from "@workspace/openclaw";
-import { updateCommunicationSchema, maskToken } from "@workspace/openclaw/config";
 import { getCommandToRun, commandSchema } from "@workspace/openclaw/cli";
+import {
+  updateCommunicationSchema,
+  maskToken,
+} from "@workspace/openclaw/config";
+import { PROVIDER_TO_KEY } from "@workspace/openclaw/config";
 import {
   createInstance,
   deploy,
@@ -31,9 +35,10 @@ import {
   gogSetupStep1,
   gogSetupStep2,
 } from "@workspace/openclaw/server";
+import { encrypt, decrypt, isEncrypted } from "@workspace/shared/crypto";
+import { isRedactedValue } from "@workspace/shared/utils";
 
-import { PROVIDER_TO_KEY } from "@workspace/openclaw/config";
-
+import { env } from "../../env";
 import {
   enforceAuth,
   validate,
@@ -41,15 +46,11 @@ import {
   enforceNoInstance,
   enforceSubscription,
 } from "../../middleware";
-
-import { selectBestVps } from "../admin/vps-selector";
-import { getVpsById } from "../admin/vps-config";
 import { getModelById, getActiveModels } from "../admin/models-config";
+import { getVpsById } from "../admin/vps-config";
+import { selectBestVps } from "../admin/vps-selector";
 
 import type { AiKeysInput } from "@workspace/openclaw";
-import { encrypt, decrypt, isEncrypted } from "@workspace/shared/crypto";
-import { isRedactedValue } from "@workspace/shared/utils";
-import { env } from "../../env";
 
 
 const maskKey = (key: string | null | undefined): string => {
@@ -65,7 +66,11 @@ const KEY_TO_PROVIDER: Record<string, string> = {
 };
 
 // Priority order for model auto-selection
-const KEY_PRIORITY = ["anthropicApiKey", "openaiApiKey", "googleApiKey"] as const;
+const KEY_PRIORITY = [
+  "anthropicApiKey",
+  "openaiApiKey",
+  "googleApiKey",
+] as const;
 
 const toAgentModelId = (modelId: string, provider: string): string => {
   return `${provider}/${modelId}`;
@@ -106,15 +111,18 @@ const routeUpdateKeys = async (
   return res.json();
 };
 
-
 // Helper to encrypt API keys before storing in DB
 async function encryptKeys(
-  keys: { openaiApiKey?: string | null; anthropicApiKey?: string | null; googleApiKey?: string | null },
+  keys: {
+    openaiApiKey?: string | null;
+    anthropicApiKey?: string | null;
+    googleApiKey?: string | null;
+  },
   encryptionKey: string | undefined,
 ) {
   if (!encryptionKey) return keys;
   const enc = async (v: string | null | undefined) =>
-    v ? (isEncrypted(v) ? v : await encrypt(v, encryptionKey)) : v ?? null;
+    v ? (isEncrypted(v) ? v : await encrypt(v, encryptionKey)) : (v ?? null);
   return {
     openaiApiKey: await enc(keys.openaiApiKey),
     anthropicApiKey: await enc(keys.anthropicApiKey),
@@ -124,7 +132,11 @@ async function encryptKeys(
 
 // Helper to decrypt API keys after reading from DB
 async function decryptKeys(
-  keys: { openaiApiKey?: string | null; anthropicApiKey?: string | null; googleApiKey?: string | null },
+  keys: {
+    openaiApiKey?: string | null;
+    anthropicApiKey?: string | null;
+    googleApiKey?: string | null;
+  },
   encryptionKey: string | undefined,
 ) {
   if (!encryptionKey) return keys;
@@ -188,11 +200,12 @@ export const openclawRouter = new Hono()
       const encryptedKeys = await encryptKeys(rawKeys, env.ENCRYPTION_KEY);
 
       // Encrypt communication token (Telegram bot token) for DB storage
-      const communicationToken = payload.communication.channel === "telegram"
-        ? (env.ENCRYPTION_KEY
+      const communicationToken =
+        payload.communication.channel === "telegram"
+          ? env.ENCRYPTION_KEY
             ? await encrypt(payload.communication.token, env.ENCRYPTION_KEY)
-            : payload.communication.token)
-        : null;
+            : payload.communication.token
+          : null;
 
       await createInstance({
         userId,
@@ -217,7 +230,7 @@ export const openclawRouter = new Hono()
 
     // Best-effort sync: read live config from container and update DB if changed
     try {
-      const liveConfig = await readOpenclawJson(inst.id) as {
+      const liveConfig = (await readOpenclawJson(inst.id)) as {
         agents?: { defaults?: { model?: { primary?: string } } };
         channels?: { telegram?: { botToken?: string } };
       };
@@ -225,8 +238,14 @@ export const openclawRouter = new Hono()
 
       // Sync model (skip redacted values — see isRedactedValue)
       const liveModel = liveConfig?.agents?.defaults?.model?.primary;
-      if (liveModel && typeof liveModel === "string" && !isRedactedValue(liveModel)) {
-        const modelId = liveModel.includes("/") ? liveModel.split("/").pop() : liveModel;
+      if (
+        liveModel &&
+        typeof liveModel === "string" &&
+        !isRedactedValue(liveModel)
+      ) {
+        const modelId = liveModel.includes("/")
+          ? liveModel.split("/").pop()
+          : liveModel;
         if (modelId && modelId !== inst.model) {
           updates.model = modelId;
         }
@@ -234,10 +253,15 @@ export const openclawRouter = new Hono()
 
       // Sync Telegram bot token (skip redacted values — see isRedactedValue)
       const liveBotToken = liveConfig?.channels?.telegram?.botToken;
-      if (liveBotToken && typeof liveBotToken === "string" && !isRedactedValue(liveBotToken)) {
-        const dbToken = inst.communicationToken && env.ENCRYPTION_KEY
-          ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
-          : inst.communicationToken ?? null;
+      if (
+        liveBotToken &&
+        typeof liveBotToken === "string" &&
+        !isRedactedValue(liveBotToken)
+      ) {
+        const dbToken =
+          inst.communicationToken && env.ENCRYPTION_KEY
+            ? await decrypt(inst.communicationToken, env.ENCRYPTION_KEY)
+            : (inst.communicationToken ?? null);
         if (liveBotToken !== dbToken) {
           updates.communicationToken = env.ENCRYPTION_KEY
             ? await encrypt(liveBotToken, env.ENCRYPTION_KEY)
@@ -281,7 +305,7 @@ export const openclawRouter = new Hono()
       signal: AbortSignal.timeout(30_000),
     }).catch(() => null);
     const data: Awaited<ReturnType<typeof getStatus>> = res?.ok
-      ? (await res.json() as Awaited<ReturnType<typeof getStatus>>)
+      ? ((await res.json()) as Awaited<ReturnType<typeof getStatus>>)
       : null;
     return c.json(data);
   })
@@ -297,7 +321,7 @@ export const openclawRouter = new Hono()
       signal: AbortSignal.timeout(30_000),
     }).catch(() => null);
     const data: Awaited<ReturnType<typeof getLogs>> = res?.ok
-      ? (await res.json() as Awaited<ReturnType<typeof getLogs>>)
+      ? ((await res.json()) as Awaited<ReturnType<typeof getLogs>>)
       : { stdout: "", stderr: "" };
     return c.json(data);
   })
@@ -313,7 +337,7 @@ export const openclawRouter = new Hono()
       signal: AbortSignal.timeout(30_000),
     }).catch(() => null);
     const data: Awaited<ReturnType<typeof getPairingRequests>> = res?.ok
-      ? (await res.json() as Awaited<ReturnType<typeof getPairingRequests>>)
+      ? ((await res.json()) as Awaited<ReturnType<typeof getPairingRequests>>)
       : [];
     return c.json(data);
   })
@@ -348,7 +372,8 @@ export const openclawRouter = new Hono()
     // Only update keys that were actually provided (non-empty)
     const mergedKeys = {
       openaiApiKey: payload.openaiApiKey || existingDecrypted.openaiApiKey,
-      anthropicApiKey: payload.anthropicApiKey || existingDecrypted.anthropicApiKey,
+      anthropicApiKey:
+        payload.anthropicApiKey || existingDecrypted.anthropicApiKey,
       googleApiKey: payload.googleApiKey || existingDecrypted.googleApiKey,
     };
 
@@ -382,9 +407,10 @@ export const openclawRouter = new Hono()
     });
 
     // Compute the full model ID for openclaw.json (e.g. "openai/gpt-5.2")
-    const agentModelId = newModelId && newModelProvider
-      ? toAgentModelId(newModelId, newModelProvider)
-      : undefined;
+    const agentModelId =
+      newModelId && newModelProvider
+        ? toAgentModelId(newModelId, newModelProvider)
+        : undefined;
 
     // Recreate Docker container on the correct VPS with new env vars (plaintext keys)
     await routeUpdateKeys(
@@ -421,10 +447,15 @@ export const openclawRouter = new Hono()
             : inst.communicationToken;
           if (plainToken && !isRedactedValue(plainToken)) {
             maskedTk = maskToken(plainToken) ?? "";
-            const tgUrl = "https://api.telegram.org/bot" + plainToken + "/getMe";
-            const res = await fetch(tgUrl, { signal: AbortSignal.timeout(5000) });
+            const tgUrl =
+              "https://api.telegram.org/bot" + plainToken + "/getMe";
+            const res = await fetch(tgUrl, {
+              signal: AbortSignal.timeout(5000),
+            });
             if (res.ok) {
-              const data = (await res.json()) as { result?: { first_name?: string; username?: string } };
+              const data = (await res.json()) as {
+                result?: { first_name?: string; username?: string };
+              };
               botNm = data.result?.first_name ?? data.result?.username ?? "";
             }
           }
@@ -449,18 +480,23 @@ export const openclawRouter = new Hono()
       // Validate token with Telegram API
       let botName: string;
       try {
-        const telegramUrl = 'https://api.telegram.org/bot' + payload.token + '/getMe';
-        const res = await fetch(
-          telegramUrl,
-          { signal: AbortSignal.timeout(5000) },
-        );
+        const telegramUrl =
+          "https://api.telegram.org/bot" + payload.token + "/getMe";
+        const res = await fetch(telegramUrl, {
+          signal: AbortSignal.timeout(5000),
+        });
         if (!res.ok) {
           return c.json({ error: "Invalid Telegram bot token" }, 422);
         }
-        const data = (await res.json()) as { result?: { first_name?: string; username?: string } };
+        const data = (await res.json()) as {
+          result?: { first_name?: string; username?: string };
+        };
         botName = data.result?.first_name ?? data.result?.username ?? "Bot";
       } catch {
-        return c.json({ error: "Could not validate token with Telegram API" }, 422);
+        return c.json(
+          { error: "Could not validate token with Telegram API" },
+          422,
+        );
       }
 
       // Encrypt and update DB
@@ -485,7 +521,10 @@ export const openclawRouter = new Hono()
         await restartContainer(instanceId);
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
-        return c.json({ error: "Token saved but container update failed: " + errMsg }, 500);
+        return c.json(
+          { error: "Token saved but container update failed: " + errMsg },
+          500,
+        );
       }
 
       return c.json({ success: true, botName });
@@ -512,8 +551,11 @@ export const openclawRouter = new Hono()
     if (!inst) return c.json({ error: "Instance not found" }, 404);
 
     const decrypted = await decryptKeys(inst, env.ENCRYPTION_KEY);
-    const keyField = PROVIDER_TO_KEY[modelRecord.provider as keyof typeof PROVIDER_TO_KEY];
-    const hasKey = keyField ? !!(decrypted as Record<string, unknown>)[keyField] : false;
+    const keyField =
+      PROVIDER_TO_KEY[modelRecord.provider as keyof typeof PROVIDER_TO_KEY];
+    const hasKey = keyField
+      ? !!(decrypted as Record<string, unknown>)[keyField]
+      : false;
 
     if (!hasKey) {
       return c.json({ error: "No API key configured for this model" }, 422);
@@ -536,7 +578,10 @@ export const openclawRouter = new Hono()
       await restartContainer(instanceId);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      return c.json({ error: "Model saved but container update failed: " + errMsg }, 500);
+      return c.json(
+        { error: "Model saved but container update failed: " + errMsg },
+        500,
+      );
     }
 
     return c.json({ success: true, model: body.model });
@@ -606,15 +651,88 @@ export const openclawRouter = new Hono()
     const instanceId = c.var.instanceId;
 
     const SKILLS_CATALOG = [
-      { name: "canvas", category: "auto", displayName: "Canvas", description: "Visual canvas for diagrams and drawings", requiresBinary: null, requiresCredentials: false },
-      { name: "coding-agent", category: "auto", displayName: "Coding Agent", description: "AI-powered code generation and editing", requiresBinary: null, requiresCredentials: false },
-      { name: "healthcheck", category: "auto", displayName: "Health Check", description: "System health monitoring", requiresBinary: null, requiresCredentials: false },
-      { name: "skill-creator", category: "auto", displayName: "Skill Creator", description: "Create custom skills", requiresBinary: null, requiresCredentials: false },
-      { name: "notion", category: "config", displayName: "Notion", description: "Notion workspace integration", requiresBinary: null, requiresCredentials: true, credentialFields: ["NOTION_TOKEN"], credentialUrl: "https://www.notion.so/profile/integrations" },
-      { name: "slack", category: "config", displayName: "Slack", description: "Slack messaging integration", requiresBinary: null, requiresCredentials: true, credentialFields: ["SLACK_TOKEN"], credentialUrl: "https://api.slack.com/apps" },
-      { name: "discord", category: "config", displayName: "Discord", description: "Discord messaging integration", requiresBinary: null, requiresCredentials: true, credentialFields: ["DISCORD_TOKEN"], credentialUrl: "https://discord.com/developers/applications" },
-      { name: "github", category: "install", displayName: "GitHub", description: "GitHub repositories and issues", requiresBinary: "gh" as const, requiresCredentials: true, credentialFields: ["GH_TOKEN"], credentialUrl: "https://github.com/settings/tokens" },
-      { name: "gog", category: "install", displayName: "Google Workspace (GoG)", description: "Gmail, Calendar, Drive integration", requiresBinary: "gog" as const, requiresCredentials: true, credentialFields: ["oauth"], credentialUrl: "https://console.cloud.google.com/apis/credentials" },
+      {
+        name: "canvas",
+        category: "auto",
+        displayName: "Canvas",
+        description: "Visual canvas for diagrams and drawings",
+        requiresBinary: null,
+        requiresCredentials: false,
+      },
+      {
+        name: "coding-agent",
+        category: "auto",
+        displayName: "Coding Agent",
+        description: "AI-powered code generation and editing",
+        requiresBinary: null,
+        requiresCredentials: false,
+      },
+      {
+        name: "healthcheck",
+        category: "auto",
+        displayName: "Health Check",
+        description: "System health monitoring",
+        requiresBinary: null,
+        requiresCredentials: false,
+      },
+      {
+        name: "skill-creator",
+        category: "auto",
+        displayName: "Skill Creator",
+        description: "Create custom skills",
+        requiresBinary: null,
+        requiresCredentials: false,
+      },
+      {
+        name: "notion",
+        category: "config",
+        displayName: "Notion",
+        description: "Notion workspace integration",
+        requiresBinary: null,
+        requiresCredentials: true,
+        credentialFields: ["NOTION_TOKEN"],
+        credentialUrl: "https://www.notion.so/profile/integrations",
+      },
+      {
+        name: "slack",
+        category: "config",
+        displayName: "Slack",
+        description: "Slack messaging integration",
+        requiresBinary: null,
+        requiresCredentials: true,
+        credentialFields: ["SLACK_TOKEN"],
+        credentialUrl: "https://api.slack.com/apps",
+      },
+      {
+        name: "discord",
+        category: "config",
+        displayName: "Discord",
+        description: "Discord messaging integration",
+        requiresBinary: null,
+        requiresCredentials: true,
+        credentialFields: ["DISCORD_TOKEN"],
+        credentialUrl: "https://discord.com/developers/applications",
+      },
+      {
+        name: "github",
+        category: "install",
+        displayName: "GitHub",
+        description: "GitHub repositories and issues",
+        requiresBinary: "gh" as const,
+        requiresCredentials: true,
+        credentialFields: ["GH_TOKEN"],
+        credentialUrl: "https://github.com/settings/tokens",
+      },
+      {
+        name: "gog",
+        category: "install",
+        displayName: "Google Workspace (GoG)",
+        description: "Gmail, Calendar, Drive integration",
+        requiresBinary: "gog" as const,
+        requiresCredentials: true,
+        credentialFields: ["oauth"],
+        credentialUrl: "https://console.cloud.google.com/apis/credentials",
+      },
     ];
 
     const dbSkills = await getSkillsByInstanceId(instanceId);
@@ -662,7 +780,10 @@ export const openclawRouter = new Hono()
           enabled: false,
           lastError: result.error ?? "Binary download failed",
         });
-        return c.json({ error: `Failed to install ${skillName}: ${result.error}` }, 500);
+        return c.json(
+          { error: `Failed to install ${skillName}: ${result.error}` },
+          500,
+        );
       }
       await upsertSkill(instanceId, skillName, {
         enabled: true,
@@ -695,14 +816,21 @@ export const openclawRouter = new Hono()
       }
     }
 
-    for (const name of ["canvas", "coding-agent", "healthcheck", "skill-creator"]) {
+    for (const name of [
+      "canvas",
+      "coding-agent",
+      "healthcheck",
+      "skill-creator",
+    ]) {
       if (!skillsEntries[name]) {
         skillsEntries[name] = { enabled: true };
       }
     }
 
     try {
-      await updateOpenclawJson(instanceId, { skills: { entries: skillsEntries } });
+      await updateOpenclawJson(instanceId, {
+        skills: { entries: skillsEntries },
+      });
       await restartContainer(instanceId);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
@@ -723,7 +851,10 @@ export const openclawRouter = new Hono()
 
     if (body.step === 1) {
       if (!body.clientSecret || !body.email) {
-        return c.json({ error: "clientSecret and email are required for step 1" }, 400);
+        return c.json(
+          { error: "clientSecret and email are required for step 1" },
+          400,
+        );
       }
 
       // Generate or retrieve keyring password
@@ -731,8 +862,12 @@ export const openclawRouter = new Hono()
         (s) => s.skillName === "gog",
       );
       let keyringPassword: string;
-      if (existingSkill?.config && (existingSkill.config as Record<string, string>).keyringPassword) {
-        const stored = (existingSkill.config as Record<string, string>).keyringPassword!;
+      if (
+        existingSkill?.config &&
+        (existingSkill.config as Record<string, string>).keyringPassword
+      ) {
+        const stored = (existingSkill.config as Record<string, string>)
+          .keyringPassword!;
         if (env.ENCRYPTION_KEY) {
           const decrypted = await decrypt(stored, env.ENCRYPTION_KEY);
           keyringPassword = decrypted ?? stored;
@@ -752,7 +887,10 @@ export const openclawRouter = new Hono()
       // Download gog binary if not already installed
       const dlResult = await downloadSkillBinary(instanceId, "gog");
       if (!dlResult.success) {
-        return c.json({ error: `Failed to install gog binary: ${dlResult.error}` }, 500);
+        return c.json(
+          { error: `Failed to install gog binary: ${dlResult.error}` },
+          500,
+        );
       }
 
       try {
@@ -785,7 +923,10 @@ export const openclawRouter = new Hono()
 
       let keyringPassword: string;
       if (env.ENCRYPTION_KEY) {
-        const decrypted = await decrypt(config.keyringPassword, env.ENCRYPTION_KEY);
+        const decrypted = await decrypt(
+          config.keyringPassword,
+          env.ENCRYPTION_KEY,
+        );
         keyringPassword = decrypted ?? config.keyringPassword;
       } else {
         keyringPassword = config.keyringPassword;
@@ -813,13 +954,20 @@ export const openclawRouter = new Hono()
             skillsEntries[s.skillName] = { enabled: true };
           }
         }
-        for (const name of ["canvas", "coding-agent", "healthcheck", "skill-creator"]) {
+        for (const name of [
+          "canvas",
+          "coding-agent",
+          "healthcheck",
+          "skill-creator",
+        ]) {
           if (!skillsEntries[name]) {
             skillsEntries[name] = { enabled: true };
           }
         }
 
-        await updateOpenclawJson(instanceId, { skills: { entries: skillsEntries } });
+        await updateOpenclawJson(instanceId, {
+          skills: { entries: skillsEntries },
+        });
 
         await restartContainer(instanceId);
 

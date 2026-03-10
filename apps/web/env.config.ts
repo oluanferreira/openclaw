@@ -31,7 +31,10 @@ export default defineEnv({
     NEXT_PUBLIC_PRICE_DISPLAY_USD: z.string().optional().default("$29.90"),
     NEXT_PUBLIC_PRICE_DISPLAY_BRL: z.string().optional().default("R$153,39"),
     NEXT_PUBLIC_NEXT_PRICE_DISPLAY_USD: z.string().optional().default("$39.90"),
-    NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL: z.string().optional().default("R$199,90"),
+    NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL: z
+      .string()
+      .optional()
+      .default("R$199,90"),
   },
   /**
    * Destructure all variables from process.env to make sure they are not tree-shaken away.
@@ -44,7 +47,9 @@ export default defineEnv({
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     NEXT_PUBLIC_PRICE_DISPLAY_USD: process.env.NEXT_PUBLIC_PRICE_DISPLAY_USD,
     NEXT_PUBLIC_PRICE_DISPLAY_BRL: process.env.NEXT_PUBLIC_PRICE_DISPLAY_BRL,
-    NEXT_PUBLIC_NEXT_PRICE_DISPLAY_USD: process.env.NEXT_PUBLIC_NEXT_PRICE_DISPLAY_USD,
-    NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL: process.env.NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL,
+    NEXT_PUBLIC_NEXT_PRICE_DISPLAY_USD:
+      process.env.NEXT_PUBLIC_NEXT_PRICE_DISPLAY_USD,
+    NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL:
+      process.env.NEXT_PUBLIC_NEXT_PRICE_DISPLAY_BRL,
   },
 });

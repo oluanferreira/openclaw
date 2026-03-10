@@ -5,11 +5,7 @@ import { useState, useMemo } from "react";
 import { ManageInstanceAction } from "@workspace/openclaw";
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@workspace/ui-web/card";
+import { Card, CardContent, CardHeader } from "@workspace/ui-web/card";
 import {
   Dialog,
   DialogContent,
@@ -114,8 +110,7 @@ const relativeDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString("pt-BR");
 };
 
-const getContainerStatus = (inst: any) =>
-  inst.status?.status ?? "unknown";
+const getContainerStatus = (inst: any) => inst.status?.status ?? "unknown";
 
 const isStoppedStatus = (s: string) =>
   ["stopped", "exited", "dead"].includes(s);
@@ -175,15 +170,22 @@ export function AdminInstances() {
 
   // Server CRUD dialog state
   const [serverDialogOpen, setServerDialogOpen] = useState(false);
-  const [serverDialogMode, setServerDialogMode] = useState<"create" | "edit">("create");
+  const [serverDialogMode, setServerDialogMode] = useState<"create" | "edit">(
+    "create",
+  );
   const [serverForm, setServerForm] = useState<ServerFormData>(emptyServerForm);
-  const [confirmDeleteServer, setConfirmDeleteServer] = useState<string | null>(null);
+  const [confirmDeleteServer, setConfirmDeleteServer] = useState<string | null>(
+    null,
+  );
 
   const servers = (serversStats as any[]) ?? [];
 
   // Build a map: instanceId -> { vpsId, vpsName, container }
   const instanceVpsMap = useMemo(() => {
-    const map: Record<string, { vpsId: string; vpsName: string; container: any }> = {};
+    const map: Record<
+      string,
+      { vpsId: string; vpsName: string; container: any }
+    > = {};
 
     for (const vps of servers) {
       if (!vps.containers) continue;
@@ -213,13 +215,11 @@ export function AdminInstances() {
 
   const total = instances?.length ?? 0;
   const running =
-    instances?.filter(
-      (i: any) => getContainerStatus(i) === "running",
-    ).length ?? 0;
+    instances?.filter((i: any) => getContainerStatus(i) === "running").length ??
+    0;
   const stopped =
-    instances?.filter((i: any) =>
-      isStoppedStatus(getContainerStatus(i)),
-    ).length ?? 0;
+    instances?.filter((i: any) => isStoppedStatus(getContainerStatus(i)))
+      .length ?? 0;
   const unknown =
     instances?.filter(
       (i: any) =>
@@ -232,13 +232,9 @@ export function AdminInstances() {
     let list = instances ?? [];
 
     if (filter === "running") {
-      list = list.filter(
-        (i: any) => getContainerStatus(i) === "running",
-      );
+      list = list.filter((i: any) => getContainerStatus(i) === "running");
     } else if (filter === "stopped") {
-      list = list.filter((i: any) =>
-        isStoppedStatus(getContainerStatus(i)),
-      );
+      list = list.filter((i: any) => isStoppedStatus(getContainerStatus(i)));
     } else if (filter === "unknown") {
       list = list.filter(
         (i: any) =>
@@ -371,7 +367,10 @@ export function AdminInstances() {
 
             if (!vps.online || !srv) {
               return (
-                <Card key={vps.id} className="border-destructive/30 bg-destructive/5">
+                <Card
+                  key={vps.id}
+                  className="border-destructive/30 bg-destructive/5"
+                >
                   <CardContent className="flex items-center gap-4 py-4">
                     <div className="size-2.5 rounded-full bg-red-500" />
                     <div>
@@ -389,8 +388,8 @@ export function AdminInstances() {
                       >
                         <Icons.Pencil className="size-4" />
                       </Button>
-                      {vps.id !== "vps-main" && (
-                        confirmDeleteServer === vps.id ? (
+                      {vps.id !== "vps-main" &&
+                        (confirmDeleteServer === vps.id ? (
                           <div className="flex items-center gap-1">
                             <Button
                               variant="destructive"
@@ -416,8 +415,7 @@ export function AdminInstances() {
                           >
                             <Icons.Trash className="size-4" />
                           </Button>
-                        )
-                      )}
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -443,8 +441,8 @@ export function AdminInstances() {
                     >
                       <Icons.Pencil className="size-4" />
                     </Button>
-                    {vps.id !== "vps-main" && (
-                      confirmDeleteServer === vps.id ? (
+                    {vps.id !== "vps-main" &&
+                      (confirmDeleteServer === vps.id ? (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="destructive"
@@ -470,8 +468,7 @@ export function AdminInstances() {
                         >
                           <Icons.Trash className="size-4" />
                         </Button>
-                      )
-                    )}
+                      ))}
                   </div>
                   <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1">
@@ -487,7 +484,9 @@ export function AdminInstances() {
                           style={{ width: `${Math.min(srv.cpuPercent, 100)}%` }}
                         />
                       </div>
-                      <p className="text-muted-foreground text-xs">{srv.cpuCores} cores</p>
+                      <p className="text-muted-foreground text-xs">
+                        {srv.cpuCores} cores
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
@@ -516,11 +515,14 @@ export function AdminInstances() {
                       <div className="bg-secondary h-2 w-full overflow-hidden rounded-full">
                         <div
                           className={`h-full rounded-full transition-all ${progressColor(srv.diskPercent)}`}
-                          style={{ width: `${Math.min(srv.diskPercent, 100)}%` }}
+                          style={{
+                            width: `${Math.min(srv.diskPercent, 100)}%`,
+                          }}
                         />
                       </div>
                       <p className="text-muted-foreground text-xs">
-                        {formatBytes(srv.diskUsed)} / {formatBytes(srv.diskTotal)}
+                        {formatBytes(srv.diskUsed)} /{" "}
+                        {formatBytes(srv.diskTotal)}
                       </p>
                     </div>
                   </div>
@@ -551,8 +553,8 @@ export function AdminInstances() {
                     >
                       <Icons.Pencil className="size-4" />
                     </Button>
-                    {s.id !== "vps-main" && (
-                      confirmDeleteServer === s.id ? (
+                    {s.id !== "vps-main" &&
+                      (confirmDeleteServer === s.id ? (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="destructive"
@@ -578,8 +580,7 @@ export function AdminInstances() {
                         >
                           <Icons.Trash className="size-4" />
                         </Button>
-                      )
-                    )}
+                      ))}
                   </div>
                 </CardContent>
               </Card>
@@ -697,7 +698,13 @@ export function AdminInstances() {
               {FILTER_LABELS[f]}
               {f !== "all" && (
                 <span className="text-muted-foreground ml-1 text-xs">
-                  ({f === "running" ? running : f === "stopped" ? stopped : unknown})
+                  (
+                  {f === "running"
+                    ? running
+                    : f === "stopped"
+                      ? stopped
+                      : unknown}
+                  )
                 </span>
               )}
             </Button>
@@ -719,7 +726,7 @@ export function AdminInstances() {
           )}
         </div>
         <div className="relative w-full sm:w-64">
-          <Icons.Search className="text-muted-foreground absolute left-2.5 top-2.5 size-4" />
+          <Icons.Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
           <Input
             placeholder="Buscar por usuário, modelo..."
             className="pl-8"
@@ -738,7 +745,9 @@ export function AdminInstances() {
           onClick={() => setFilter("all")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Total</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Total
+            </span>
             <Icons.MonitorSmartphone className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
@@ -750,7 +759,9 @@ export function AdminInstances() {
           onClick={() => setFilter("running")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Rodando</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Rodando
+            </span>
             <div className="size-2.5 rounded-full bg-green-500" />
           </CardHeader>
           <CardContent>
@@ -762,7 +773,9 @@ export function AdminInstances() {
           onClick={() => setFilter("stopped")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Paradas</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Paradas
+            </span>
             <div className="size-2.5 rounded-full bg-red-500" />
           </CardHeader>
           <CardContent>
@@ -774,7 +787,9 @@ export function AdminInstances() {
           onClick={() => setFilter("unknown")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Desconhecido</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Desconhecido
+            </span>
             <div className="bg-muted-foreground size-2.5 rounded-full" />
           </CardHeader>
           <CardContent>
@@ -816,15 +831,21 @@ export function AdminInstances() {
                 <TableRow key={inst.id}>
                   <TableCell>
                     <div>
-                      <p className="text-sm font-medium leading-none">{inst.userName}</p>
-                      <p className="text-muted-foreground mt-0.5 text-xs">{inst.userEmail}</p>
+                      <p className="text-sm leading-none font-medium">
+                        {inst.userName}
+                      </p>
+                      <p className="text-muted-foreground mt-0.5 text-xs">
+                        {inst.userEmail}
+                      </p>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">{inst.model}</Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{channelLabel(inst.communicationChannel)}</span>
+                    <span className="text-sm">
+                      {channelLabel(inst.communicationChannel)}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">{vpsName}</span>
@@ -847,7 +868,9 @@ export function AdminInstances() {
                   </TableCell>
                   <TableCell>
                     {container ? (
-                      <span className="text-sm font-medium">{container.cpu}</span>
+                      <span className="text-sm font-medium">
+                        {container.cpu}
+                      </span>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
                     )}
@@ -855,8 +878,12 @@ export function AdminInstances() {
                   <TableCell>
                     {container ? (
                       <div>
-                        <span className="text-sm font-medium">{container.memPercent}</span>
-                        <p className="text-muted-foreground text-xs">{container.mem}</p>
+                        <span className="text-sm font-medium">
+                          {container.memPercent}
+                        </span>
+                        <p className="text-muted-foreground text-xs">
+                          {container.mem}
+                        </p>
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
@@ -864,13 +891,17 @@ export function AdminInstances() {
                   </TableCell>
                   <TableCell>
                     {container ? (
-                      <span className="text-muted-foreground text-xs">{container.net}</span>
+                      <span className="text-muted-foreground text-xs">
+                        {container.net}
+                      </span>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
                     )}
                   </TableCell>
                   <TableCell>
-                    <span className="text-muted-foreground text-sm">{relativeDate(inst.createdAt)}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {relativeDate(inst.createdAt)}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
@@ -879,7 +910,9 @@ export function AdminInstances() {
                           variant="outline"
                           size="sm"
                           disabled={manageInstance.isPending}
-                          onClick={() => handleAction(inst.id, ManageInstanceAction.STOP)}
+                          onClick={() =>
+                            handleAction(inst.id, ManageInstanceAction.STOP)
+                          }
                         >
                           Parar
                         </Button>
@@ -888,7 +921,9 @@ export function AdminInstances() {
                           variant="outline"
                           size="sm"
                           disabled={manageInstance.isPending}
-                          onClick={() => handleAction(inst.id, ManageInstanceAction.START)}
+                          onClick={() =>
+                            handleAction(inst.id, ManageInstanceAction.START)
+                          }
                         >
                           Iniciar
                         </Button>
@@ -897,7 +932,9 @@ export function AdminInstances() {
                         variant="outline"
                         size="sm"
                         disabled={manageInstance.isPending}
-                        onClick={() => handleAction(inst.id, ManageInstanceAction.RESTART)}
+                        onClick={() =>
+                          handleAction(inst.id, ManageInstanceAction.RESTART)
+                        }
                       >
                         Reiniciar
                       </Button>
@@ -907,7 +944,12 @@ export function AdminInstances() {
                             variant="destructive"
                             size="sm"
                             disabled={manageInstance.isPending}
-                            onClick={() => handleAction(inst.id, ManageInstanceAction.DESTROY)}
+                            onClick={() =>
+                              handleAction(
+                                inst.id,
+                                ManageInstanceAction.DESTROY,
+                              )
+                            }
                           >
                             Confirmar
                           </Button>

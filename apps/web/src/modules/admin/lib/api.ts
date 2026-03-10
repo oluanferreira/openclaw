@@ -1,9 +1,11 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 
 import { handle } from "@workspace/api/utils";
-import type { ManageInstanceAction } from "@workspace/openclaw";
 
 import { api } from "~/lib/api/client";
+
+import type { ManageInstanceAction } from "@workspace/openclaw";
+
 
 const KEY = "admin";
 
@@ -175,7 +177,7 @@ const mutations = {
   }),
   reorderModels: mutationOptions({
     mutationKey: [KEY, "reorder-models"],
-    mutationFn: (order: Array<{ id: string; sortOrder: number }>) =>
+    mutationFn: (order: { id: string; sortOrder: number }[]) =>
       handle(api.admin.models.reorder.$put)({
         json: { order },
       }),

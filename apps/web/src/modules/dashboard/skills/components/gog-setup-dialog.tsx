@@ -112,7 +112,7 @@ export function GogSetupDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="mx-4 w-full max-w-lg rounded-lg border border-border bg-card p-6 shadow-xl">
+      <div className="border-border bg-card mx-4 w-full max-w-lg rounded-lg border p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">
             {t("skills.gog.setup.title")}
@@ -120,7 +120,7 @@ export function GogSetupDialog({
           <button
             type="button"
             onClick={handleClose}
-            className="text-2xl text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-2xl"
           >
             &times;
           </button>
@@ -162,7 +162,7 @@ export function GogSetupDialog({
             <p className="text-sm font-medium">
               {t("skills.gog.setup.step1Title")}
             </p>
-            <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+            <div className="bg-muted/50 text-muted-foreground rounded-md p-3 text-xs">
               <ol className="list-inside list-decimal space-y-1">
                 <li>{t("skills.gog.setup.instructions.1")}</li>
                 <li>{t("skills.gog.setup.instructions.2")}</li>
@@ -180,7 +180,7 @@ export function GogSetupDialog({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@gmail.com"
-                className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                className="border-border bg-background mt-1 w-full rounded-md border px-3 py-2 text-sm"
               />
             </div>
             <div>
@@ -203,7 +203,7 @@ export function GogSetupDialog({
               type="button"
               onClick={handleStep1}
               disabled={isLoading || !clientSecret || !email}
-              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
               {isLoading
                 ? t("skills.gog.setup.processing")
@@ -219,7 +219,7 @@ export function GogSetupDialog({
               {t("skills.gog.setup.step2Title")}
             </p>
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {t("skills.gog.setup.step2Desc")}
               </p>
               <a
@@ -235,7 +235,7 @@ export function GogSetupDialog({
               <label className="block text-sm font-medium">
                 {t("skills.gog.setup.callbackLabel")}
               </label>
-              <p className="mb-1 text-xs text-muted-foreground">
+              <p className="text-muted-foreground mb-1 text-xs">
                 {t("skills.gog.setup.callbackHint")}
               </p>
               <input
@@ -243,14 +243,14 @@ export function GogSetupDialog({
                 value={callbackUrl}
                 onChange={(e) => setCallbackUrl(e.target.value)}
                 placeholder="http://127.0.0.1:xxxxx/oauth2/callback?code=..."
-                className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs"
+                className="border-border bg-background mt-1 w-full rounded-md border px-3 py-2 font-mono text-xs"
               />
             </div>
             <button
               type="button"
               onClick={handleStep2}
               disabled={isLoading || !callbackUrl}
-              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
               {isLoading
                 ? t("skills.gog.setup.processing")
@@ -266,16 +266,16 @@ export function GogSetupDialog({
             <p className="text-sm font-medium">
               {t("skills.gog.setup.step3Title")}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("skills.gog.setup.connectedAs", { account })}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Gmail, Calendar, Drive, Contacts, Sheets, Docs
             </p>
             <button
               type="button"
               onClick={handleComplete}
-              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-4 py-2 text-sm font-medium"
             >
               {t("skills.gog.setup.done")}
             </button>

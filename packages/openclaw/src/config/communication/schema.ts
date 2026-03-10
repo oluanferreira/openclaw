@@ -18,7 +18,9 @@ const TELEGRAM_TOKEN_REGEX = /^\d{8,10}:[A-Za-z0-9_-]{35}$/;
 
 export const telegramSchema = z.object({
   channel: z.literal(CommunicatonChannel.TELEGRAM),
-  token: z.string().regex(TELEGRAM_TOKEN_REGEX, "Invalid Telegram bot token format"),
+  token: z
+    .string()
+    .regex(TELEGRAM_TOKEN_REGEX, "Invalid Telegram bot token format"),
 });
 
 /**
@@ -26,7 +28,9 @@ export const telegramSchema = z.object({
  */
 export const updateCommunicationSchema = z.object({
   channel: z.literal(CommunicatonChannel.TELEGRAM),
-  token: z.string().regex(TELEGRAM_TOKEN_REGEX, "Invalid Telegram bot token format"),
+  token: z
+    .string()
+    .regex(TELEGRAM_TOKEN_REGEX, "Invalid Telegram bot token format"),
 });
 
 export const communicationChannelConfigSchema = z.discriminatedUnion(

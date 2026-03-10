@@ -9,9 +9,7 @@ export const Footer = async () => {
   return (
     <footer className="w-full border-t py-6">
       <div className="flex flex-col items-center justify-between gap-4 px-6 sm:container sm:flex-row">
-        <p className="text-muted-foreground text-sm">
-          {t("footer.copyright")}
-        </p>
+        <p className="text-muted-foreground text-sm">{t("footer.copyright")}</p>
         <nav className="flex gap-4">
           <TurboLink
             href={pathsConfig.legal.terms}

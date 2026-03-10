@@ -4,8 +4,12 @@ import path from "node:path";
 import * as z from "zod";
 
 import { and, desc, eq, isNull } from "@workspace/db";
+import {
+  supportTicket,
+  ticketAttachment,
+  ticketReply,
+} from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
-import { supportTicket, ticketAttachment, ticketReply } from "@workspace/db/schema";
 import { HttpStatusCode } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
@@ -108,7 +112,13 @@ const adminSupportRouter = new Hono<{ Variables: { user: User } }>()
 
     const [reply] = await db
       .insert(ticketReply)
-      .values({ id: crypto.randomUUID(), ticketId, userId, message, isAdmin: true })
+      .values({
+        id: crypto.randomUUID(),
+        ticketId,
+        userId,
+        message,
+        isAdmin: true,
+      })
       .returning();
 
     return c.json(reply, 201);
@@ -122,28 +132,39 @@ const adminSupportRouter = new Hono<{ Variables: { user: User } }>()
       .where(eq(supportTicket.id, ticketId));
 
     if (!ticket) {
-      throw new HttpException(HttpStatusCode.NOT_FOUND, { code: "error.notFound" });
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.notFound",
+      });
     }
 
     const body = await c.req.parseBody();
-    const file = body["file"] as File;
-    const replyId = body["replyId"] as string | undefined;
+    const file = body.file as File;
+    const replyId = body.replyId as string | undefined;
 
     if (!file || typeof file === "string") {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, { code: "error.badRequest" });
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.badRequest",
+      });
     }
     if (!file.type.startsWith("image/")) {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, { code: "error.badRequest" });
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.badRequest",
+      });
     }
     if (file.size > MAX_FILE_SIZE) {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, { code: "error.badRequest" });
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.badRequest",
+      });
     }
 
     const ext = file.name.split(".").pop() ?? "bin";
     const storedName = `${crypto.randomUUID()}.${ext}`;
     const dir = path.join(UPLOAD_DIR, ticketId);
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(path.join(dir, storedName), Buffer.from(await file.arrayBuffer()));
+    await fs.writeFile(
+      path.join(dir, storedName),
+      Buffer.from(await file.arrayBuffer()),
+    );
 
     const [attachment] = await db
       .insert(ticketAttachment)
@@ -215,7 +236,9 @@ export const supportRouter = new Hono()
       .where(eq(ticketAttachment.id, attachmentId));
 
     if (!attachment) {
-      throw new HttpException(HttpStatusCode.NOT_FOUND, { code: "error.notFound" });
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.notFound",
+      });
     }
 
     if (!isAdmin) {
@@ -223,12 +246,18 @@ export const supportRouter = new Hono()
         .select()
         .from(supportTicket)
         .where(eq(supportTicket.id, attachment.ticketId));
-      if (!ticket || ticket.userId !== userId) {
-        throw new HttpException(HttpStatusCode.NOT_FOUND, { code: "error.notFound" });
+      if (ticket?.userId !== userId) {
+        throw new HttpException(HttpStatusCode.NOT_FOUND, {
+          code: "error.notFound",
+        });
       }
     }
 
-    const filePath = path.join(UPLOAD_DIR, attachment.ticketId, attachment.storedName);
+    const filePath = path.join(
+      UPLOAD_DIR,
+      attachment.ticketId,
+      attachment.storedName,
+    );
 
     try {
       const fileBuffer = await fs.readFile(filePath);
@@ -240,7 +269,9 @@ export const supportRouter = new Hono()
         },
       });
     } catch {
-      throw new HttpException(HttpStatusCode.NOT_FOUND, { code: "error.notFound" });
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.notFound",
+      });
     }
   })
   .post("/:id/attachments", async (c) => {
@@ -252,29 +283,40 @@ export const supportRouter = new Hono()
       .from(supportTicket)
       .where(eq(supportTicket.id, ticketId));
 
-    if (!ticket || ticket.userId !== userId) {
-      throw new HttpException(HttpStatusCode.NOT_FOUND, { code: "error.notFound" });
+    if (ticket?.userId !== userId) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "error.notFound",
+      });
     }
 
     const body = await c.req.parseBody();
-    const file = body["file"] as File;
-    const replyId = body["replyId"] as string | undefined;
+    const file = body.file as File;
+    const replyId = body.replyId as string | undefined;
 
     if (!file || typeof file === "string") {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, { code: "error.badRequest" });
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.badRequest",
+      });
     }
     if (!file.type.startsWith("image/")) {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, { code: "error.badRequest" });
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.badRequest",
+      });
     }
     if (file.size > MAX_FILE_SIZE) {
-      throw new HttpException(HttpStatusCode.BAD_REQUEST, { code: "error.badRequest" });
+      throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+        code: "error.badRequest",
+      });
     }
 
     const ext = file.name.split(".").pop() ?? "bin";
     const storedName = `${crypto.randomUUID()}.${ext}`;
     const dir = path.join(UPLOAD_DIR, ticketId);
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(path.join(dir, storedName), Buffer.from(await file.arrayBuffer()));
+    await fs.writeFile(
+      path.join(dir, storedName),
+      Buffer.from(await file.arrayBuffer()),
+    );
 
     const [attachment] = await db
       .insert(ticketAttachment)
@@ -300,7 +342,7 @@ export const supportRouter = new Hono()
       .from(supportTicket)
       .where(eq(supportTicket.id, ticketId));
 
-    if (!ticket || ticket.userId !== userId) {
+    if (ticket?.userId !== userId) {
       throw new HttpException(HttpStatusCode.NOT_FOUND, {
         code: "error.notFound",
       });
@@ -323,7 +365,7 @@ export const supportRouter = new Hono()
       .from(supportTicket)
       .where(eq(supportTicket.id, ticketId));
 
-    if (!ticket || ticket.userId !== userId) {
+    if (ticket?.userId !== userId) {
       throw new HttpException(HttpStatusCode.NOT_FOUND, {
         code: "error.notFound",
       });
@@ -331,7 +373,13 @@ export const supportRouter = new Hono()
 
     const [reply] = await db
       .insert(ticketReply)
-      .values({ id: crypto.randomUUID(), ticketId, userId, message, isAdmin: false })
+      .values({
+        id: crypto.randomUUID(),
+        ticketId,
+        userId,
+        message,
+        isAdmin: false,
+      })
       .returning();
 
     return c.json(reply, 201);

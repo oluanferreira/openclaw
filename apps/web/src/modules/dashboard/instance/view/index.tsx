@@ -16,13 +16,13 @@ import {
 } from "~/modules/common/layout/dashboard/header";
 import { DeployInstance } from "~/modules/dashboard/instance/deploy";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
-import { CommunicationSettings } from "./communication-settings";
-import { ModelSettings } from "./model-settings";
 
+import { CommunicationSettings } from "./communication-settings";
+import { InstanceGettingStarted } from "./getting-started";
 import { InstanceHeader } from "./header";
 import { InstanceLogs } from "./logs";
+import { ModelSettings } from "./model-settings";
 import { InstancePairing } from "./pairing";
-import { InstanceGettingStarted } from "./getting-started";
 
 export const ViewInstance = () => {
   const { instance } = useInstance();

@@ -26,14 +26,13 @@ export const isAPIError = (e: unknown): e is z.infer<typeof apiErrorSchema> => {
   return apiErrorSchema.safeParse(e).success;
 };
 
-
 export class ApiError extends Error {
   constructor(
     public readonly code: string | undefined,
     message: string,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 

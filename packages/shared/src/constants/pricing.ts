@@ -23,7 +23,10 @@ export interface PricingEntry {
 const getEnv = (key: string): string =>
   (typeof process !== "undefined" ? process.env?.[key] : undefined) ?? "";
 
-export const getPricing = (): Record<Uppercase<CurrencyCode>, PricingEntry> => ({
+export const getPricing = (): Record<
+  Uppercase<CurrencyCode>,
+  PricingEntry
+> => ({
   USD: {
     priceId:
       getEnv("STRIPE_PRICE_ID_USD") ||

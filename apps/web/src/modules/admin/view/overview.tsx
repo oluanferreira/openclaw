@@ -69,11 +69,7 @@ function AreaChart({ data }: { data: { label: string; count: number }[] }) {
     <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full">
       <defs>
         <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-          <stop
-            offset="0%"
-            stopColor="hsl(var(--primary))"
-            stopOpacity="0.3"
-          />
+          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
           <stop
             offset="100%"
             stopColor="hsl(var(--primary))"
@@ -149,10 +145,7 @@ function AreaChart({ data }: { data: { label: string; count: number }[] }) {
 
 type GrowthPeriod = "months" | "days";
 
-const MONITOR_STATUS: Record<
-  number,
-  { label: string; className: string }
-> = {
+const MONITOR_STATUS: Record<number, { label: string; className: string }> = {
   0: { label: "Pausado", className: "bg-muted-foreground" },
   1: { label: "Aguardando", className: "bg-yellow-400" },
   2: { label: "Online", className: "bg-green-500" },
@@ -171,8 +164,8 @@ export function AdminOverview() {
 
   const chartData =
     period === "months"
-      ? growth?.usersByMonth ?? []
-      : growth?.usersByDay ?? [];
+      ? (growth?.usersByMonth ?? [])
+      : (growth?.usersByDay ?? []);
 
   // Recent users sorted by newest first
   const recentUsers = [...(users ?? [])]
@@ -198,7 +191,7 @@ export function AdminOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tight">
-              {loading ? "..." : growth?.totalUsers ?? 0}
+              {loading ? "..." : (growth?.totalUsers ?? 0)}
             </div>
           </CardContent>
         </Card>
@@ -216,7 +209,8 @@ export function AdminOverview() {
             </div>
             {!loading && stats && stats.active > 0 && (
               <span className="text-muted-foreground text-xs">
-                {stats.active} assinatura{stats.active !== 1 ? "s" : ""} ativa{stats.active !== 1 ? "s" : ""}
+                {stats.active} assinatura{stats.active !== 1 ? "s" : ""} ativa
+                {stats.active !== 1 ? "s" : ""}
               </span>
             )}
           </CardContent>
@@ -231,7 +225,7 @@ export function AdminOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tight">
-              {loading ? "..." : growth?.totalInstances ?? 0}
+              {loading ? "..." : (growth?.totalInstances ?? 0)}
             </div>
           </CardContent>
         </Card>
@@ -244,7 +238,9 @@ export function AdminOverview() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-sm font-medium">
-                {period === "months" ? "Crescimento de Usuários (7 meses)" : "Crescimento de Usuários (7 dias)"}
+                {period === "months"
+                  ? "Crescimento de Usuários (7 meses)"
+                  : "Crescimento de Usuários (7 dias)"}
               </span>
               <div className="bg-muted flex items-center gap-1 rounded-lg p-1">
                 <Button
@@ -266,7 +262,7 @@ export function AdminOverview() {
               </div>
             </div>
             <div className="text-3xl font-bold tracking-tight">
-              {loading ? "..." : growth?.totalUsers ?? 0}{" "}
+              {loading ? "..." : (growth?.totalUsers ?? 0)}{" "}
               <span className="text-muted-foreground text-base font-normal">
                 usuários no total
               </span>
@@ -294,7 +290,9 @@ export function AdminOverview() {
             {loading ? (
               <div className="text-muted-foreground text-sm">Carregando...</div>
             ) : recentUsers.length === 0 ? (
-              <div className="text-muted-foreground text-sm">Nenhum usuário ainda</div>
+              <div className="text-muted-foreground text-sm">
+                Nenhum usuário ainda
+              </div>
             ) : (
               <div className="flex flex-col gap-5">
                 {recentUsers.map((u: any) => {
@@ -324,7 +322,7 @@ export function AdminOverview() {
                           <Icons.UserRound className="text-primary size-4" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium leading-none">
+                          <p className="text-sm leading-none font-medium">
                             {u.name || "Usuário"}
                           </p>
                           <p className="text-muted-foreground mt-1 text-xs">
@@ -347,7 +345,9 @@ export function AdminOverview() {
       {/* UptimeRobot Monitoring */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Monitoramento (UptimeRobot)</CardTitle>
+          <CardTitle className="text-sm font-medium">
+            Monitoramento (UptimeRobot)
+          </CardTitle>
           <Icons.Globe className="text-muted-foreground size-4" />
         </CardHeader>
         <CardContent>
@@ -367,9 +367,7 @@ export function AdminOverview() {
                     className="flex items-center justify-between py-2 first:pt-0 last:pb-0"
                   >
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`size-2 rounded-full ${st.className}`}
-                      />
+                      <span className={`size-2 rounded-full ${st.className}`} />
                       <span className="text-sm font-medium">{m.name}</span>
                     </div>
                     <div className="text-muted-foreground flex items-center gap-3 text-xs">
@@ -403,19 +401,21 @@ export function AdminOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tight">
-              {loading ? "..." : stats?.active ?? 0}
+              {loading ? "..." : (stats?.active ?? 0)}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assinaturas Vendidas</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Assinaturas Vendidas
+            </CardTitle>
             <Icons.CreditCard className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tight">
-              {loading ? "..." : growth?.totalSubs ?? 0}
+              {loading ? "..." : (growth?.totalSubs ?? 0)}
             </div>
           </CardContent>
         </Card>

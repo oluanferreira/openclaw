@@ -1,7 +1,8 @@
-import type React from "react";
 
 import { CommunicatonChannel } from "@workspace/openclaw/config";
 import { Icons } from "@workspace/ui-web/icons";
+
+import type React from "react";
 
 export const CommunicationChannelIcon = {
   [CommunicatonChannel.TELEGRAM]: Icons.Telegram,
@@ -9,12 +10,17 @@ export const CommunicationChannelIcon = {
   [CommunicatonChannel.WHATSAPP]: Icons.Whatsapp,
 } as const;
 
-const PROVIDER_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const PROVIDER_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   anthropic: Icons.Claude,
   openai: Icons.OpenAI,
   google: Icons.Gemini,
 };
 
-export function getModelIcon(provider: string): React.ComponentType<{ className?: string }> {
+export function getModelIcon(
+  provider: string,
+): React.ComponentType<{ className?: string }> {
   return PROVIDER_ICONS[provider] ?? Icons.Bot;
 }

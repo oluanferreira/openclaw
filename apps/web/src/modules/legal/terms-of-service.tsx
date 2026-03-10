@@ -18,9 +18,7 @@ export const TermsOfService = async () => {
 const TermsEN = () => (
   <>
     <h1>Terms of Service</h1>
-    <p className="text-muted-foreground text-sm">
-      Last updated: March 7, 2026
-    </p>
+    <p className="text-muted-foreground text-sm">Last updated: March 7, 2026</p>
 
     <h2>1. Acceptance of Terms</h2>
     <p>
@@ -61,7 +59,9 @@ const TermsEN = () => (
       Stripe customer portal. Upon cancellation:
     </p>
     <ul>
-      <li>Your service continues until the end of the current billing period.</li>
+      <li>
+        Your service continues until the end of the current billing period.
+      </li>
       <li>
         After the billing period ends, a 3-day grace period applies for failed
         payments.
@@ -76,9 +76,14 @@ const TermsEN = () => (
     <p>You agree NOT to use the Service to:</p>
     <ul>
       <li>Host, distribute, or generate illegal content</li>
-      <li>Perform cryptocurrency mining or resource-intensive operations unrelated to the Service</li>
+      <li>
+        Perform cryptocurrency mining or resource-intensive operations unrelated
+        to the Service
+      </li>
       <li>Send spam, phishing, or unsolicited communications</li>
-      <li>Attempt to circumvent security measures or access other users&apos; data</li>
+      <li>
+        Attempt to circumvent security measures or access other users&apos; data
+      </li>
       <li>Resell the Service without prior written authorization</li>
       <li>Violate any applicable laws or regulations</li>
     </ul>
@@ -95,8 +100,12 @@ const TermsEN = () => (
     </p>
     <ul>
       <li>The security and validity of your API keys</li>
-      <li>Any charges incurred by third-party providers through usage of your keys</li>
-      <li>Compliance with the terms of service of the respective API providers</li>
+      <li>
+        Any charges incurred by third-party providers through usage of your keys
+      </li>
+      <li>
+        Compliance with the terms of service of the respective API providers
+      </li>
     </ul>
 
     <h2>8. Intellectual Property</h2>
@@ -140,8 +149,8 @@ const TermsEN = () => (
     <h2>12. Privacy</h2>
     <p>
       Your use of the Service is also governed by our{" "}
-      <Link href="/en/privacy">Privacy Policy</Link>, which describes how we collect,
-      use, and protect your personal information.
+      <Link href="/en/privacy">Privacy Policy</Link>, which describes how we
+      collect, use, and protect your personal information.
     </p>
 
     <h2>13. Age Restriction</h2>
@@ -242,9 +251,15 @@ const TermsPT = () => (
     <p>Você concorda em NÃO utilizar o Serviço para:</p>
     <ul>
       <li>Hospedar, distribuir ou gerar conteúdo ilegal</li>
-      <li>Realizar mineração de criptomoedas ou operações intensivas não relacionadas ao Serviço</li>
+      <li>
+        Realizar mineração de criptomoedas ou operações intensivas não
+        relacionadas ao Serviço
+      </li>
       <li>Enviar spam, phishing ou comunicações não solicitadas</li>
-      <li>Tentar contornar medidas de segurança ou acessar dados de outros usuários</li>
+      <li>
+        Tentar contornar medidas de segurança ou acessar dados de outros
+        usuários
+      </li>
       <li>Revender o Serviço sem autorização prévia por escrito</li>
       <li>Violar quaisquer leis ou regulamentos aplicáveis</li>
     </ul>
@@ -255,15 +270,20 @@ const TermsPT = () => (
 
     <h2>7. Chaves de API</h2>
     <p>
-      O Serviço requer que você forneça chaves de API de terceiros (ex.:
-      OpenAI, Anthropic, Google AI) para alimentar sua instância de IA. Essas
-      chaves são criptografadas usando AES-256-GCM e armazenadas de forma
-      segura. Você é o único responsável por:
+      O Serviço requer que você forneça chaves de API de terceiros (ex.: OpenAI,
+      Anthropic, Google AI) para alimentar sua instância de IA. Essas chaves são
+      criptografadas usando AES-256-GCM e armazenadas de forma segura. Você é o
+      único responsável por:
     </p>
     <ul>
       <li>A segurança e validade das suas chaves de API</li>
-      <li>Quaisquer cobranças de provedores terceiros geradas pelo uso das suas chaves</li>
-      <li>Conformidade com os termos de serviço dos respectivos provedores de API</li>
+      <li>
+        Quaisquer cobranças de provedores terceiros geradas pelo uso das suas
+        chaves
+      </li>
+      <li>
+        Conformidade com os termos de serviço dos respectivos provedores de API
+      </li>
     </ul>
 
     <h2>8. Propriedade Intelectual</h2>
@@ -324,8 +344,8 @@ const TermsPT = () => (
       de Delaware, Estados Unidos, sem consideração a seus conflitos de
       disposições legais. Quaisquer disputas decorrentes destes Termos serão
       resolvidas nos tribunais do Estado de Delaware. Para usuários brasileiros,
-      os direitos previstos no Código de Defesa do Consumidor (Lei 8.078/1990)
-      e na LGPD (Lei 13.709/2018) permanecem aplicáveis.
+      os direitos previstos no Código de Defesa do Consumidor (Lei 8.078/1990) e
+      na LGPD (Lei 13.709/2018) permanecem aplicáveis.
     </p>
 
     <h2>15. Alterações nos Termos</h2>

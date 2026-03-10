@@ -186,8 +186,7 @@ function InvoicesPanel({
                     )}
                   </TableCell>
                   <TableCell className="text-xs">
-                    {formatDate(inv.periodStart)} —{" "}
-                    {formatDate(inv.periodEnd)}
+                    {formatDate(inv.periodStart)} — {formatDate(inv.periodEnd)}
                   </TableCell>
                   <TableCell>{formatDate(inv.created)}</TableCell>
                   <TableCell className="text-right">
@@ -207,9 +206,7 @@ function InvoicesPanel({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            window.open(inv.invoicePdf, "_blank")
-                          }
+                          onClick={() => window.open(inv.invoicePdf, "_blank")}
                         >
                           PDF
                         </Button>
@@ -297,7 +294,9 @@ export function AdminSubscriptions() {
 
         <Card
           className={`cursor-pointer transition-colors ${filter === "expiring" ? "border-primary" : ""} ${
-            (stats?.expiringIn7Days ?? 0) > 0 && filter !== "expiring" ? "border-yellow-500" : ""
+            (stats?.expiringIn7Days ?? 0) > 0 && filter !== "expiring"
+              ? "border-yellow-500"
+              : ""
           }`}
           onClick={() => setFilter(filter === "expiring" ? "all" : "expiring")}
         >
@@ -322,9 +321,7 @@ export function AdminSubscriptions() {
             <Icons.Ban className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.recentChurn ?? 0}
-            </div>
+            <div className="text-2xl font-bold">{stats?.recentChurn ?? 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -342,19 +339,29 @@ export function AdminSubscriptions() {
               {FILTER_LABELS[s]}
               {s !== "all" && s !== "expiring" && subs && (
                 <span className="text-muted-foreground ml-1 text-xs">
-                  ({(subs as any[]).filter((sub: any) => sub.status === s).length})
+                  (
+                  {
+                    (subs as any[]).filter((sub: any) => sub.status === s)
+                      .length
+                  }
+                  )
                 </span>
               )}
               {s === "expiring" && subs && (
                 <span className="text-muted-foreground ml-1 text-xs">
-                  ({(subs as any[]).filter((sub: any) => isExpiringSoon(sub)).length})
+                  (
+                  {
+                    (subs as any[]).filter((sub: any) => isExpiringSoon(sub))
+                      .length
+                  }
+                  )
                 </span>
               )}
             </Button>
           ))}
         </div>
         <div className="relative w-full sm:w-64">
-          <Icons.Search className="text-muted-foreground absolute left-2.5 top-2.5 size-4" />
+          <Icons.Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
           <Input
             placeholder="Buscar por nome ou email..."
             className="pl-8"

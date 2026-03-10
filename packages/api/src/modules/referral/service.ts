@@ -1,6 +1,6 @@
-import { db } from "@workspace/db/server";
-import { affiliate, commission, affiliatePayout } from "@workspace/db/schema";
 import { eq, and, sql } from "@workspace/db";
+import { affiliate, commission, affiliatePayout } from "@workspace/db/schema";
+import { db } from "@workspace/db/server";
 import { generateId } from "@workspace/shared/utils";
 
 // ─── Commission Rates (3-tier) ──────────────────────────────
@@ -92,7 +92,7 @@ export async function activateAffiliate(
   let parentAffiliateId: string | null = null;
   if (parentReferralCode) {
     const parent = await resolveAffiliate(parentReferralCode);
-    if (parent && parent.status === "active") {
+    if (parent?.status === "active") {
       // Anti-fraud: prevent self-referral
       if (parent.userId === userId) {
         console.warn(
@@ -182,15 +182,15 @@ export async function createCommissionChain(
   currency: string,
   usdConversion?: { grossAmountUsd: number; exchangeRate: number } | null,
 ) {
-  const tiers: Array<{
+  const tiers: {
     affiliateId: string;
     tier: "tier1" | "tier2" | "tier3";
-  }> = [];
+  }[] = [];
   const periodMonth = getCurrentPeriodMonth();
 
   // Anti-fraud: check tier1 affiliate is active
   const tier1Affiliate = await getAffiliateById(referrerAffiliateId);
-  if (!tier1Affiliate || tier1Affiliate.status !== "active") {
+  if (tier1Affiliate?.status !== "active") {
     console.warn(
       `[referral] Commission blocked: affiliate ${referrerAffiliateId} not active`,
     );
@@ -226,13 +226,13 @@ export async function createCommissionChain(
   // Tier 2: referrer's parent
   if (tier1Affiliate.parentAffiliateId) {
     const parent = await getAffiliateById(tier1Affiliate.parentAffiliateId);
-    if (parent && parent.status === "active") {
+    if (parent?.status === "active") {
       tiers.push({ affiliateId: parent.id, tier: "tier2" });
 
       // Tier 3: grandparent
       if (parent.parentAffiliateId) {
         const grandparent = await getAffiliateById(parent.parentAffiliateId);
-        if (grandparent && grandparent.status === "active") {
+        if (grandparent?.status === "active") {
           tiers.push({ affiliateId: grandparent.id, tier: "tier3" });
         }
       }
@@ -350,7 +350,7 @@ export async function updateWallet(affiliateId: string, walletAddress: string) {
 
 // ─── Network (user dashboard) ────────────────────────────────
 
-type NetworkNode = {
+interface NetworkNode {
   id: string;
   userName: string | null;
   userEmail: string | null;
@@ -359,7 +359,7 @@ type NetworkNode = {
   referralCode: string;
   childrenCount: number;
   children: NetworkNode[];
-};
+}
 
 export async function getAffiliateNetwork(
   affiliateId: string,

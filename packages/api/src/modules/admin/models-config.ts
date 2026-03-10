@@ -1,6 +1,6 @@
 import { asc, eq } from "@workspace/db";
-import { db } from "@workspace/db/server";
 import { aiModel } from "@workspace/db/schema";
+import { db } from "@workspace/db/server";
 import { MODELS } from "@workspace/openclaw/config";
 import { logger } from "@workspace/shared/logger";
 
@@ -31,9 +31,6 @@ export async function getAllModels() {
 }
 
 export async function getModelById(id: string) {
-  const [model] = await db
-    .select()
-    .from(aiModel)
-    .where(eq(aiModel.id, id));
+  const [model] = await db.select().from(aiModel).where(eq(aiModel.id, id));
   return model ?? null;
 }

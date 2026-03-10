@@ -159,10 +159,15 @@ export const restartContainer = async (instanceId: string): Promise<void> => {
   await execute(`docker restart ${escapeShell(instanceId)}`);
 };
 
-export const readOpenclawJson = async (instanceId: string): Promise<Record<string, unknown>> => {
+export const readOpenclawJson = async (
+  instanceId: string,
+): Promise<Record<string, unknown>> => {
   const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
   const configPath = `${stateDir}/openclaw.json`;
-  const { stdout } = await execute(`cat ${escapeShell(configPath)} 2>/dev/null || echo "{}"`, { timeout: 15_000 });
+  const { stdout } = await execute(
+    `cat ${escapeShell(configPath)} 2>/dev/null || echo "{}"`,
+    { timeout: 15_000 },
+  );
   return JSON.parse(stdout.trim() || "{}") as Record<string, unknown>;
 };
 
@@ -277,9 +282,11 @@ CLIENT_SECRET_EOF
 `.trim();
 
   const { stdout } = await execute(script, { timeout: 60_000 });
-  const urlMatch = stdout.match(/https:\/\/accounts\.google\.com\/[^\s]+/);
+  const urlMatch = /https:\/\/accounts\.google\.com\/[^\s]+/.exec(stdout);
   if (!urlMatch) {
-    throw new Error(`Could not extract auth URL from output: ${stdout.slice(0, 500)}`);
+    throw new Error(
+      `Could not extract auth URL from output: ${stdout.slice(0, 500)}`,
+    );
   }
   return { authUrl: urlMatch[0] };
 };

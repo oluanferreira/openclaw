@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslation } from "@workspace/i18n";
-import { Icons } from "@workspace/ui-web/icons";
 import { Button } from "@workspace/ui-web/button";
 import { Card, CardContent } from "@workspace/ui-web/card";
+import { Icons } from "@workspace/ui-web/icons";
 
 import { SkillCard } from "../components/skill-card";
 import { useSkills } from "../hooks/use-skills";
@@ -16,7 +16,10 @@ export function SkillsView() {
     toggleSkill.mutate({ skillName, enabled });
   };
 
-  const handleSaveCredentials = (skillName: string, credentials: Record<string, string>) => {
+  const handleSaveCredentials = (
+    skillName: string,
+    credentials: Record<string, string>,
+  ) => {
     toggleSkill.mutate({ skillName, enabled: true, credentials });
   };
 
@@ -26,11 +29,13 @@ export function SkillsView() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
-            <p className="mt-1 text-muted-foreground">{t("skills.description")}</p>
+            <p className="text-muted-foreground mt-1">
+              {t("skills.description")}
+            </p>
           </div>
         </div>
         <div className="flex items-center justify-center py-12">
-          <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="border-primary size-6 animate-spin rounded-full border-2 border-t-transparent" />
         </div>
       </div>
     );
@@ -41,7 +46,9 @@ export function SkillsView() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
-          <p className="mt-1 text-muted-foreground">{t("skills.description")}</p>
+          <p className="text-muted-foreground mt-1">
+            {t("skills.description")}
+          </p>
         </div>
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
           {t("skills.error")}
@@ -56,17 +63,17 @@ export function SkillsView() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
-        <p className="mt-1 text-muted-foreground">{t("skills.description")}</p>
+        <p className="text-muted-foreground mt-1">{t("skills.description")}</p>
       </div>
 
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="flex items-center gap-4 p-5">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Icons.Zap className="size-5 text-primary" />
+          <div className="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg">
+            <Icons.Zap className="text-primary size-5" />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold">{t("skills.exploreTitle")}</h3>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-0.5 text-sm">
               {t("skills.exploreDescription")}
             </p>
           </div>
@@ -86,31 +93,61 @@ export function SkillsView() {
       {categories && (
         <>
           <section>
-            <h2 className="mb-3 text-lg font-semibold">{t("skills.categories.auto")}</h2>
-            <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.autoDescription")}</p>
+            <h2 className="mb-3 text-lg font-semibold">
+              {t("skills.categories.auto")}
+            </h2>
+            <p className="text-muted-foreground mb-4 text-sm">
+              {t("skills.categories.autoDescription")}
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {categories.auto.map((skill) => (
-                <SkillCard key={skill.name} skill={skill} onToggle={handleToggle} onSaveCredentials={handleSaveCredentials} isLoading={toggleSkill.isPending} />
+                <SkillCard
+                  key={skill.name}
+                  skill={skill}
+                  onToggle={handleToggle}
+                  onSaveCredentials={handleSaveCredentials}
+                  isLoading={toggleSkill.isPending}
+                />
               ))}
             </div>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold">{t("skills.categories.config")}</h2>
-            <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.configDescription")}</p>
+            <h2 className="mb-3 text-lg font-semibold">
+              {t("skills.categories.config")}
+            </h2>
+            <p className="text-muted-foreground mb-4 text-sm">
+              {t("skills.categories.configDescription")}
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {categories.config.map((skill) => (
-                <SkillCard key={skill.name} skill={skill} onToggle={handleToggle} onSaveCredentials={handleSaveCredentials} isLoading={toggleSkill.isPending} />
+                <SkillCard
+                  key={skill.name}
+                  skill={skill}
+                  onToggle={handleToggle}
+                  onSaveCredentials={handleSaveCredentials}
+                  isLoading={toggleSkill.isPending}
+                />
               ))}
             </div>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold">{t("skills.categories.install")}</h2>
-            <p className="mb-4 text-sm text-muted-foreground">{t("skills.categories.installDescription")}</p>
+            <h2 className="mb-3 text-lg font-semibold">
+              {t("skills.categories.install")}
+            </h2>
+            <p className="text-muted-foreground mb-4 text-sm">
+              {t("skills.categories.installDescription")}
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {categories.install.map((skill) => (
-                <SkillCard key={skill.name} skill={skill} onToggle={handleToggle} onSaveCredentials={handleSaveCredentials} isLoading={toggleSkill.isPending} />
+                <SkillCard
+                  key={skill.name}
+                  skill={skill}
+                  onToggle={handleToggle}
+                  onSaveCredentials={handleSaveCredentials}
+                  isLoading={toggleSkill.isPending}
+                />
               ))}
             </div>
           </section>

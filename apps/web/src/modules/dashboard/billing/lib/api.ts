@@ -14,7 +14,9 @@ const queries = {
 const mutations = {
   checkout: mutationOptions({
     mutationFn: (currency?: "usd" | "brl") =>
-      handle(api.billing.checkout.$post)({ json: { currency: currency ?? "usd" } }),
+      handle(api.billing.checkout.$post)({
+        json: { currency: currency ?? "usd" },
+      }),
   }),
   portal: mutationOptions({
     mutationFn: () => handle(api.billing.portal.$post)({ json: {} }),

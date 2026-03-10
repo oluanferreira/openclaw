@@ -3,10 +3,10 @@
 import dayjs from "dayjs";
 
 import { useTranslation } from "@workspace/i18n";
+import { getDisplayPrice } from "@workspace/shared/constants";
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
 import { Spinner } from "@workspace/ui-web/spinner";
-import { getDisplayPrice } from "@workspace/shared/constants";
 
 import {
   DashboardHeader,

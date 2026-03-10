@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useTranslation } from "@workspace/i18n";
 import { ApiError } from "@workspace/api/utils";
+import { useTranslation } from "@workspace/i18n";
 import { InstanceStatus } from "@workspace/openclaw";
 
 import { pathsConfig } from "~/config/paths";
@@ -39,7 +39,7 @@ export const useInstance = () => {
   // Status efetivo: durante inicialização mostra STARTING, senão usa o status real
   const effectiveStatus = isInitializing
     ? { status: InstanceStatus.STARTING }
-    : status.data ?? null;
+    : (status.data ?? null);
 
   const deploy = useMutation({
     ...instanceApi.mutations.deploy,
@@ -63,5 +63,11 @@ export const useInstance = () => {
     },
   });
 
-  return { instance, status: { ...status, data: effectiveStatus }, isInitializing, deploy, manage };
+  return {
+    instance,
+    status: { ...status, data: effectiveStatus },
+    isInitializing,
+    deploy,
+    manage,
+  };
 };

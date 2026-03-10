@@ -17,11 +17,6 @@ import { Input } from "@workspace/ui-web/input";
 import { Label } from "@workspace/ui-web/label";
 import { Skeleton } from "@workspace/ui-web/skeleton";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@workspace/ui-web/tooltip";
-import {
   Table,
   TableBody,
   TableCell,
@@ -29,6 +24,11 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui-web/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui-web/tooltip";
 
 import {
   DashboardHeader,
@@ -305,7 +305,7 @@ function ReferralLink({
 
 // ─── Network Tree ───────────────────────────────────────────
 
-type NetworkNode = {
+interface NetworkNode {
   id: string;
   userName: string | null;
   userEmail: string | null;
@@ -314,7 +314,7 @@ type NetworkNode = {
   referralCode: string;
   childrenCount: number;
   children: NetworkNode[];
-};
+}
 
 function NetworkNodeRow({
   node,
@@ -435,7 +435,7 @@ function CommissionsTable({
   items,
   t,
 }: {
-  items: Array<{
+  items: {
     id: string;
     commissionAmount: string;
     commissionAmountUsd: string | null;
@@ -444,7 +444,7 @@ function CommissionsTable({
     status: string;
     periodMonth: string;
     createdAt: string;
-  }>;
+  }[];
   t: (key: string) => string;
 }) {
   if (items.length === 0) {
@@ -520,7 +520,7 @@ function PayoutsTable({
   items,
   t,
 }: {
-  items: Array<{
+  items: {
     id: string;
     amountUsdt: string;
     periodMonth: string;
@@ -528,7 +528,7 @@ function PayoutsTable({
     txHash: string | null;
     paidAt: string | null;
     createdAt: string;
-  }>;
+  }[];
   t: (key: string) => string;
 }) {
   if (items.length === 0) {
@@ -744,7 +744,7 @@ export const ReferralView = () => {
   const commissionsData =
     (
       commissions.data as {
-        items: Array<{
+        items: {
           id: string;
           commissionAmount: string;
           commissionAmountUsd: string | null;
@@ -753,14 +753,14 @@ export const ReferralView = () => {
           status: string;
           periodMonth: string;
           createdAt: string;
-        }>;
+        }[];
       }
     )?.items ?? [];
 
   const payoutsData =
     (
       payouts.data as {
-        items: Array<{
+        items: {
           id: string;
           amountUsdt: string;
           periodMonth: string;
@@ -768,7 +768,7 @@ export const ReferralView = () => {
           txHash: string | null;
           paidAt: string | null;
           createdAt: string;
-        }>;
+        }[];
       }
     )?.items ?? [];
 

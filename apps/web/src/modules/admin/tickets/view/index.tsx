@@ -1,9 +1,10 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { handle } from "@workspace/api/utils";
 import { useTranslation } from "@workspace/i18n";
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
@@ -25,22 +26,21 @@ import { Skeleton } from "@workspace/ui-web/skeleton";
 import { Spinner } from "@workspace/ui-web/spinner";
 import { Textarea } from "@workspace/ui-web/textarea";
 
+import { api } from "~/lib/api/client";
 import {
   DashboardHeader,
   DashboardHeaderDescription,
   DashboardHeaderTitle,
 } from "~/modules/common/layout/dashboard/header";
 
-import { handle } from "@workspace/api/utils";
 
-import { api } from "~/lib/api/client";
 
 import { adminSupport } from "../lib/api";
 
 type TicketStatus = "open" | "in_progress" | "closed";
 type StatusFilter = "all" | TicketStatus;
 
-type TicketAttachment = {
+interface TicketAttachment {
   id: string;
   ticketId: string;
   replyId: string | null;
@@ -49,7 +49,7 @@ type TicketAttachment = {
   fileSize: number;
   storedName: string;
   createdAt: string | Date;
-};
+}
 
 const statusVariant: Record<TicketStatus, "success" | "warning" | "secondary"> =
   {
@@ -87,11 +87,17 @@ export const AdminTicketsView = () => {
   const replyMutation = useMutation({
     mutationFn: async (data: { message: string }) => {
       if (!selectedTicketId) return;
-      return handle(api.support.admin[":id"].reply.$post)({ param: { id: selectedTicketId }, json: data });
+      return handle(api.support.admin[":id"].reply.$post)({
+        param: { id: selectedTicketId },
+        json: data,
+      });
     },
     onSuccess: async (data) => {
       if (replyFile && selectedTicketId && data?.id) {
-        await uploadAttachment.mutateAsync({ file: replyFile, replyId: data.id });
+        await uploadAttachment.mutateAsync({
+          file: replyFile,
+          replyId: data.id,
+        });
       } else {
         await queryClient.invalidateQueries({
           queryKey: ["admin-support", "detail", selectedTicketId],
@@ -105,7 +111,10 @@ export const AdminTicketsView = () => {
   const changeStatus = useMutation({
     mutationFn: async (data: { status: TicketStatus }) => {
       if (!selectedTicketId) return;
-      return handle(api.support.admin[":id"].status.$put)({ param: { id: selectedTicketId }, json: data });
+      return handle(api.support.admin[":id"].status.$put)({
+        param: { id: selectedTicketId },
+        json: data,
+      });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["admin-support"] });
@@ -135,7 +144,7 @@ export const AdminTicketsView = () => {
 
         <Select
           value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+          onValueChange={(v) => setStatusFilter(v!)}
         >
           <SelectTrigger className="w-44">
             <SelectValue />
@@ -184,13 +193,12 @@ export const AdminTicketsView = () => {
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <Badge
                     variant={
-                      statusVariant[ticket.status as TicketStatus] ?? "secondary"
+                      statusVariant[ticket.status as TicketStatus] ??
+                      "secondary"
                     }
                     className="text-xs"
                   >
-                    {t(
-                      `dashboard:support.ticket.status.${ticket.status}`,
-                    )}
+                    {t(`dashboard:support.ticket.status.${ticket.status}`)}
                   </Badge>
                   <span className="text-muted-foreground text-xs">
                     {new Date(ticket.createdAt).toLocaleDateString()}
@@ -219,9 +227,8 @@ export const AdminTicketsView = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <Badge
                   variant={
-                    statusVariant[
-                      ticketDetail.data.status as TicketStatus
-                    ] ?? "secondary"
+                    statusVariant[ticketDetail.data.status as TicketStatus] ??
+                    "secondary"
                   }
                 >
                   {t(
@@ -232,7 +239,7 @@ export const AdminTicketsView = () => {
                 <Select
                   value={ticketDetail.data.status}
                   onValueChange={(v) =>
-                    changeStatus.mutate({ status: v as TicketStatus })
+                    changeStatus.mutate({ status: v! })
                   }
                 >
                   <SelectTrigger className="h-7 w-36 text-xs">
@@ -297,13 +304,15 @@ export const AdminTicketsView = () => {
                     {t("dashboard:support.ticket.noReplies")}
                   </p>
                 ) : (
-                  (ticketDetail.data.replies as Array<{
-                    id: string;
-                    message: string;
-                    isAdmin: boolean;
-                    createdAt: string | Date;
-                    attachments?: TicketAttachment[];
-                  }>).map((reply) => (
+                  (
+                    ticketDetail.data.replies as {
+                      id: string;
+                      message: string;
+                      isAdmin: boolean;
+                      createdAt: string | Date;
+                      attachments?: TicketAttachment[];
+                    }[]
+                  ).map((reply) => (
                     <div
                       key={reply.id}
                       className={`rounded-md p-3 text-sm ${
@@ -361,9 +370,7 @@ export const AdminTicketsView = () => {
                 onClick={() => replyFileRef.current?.click()}
               >
                 <Icons.Paperclip className="size-4" />
-                <span className="text-xs">
-                  {"Attach image"}
-                </span>
+                <span className="text-xs">{"Attach image"}</span>
               </Button>
               <input
                 ref={replyFileRef}

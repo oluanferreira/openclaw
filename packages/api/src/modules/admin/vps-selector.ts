@@ -1,5 +1,6 @@
-import { getActiveVpsServers, getDefaultVpsId } from "./vps-config";
 import { execSync } from "child_process";
+
+import { getActiveVpsServers, getDefaultVpsId } from "./vps-config";
 
 interface ServerStats {
   cpuPercent: number;
@@ -28,7 +29,7 @@ const collectLocalStats = (): ServerStats | null => {
     const loadAvg = exec("cat /proc/loadavg").split(" ");
     const load1 = parseFloat(loadAvg[0] ?? "0");
     const cpuPercent = Math.min(
-      Math.round(((load1 / cpuCores) * 100) * 100) / 100,
+      Math.round((load1 / cpuCores) * 100 * 100) / 100,
       100,
     );
 

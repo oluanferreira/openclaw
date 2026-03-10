@@ -4,11 +4,7 @@ import { useState } from "react";
 
 import { Badge } from "@workspace/ui-web/badge";
 import { Button } from "@workspace/ui-web/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@workspace/ui-web/card";
+import { Card, CardContent, CardHeader } from "@workspace/ui-web/card";
 import {
   Dialog,
   DialogContent,
@@ -50,30 +46,44 @@ const TIERS = ["flagship", "balanced", "fast", "reasoning"] as const;
 
 const providerLabel = (p: string) => {
   switch (p) {
-    case "openai": return "OpenAI";
-    case "anthropic": return "Anthropic";
-    case "google": return "Google";
-    default: return p;
+    case "openai":
+      return "OpenAI";
+    case "anthropic":
+      return "Anthropic";
+    case "google":
+      return "Google";
+    default:
+      return p;
   }
 };
 
 const tierLabel = (t: string) => {
   switch (t) {
-    case "flagship": return "Flagship";
-    case "balanced": return "Balanced";
-    case "fast": return "Fast";
-    case "reasoning": return "Reasoning";
-    default: return t;
+    case "flagship":
+      return "Flagship";
+    case "balanced":
+      return "Balanced";
+    case "fast":
+      return "Fast";
+    case "reasoning":
+      return "Reasoning";
+    default:
+      return t;
   }
 };
 
 const tierVariant = (t: string) => {
   switch (t) {
-    case "flagship": return "default" as const;
-    case "balanced": return "secondary" as const;
-    case "fast": return "outline" as const;
-    case "reasoning": return "warning" as const;
-    default: return "secondary" as const;
+    case "flagship":
+      return "default" as const;
+    case "balanced":
+      return "secondary" as const;
+    case "fast":
+      return "outline" as const;
+    case "reasoning":
+      return "warning" as const;
+    default:
+      return "secondary" as const;
   }
 };
 
@@ -176,7 +186,10 @@ export function AdminModels() {
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newOrder = [...allModels];
-    [newOrder[index - 1], newOrder[index]] = [newOrder[index]!, newOrder[index - 1]!];
+    [newOrder[index - 1], newOrder[index]] = [
+      newOrder[index]!,
+      newOrder[index - 1]!,
+    ];
     reorderModels.mutate(
       newOrder.map((m: any, i: number) => ({ id: m.id, sortOrder: i })),
     );
@@ -185,7 +198,10 @@ export function AdminModels() {
   const handleMoveDown = (index: number) => {
     if (index >= allModels.length - 1) return;
     const newOrder = [...allModels];
-    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1]!, newOrder[index]!];
+    [newOrder[index], newOrder[index + 1]] = [
+      newOrder[index + 1]!,
+      newOrder[index]!,
+    ];
     reorderModels.mutate(
       newOrder.map((m: any, i: number) => ({ id: m.id, sortOrder: i })),
     );
@@ -216,7 +232,9 @@ export function AdminModels() {
           onClick={() => setFilter("all")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Total</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Total
+            </span>
             <Icons.Bot className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
@@ -228,7 +246,9 @@ export function AdminModels() {
           onClick={() => setFilter("active")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Ativos</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Ativos
+            </span>
             <div className="size-2.5 rounded-full bg-green-500" />
           </CardHeader>
           <CardContent>
@@ -240,7 +260,9 @@ export function AdminModels() {
           onClick={() => setFilter("inactive")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <span className="text-muted-foreground text-sm font-medium">Inativos</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Inativos
+            </span>
             <div className="size-2.5 rounded-full bg-red-500" />
           </CardHeader>
           <CardContent>
@@ -283,7 +305,10 @@ export function AdminModels() {
           </TableHeader>
           <TableBody>
             {filtered.map((model: any, index: number) => (
-              <TableRow key={model.id} className={!model.isActive ? "opacity-50" : ""}>
+              <TableRow
+                key={model.id}
+                className={!model.isActive ? "opacity-50" : ""}
+              >
                 <TableCell>
                   <div className="flex items-center gap-0.5">
                     <Button
@@ -299,7 +324,9 @@ export function AdminModels() {
                       variant="ghost"
                       size="sm"
                       className="size-6 p-0"
-                      disabled={index === filtered.length - 1 || reorderModels.isPending}
+                      disabled={
+                        index === filtered.length - 1 || reorderModels.isPending
+                      }
                       onClick={() => handleMoveDown(allModels.indexOf(model))}
                     >
                       <Icons.ChevronDown className="size-3" />
@@ -313,10 +340,14 @@ export function AdminModels() {
                   <span className="font-medium">{model.name}</span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{providerLabel(model.provider)}</Badge>
+                  <Badge variant="secondary">
+                    {providerLabel(model.provider)}
+                  </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={tierVariant(model.tier)}>{tierLabel(model.tier)}</Badge>
+                  <Badge variant={tierVariant(model.tier)}>
+                    {tierLabel(model.tier)}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Button

@@ -42,7 +42,9 @@ const toggleSkill = async (
     body: JSON.stringify(data),
   });
   if (!res.ok) {
-    const err = (await res.json().catch(() => ({ error: "Unknown error" }))) as { error?: string };
+    const err = (await res
+      .json()
+      .catch(() => ({ error: "Unknown error" }))) as { error?: string };
     throw new Error(err.error || "Failed to update skill");
   }
   return res.json() as Promise<{ success: boolean }>;

@@ -1,18 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+ 
 import { relations } from "drizzle-orm";
 import {
-  type AnyPgColumn,
+  
   index,
   numeric,
   pgTable,
   text,
-  timestamp,
+  timestamp
 } from "drizzle-orm/pg-core";
+
 
 import { createInsertSchema, createSelectSchema } from "../lib/zod";
 
 import { user } from "./auth";
 
+import type {AnyPgColumn} from "drizzle-orm/pg-core";
 import type * as z from "zod";
 
 // ─── Affiliate ───────────────────────────────────────────────
@@ -83,7 +85,10 @@ export const commission = pgTable(
     index("idx_commission_affiliate").on(t.affiliateId),
     index("idx_commission_status").on(t.status),
     index("idx_commission_period").on(t.periodMonth),
-    index("idx_commission_invoice_affiliate").on(t.stripeInvoiceId, t.affiliateId),
+    index("idx_commission_invoice_affiliate").on(
+      t.stripeInvoiceId,
+      t.affiliateId,
+    ),
   ],
 );
 

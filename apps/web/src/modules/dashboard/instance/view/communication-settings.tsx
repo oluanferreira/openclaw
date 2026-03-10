@@ -1,8 +1,8 @@
 "use client";
 
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 
 import { useTranslation } from "@workspace/i18n";
 import { updateCommunicationSchema } from "@workspace/openclaw/config";
@@ -14,8 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui-web/dialog";
-import { Icons } from "@workspace/ui-web/icons";
 import { Field, FieldLabel } from "@workspace/ui-web/field";
+import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
@@ -50,7 +50,9 @@ export const CommunicationSettings = () => {
         "https://api.telegram.org/bot" + token + "/getMe",
       );
       if (res.ok) {
-        const data = (await res.json()) as { result?: { first_name?: string; username?: string } };
+        const data = (await res.json()) as {
+          result?: { first_name?: string; username?: string };
+        };
         setBotPreview(data.result?.first_name ?? data.result?.username ?? null);
       }
     } catch {
@@ -83,12 +85,21 @@ export const CommunicationSettings = () => {
           </span>
         </div>
         {maskedToken ? (
-          <span className="text-muted-foreground text-xs font-mono">
+          <span className="text-muted-foreground font-mono text-xs">
             {maskedToken}
           </span>
         ) : null}
       </div>
-      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { form.reset(); setBotPreview(null); } }}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) {
+            form.reset();
+            setBotPreview(null);
+          }
+        }}
+      >
         <DialogTrigger
           render={
             <Button variant="outline" size="sm">
@@ -106,7 +117,10 @@ export const CommunicationSettings = () => {
             {t("instance.settings.communication.dialogDescription")}
           </DialogDescription>
           <form
-            onSubmit={(e) => { e.stopPropagation(); void handleSubmit(e); }}
+            onSubmit={(e) => {
+              e.stopPropagation();
+              void handleSubmit(e);
+            }}
             className="flex flex-col gap-4"
           >
             <Controller
@@ -114,8 +128,13 @@ export const CommunicationSettings = () => {
               name="token"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name} className="text-muted-foreground">
-                    {t("instance.deploy.communication.telegram.form.token.label")}
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-muted-foreground"
+                  >
+                    {t(
+                      "instance.deploy.communication.telegram.form.token.label",
+                    )}
                   </FieldLabel>
                   <Input
                     {...field}
@@ -151,7 +170,9 @@ export const CommunicationSettings = () => {
             {botPreview && (
               <div className="flex items-center gap-2 text-xs text-green-600">
                 <Icons.Check className="size-3" />
-                {t("instance.settings.communication.botFound", { name: botPreview })}
+                {t("instance.settings.communication.botFound", {
+                  name: botPreview,
+                })}
               </div>
             )}
             <Button
