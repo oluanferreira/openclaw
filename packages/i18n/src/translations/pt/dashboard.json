@@ -376,6 +376,18 @@
       "empty": "Nenhum indicado ainda. Compartilhe seu link para comecar a construir sua rede!",
       "directReferrals": "direto(s)",
       "joinedAt": "Entrou em"
+    },
+    "terms": {
+      "title": "Termos do Programa de Indicação",
+      "bullet1": "Comissão em 3 níveis: 20% (direto), 8% (nível 2), 2% (nível 3)",
+      "bullet2": "Recorrente a cada pagamento mensal enquanto a assinatura estiver ativa",
+      "bullet3": "Pagamentos em USDT BEP20 na carteira cadastrada",
+      "bullet4": "Saque mínimo: $10 USDT",
+      "bullet5": "Pagamentos processados no dia 10 de cada mês",
+      "bullet6": "Anti-fraude: auto-indicação e cadeias circulares são proibidas",
+      "bullet7": "Os termos podem ser atualizados — uso continuado implica aceitação",
+      "checkbox": "Li e aceito os termos do programa de indicação",
+      "confirm": "Confirmar"
     }
   }
 }

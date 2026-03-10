@@ -38,5 +38,20 @@ export const useReferral = () => {
     },
   });
 
-  return { me, commissions, payouts, network, activate, updateWallet };
+  const acceptTerms = useMutation({
+    ...referralApi.mutations.acceptTerms,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["referral", "me"] });
+    },
+  });
+
+  return {
+    me,
+    commissions,
+    payouts,
+    network,
+    activate,
+    updateWallet,
+    acceptTerms,
+  };
 };

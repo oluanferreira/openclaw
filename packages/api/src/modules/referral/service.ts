@@ -125,6 +125,7 @@ export async function activateAffiliate(
       walletAddress: walletAddress ?? null,
       parentAffiliateId,
       status: "active",
+      termsAcceptedAt: new Date(),
     })
     .returning();
 
@@ -346,6 +347,22 @@ export async function updateWallet(affiliateId: string, walletAddress: string) {
     .update(affiliate)
     .set({ walletAddress })
     .where(eq(affiliate.id, affiliateId));
+}
+
+// ─── Accept Terms ─────────────────────────────────────────
+
+export async function acceptTerms(userId: string) {
+  const aff = await getAffiliateByUserId(userId);
+  if (!aff) return null;
+  if (aff.termsAcceptedAt) return aff;
+
+  const [updated] = await db
+    .update(affiliate)
+    .set({ termsAcceptedAt: new Date() })
+    .where(eq(affiliate.id, aff.id))
+    .returning();
+
+  return updated;
 }
 
 // ─── Network (user dashboard) ────────────────────────────────

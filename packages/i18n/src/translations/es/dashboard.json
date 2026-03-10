@@ -376,6 +376,18 @@
       "empty": "Sin referidos aun. Comparte tu enlace para empezar a construir tu red!",
       "directReferrals": "directo(s)",
       "joinedAt": "Se unio"
+    },
+    "terms": {
+      "title": "Términos del Programa de Referidos",
+      "bullet1": "Comisión en 3 niveles: 20% (directo), 8% (nivel 2), 2% (nivel 3)",
+      "bullet2": "Recurrente en cada pago mensual mientras la suscripción esté activa",
+      "bullet3": "Pagos en USDT BEP20 a tu billetera registrada",
+      "bullet4": "Retiro mínimo: $10 USDT",
+      "bullet5": "Pagos procesados el día 10 de cada mes",
+      "bullet6": "Anti-fraude: auto-referencia y cadenas circulares están prohibidas",
+      "bullet7": "Los términos pueden actualizarse — el uso continuado implica aceptación",
+      "checkbox": "He leído y acepto los términos del programa de referidos",
+      "confirm": "Confirmar"
     }
   }
 }

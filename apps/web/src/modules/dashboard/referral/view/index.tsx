@@ -44,6 +44,7 @@ import {
   SettingsCardDescription,
 } from "~/modules/common/layout/dashboard/settings-card";
 
+import { TermsBanner } from "../components/terms-banner";
 import { useReferral } from "../hooks/use-referral";
 
 // ─── Helpers ────────────────────────────────────────────────
@@ -663,8 +664,15 @@ function WalletCard({
 
 export const ReferralView = () => {
   const { t } = useTranslation("dashboard");
-  const { me, commissions, payouts, network, activate, updateWallet } =
-    useReferral();
+  const {
+    me,
+    commissions,
+    payouts,
+    network,
+    activate,
+    updateWallet,
+    acceptTerms,
+  } = useReferral();
 
   if (me.isLoading) {
     return (
@@ -693,6 +701,7 @@ export const ReferralView = () => {
         walletAddress: string | null;
         status: string;
         activatedAt: string;
+        termsAcceptedAt: string | null;
         stats: {
           available: number;
           pending: number;
@@ -782,6 +791,15 @@ export const ReferralView = () => {
       </DashboardHeader>
 
       <div className="flex w-full flex-col gap-6">
+        {/* Terms Banner */}
+        {!data.termsAcceptedAt && (
+          <TermsBanner
+            onAccept={() => acceptTerms.mutate()}
+            isPending={acceptTerms.isPending}
+            t={t as (k: string) => string}
+          />
+        )}
+
         {/* Stats */}
         <StatsGrid stats={data.stats} t={t as (k: string) => string} />
 

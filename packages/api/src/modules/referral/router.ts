@@ -8,6 +8,7 @@ import { HttpException } from "@workspace/shared/utils";
 import { enforceAuth } from "../../middleware";
 
 import {
+  acceptTerms,
   activateAffiliate,
   getAffiliateByUserId,
   getAffiliateNetwork,
@@ -93,6 +94,7 @@ export const referralRouter = new Hono()
       walletAddress: aff.walletAddress,
       status: aff.status,
       activatedAt: aff.activatedAt,
+      termsAcceptedAt: aff.termsAcceptedAt,
       stats,
     });
   })
@@ -140,6 +142,19 @@ export const referralRouter = new Hono()
 
     const items = await getAffiliateNetwork(aff.id);
     return c.json({ items });
+  })
+  // Accept referral terms
+  .put("/accept-terms", async (c) => {
+    const user = c.var.user;
+    const result = await acceptTerms(user.id);
+
+    if (!result) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, {
+        code: "referral:notActive",
+      });
+    }
+
+    return c.json({ ok: true, termsAcceptedAt: result.termsAcceptedAt });
   })
   // Update wallet address
   .put("/wallet", async (c) => {

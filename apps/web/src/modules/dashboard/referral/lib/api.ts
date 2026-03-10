@@ -39,6 +39,9 @@ const mutations = {
     mutationFn: (walletAddress: string) =>
       handle(api.referral.wallet.$put)({ json: { walletAddress } } as never),
   }),
+  acceptTerms: mutationOptions({
+    mutationFn: () => handle(api.referral["accept-terms"].$put)({} as never),
+  }),
 };
 
 export const referralApi = { queries, mutations } as const;

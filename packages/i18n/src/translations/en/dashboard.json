@@ -376,6 +376,18 @@
       "empty": "No referrals yet. Share your link to start building your network!",
       "directReferrals": "direct",
       "joinedAt": "Joined"
+    },
+    "terms": {
+      "title": "Referral Program Terms",
+      "bullet1": "3-tier commission: 20% (direct), 8% (tier 2), 2% (tier 3)",
+      "bullet2": "Recurring on every monthly payment while subscription is active",
+      "bullet3": "Payouts in USDT BEP20 to your registered wallet",
+      "bullet4": "Minimum withdrawal: $10 USDT",
+      "bullet5": "Payouts processed on the 10th of each month",
+      "bullet6": "Anti-fraud: self-referral and circular chains are prohibited",
+      "bullet7": "Terms may be updated — continued use implies acceptance",
+      "checkbox": "I have read and accept the referral program terms",
+      "confirm": "Confirm"
     }
   }
 }

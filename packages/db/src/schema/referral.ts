@@ -1,20 +1,11 @@
- 
 import { relations } from "drizzle-orm";
-import {
-  
-  index,
-  numeric,
-  pgTable,
-  text,
-  timestamp
-} from "drizzle-orm/pg-core";
-
+import { index, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 import { createInsertSchema, createSelectSchema } from "../lib/zod";
 
 import { user } from "./auth";
 
-import type {AnyPgColumn} from "drizzle-orm/pg-core";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type * as z from "zod";
 
 // ─── Affiliate ───────────────────────────────────────────────
@@ -37,6 +28,7 @@ export const affiliate = pgTable(
     status: text({ enum: ["active", "suspended"] })
       .default("active")
       .notNull(),
+    termsAcceptedAt: timestamp("terms_accepted_at"),
     activatedAt: timestamp("activated_at").defaultNow().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

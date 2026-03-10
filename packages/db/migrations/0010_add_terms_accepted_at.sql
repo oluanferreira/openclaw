@@ -1,0 +1,1 @@
+ALTER TABLE "affiliate" ADD COLUMN "terms_accepted_at" timestamp;
