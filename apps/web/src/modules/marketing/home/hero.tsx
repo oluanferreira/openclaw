@@ -128,28 +128,28 @@ export const Hero = ({ user }: HeroProps) => {
                 </TurboLink>
               </div>
             ) : (
-              <>
-                <HeroLoginButtons className="flex-col items-stretch sm:flex-row" />
-                <p className="text-muted-foreground text-center text-sm">
-                  {t("login.consentPrefix", { ns: "common" })}{" "}
-                  <Link
-                    href={pathsConfig.legal.terms}
-                    className="hover:text-foreground underline"
-                  >
-                    {t("legal.terms", { ns: "common" })}
-                  </Link>{" "}
-                  {t("login.consentAnd", { ns: "common" })}{" "}
-                  <Link
-                    href={pathsConfig.legal.privacy}
-                    className="hover:text-foreground underline"
-                  >
-                    {t("legal.privacy", { ns: "common" })}
-                  </Link>
-                  .
-                </p>
-              </>
+              <HeroLoginButtons className="flex-col items-stretch sm:flex-row" />
             )}
             <DeployInstanceFormNote />
+            {!user && (
+              <p className="text-muted-foreground/70 text-center text-xs">
+                {t("login.consentPrefix", { ns: "common" })}{" "}
+                <Link
+                  href={pathsConfig.legal.terms}
+                  className="hover:text-foreground/80 underline"
+                >
+                  {t("legal.terms", { ns: "common" })}
+                </Link>{" "}
+                {t("login.consentAnd", { ns: "common" })}{" "}
+                <Link
+                  href={pathsConfig.legal.privacy}
+                  className="hover:text-foreground/80 underline"
+                >
+                  {t("legal.privacy", { ns: "common" })}
+                </Link>
+                .
+              </p>
+            )}
           </DeployInstanceFormFooter>
         </DeployInstanceForm>
       </Card>

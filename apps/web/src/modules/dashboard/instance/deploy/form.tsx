@@ -420,7 +420,7 @@ export const DeployInstanceFormNote = ({
       {...props}
     >
       {note && <>{note} </>}
-      {!note && !form.formState.isValid && (
+      {!note && !form.formState.isValid && form.formState.isSubmitted && (
         <>{t("instance.deploy.note.invalid")} </>
       )}
       <Trans
