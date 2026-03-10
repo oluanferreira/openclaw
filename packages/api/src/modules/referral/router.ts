@@ -70,7 +70,6 @@ export const referralRouter = new Hono()
 
     const aff = await activateAffiliate(
       user.id,
-      user.name,
       body.walletAddress,
       body.parentReferralCode,
     );

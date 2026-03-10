@@ -1,5 +1,6 @@
 import { eq, and, sql } from "@workspace/db";
 import { affiliate, commission, affiliatePayout } from "@workspace/db/schema";
+import { instance } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import { generateId } from "@workspace/shared/utils";
 
@@ -19,16 +20,6 @@ function generateReferralCode(): string {
     code += chars[(Math.random() * chars.length) | 0];
   }
   return code;
-}
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 50);
 }
 
 function getCurrentPeriodMonth(): string {
@@ -72,7 +63,6 @@ export async function resolveAffiliate(codeOrSlug: string) {
 
 export async function activateAffiliate(
   userId: string,
-  userName: string,
   walletAddress?: string,
   parentReferralCode?: string,
 ) {
@@ -80,13 +70,12 @@ export async function activateAffiliate(
   if (existing) return existing;
 
   const referralCode = generateReferralCode();
-  let referralSlug = slugify(userName);
 
-  // Ensure slug uniqueness
-  const slugExists = await getAffiliateBySlug(referralSlug);
-  if (slugExists) {
-    referralSlug = `${referralSlug}-${referralCode.slice(0, 4).toLowerCase()}`;
-  }
+  // Use instance ID as slug (persists across destroy/redeploy via user_id)
+  const inst = await db.query.instance.findFirst({
+    where: (t, { eq: eqFn }) => eqFn(t.userId, userId),
+  });
+  const referralSlug = inst?.id ?? referralCode.slice(0, 12).toLowerCase();
 
   // Resolve parent affiliate (who referred this user)
   let parentAffiliateId: string | null = null;
