@@ -4,7 +4,7 @@ import { z } from "zod";
 import { HttpStatusCode } from "@workspace/shared/constants";
 import { HttpException } from "@workspace/shared/utils";
 
-import { enforceAuth, enforceSubscription } from "../../middleware";
+import { enforceAuth } from "../../middleware";
 
 import {
   activateAffiliate,
@@ -41,8 +41,23 @@ export const referralRouter = new Hono()
   // All routes below require auth
   .use(enforceAuth)
   // Activate referral program
-  .post("/activate", enforceSubscription, async (c) => {
+  .post("/activate", async (c) => {
     const user = c.var.user;
+
+    // Only admin accounts can activate without an active subscription
+    const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
+    if (!ADMIN_EMAILS.includes(user.email)) {
+      const { db } = await import("@workspace/db/server");
+      const sub = await db.query.subscription.findFirst({
+        where: (t, { eq: eqFn }) => eqFn(t.userId, user.id),
+      });
+      if (!sub || sub.status !== "active") {
+        throw new HttpException(HttpStatusCode.PAYMENT_REQUIRED, {
+          code: "billing:subscription.required",
+        });
+      }
+    }
+
     const raw = await c.req.json();
     const body = activateSchema.parse(raw);
 
