@@ -15,6 +15,7 @@ export const deployInstanceSchema = openclawConfigSchema
   .pick({
     model: true,
     communication: true,
+    locale: true,
   })
   .extend({ aiKeys: aiKeysSchema });
 

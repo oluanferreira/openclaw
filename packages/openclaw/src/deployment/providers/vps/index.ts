@@ -9,6 +9,7 @@ import { getStatus } from "./status";
 
 import type { DeployInstanceSchemaInput, AiKeysInput } from "../../schema";
 import type { OpenClawDeploymentProviderStrategy } from "../types";
+import { getToolsMd } from "./tools-md";
 
 const PORT_RANGE_START = 20000;
 const PORT_RANGE_END = 40000;
@@ -115,116 +116,7 @@ chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/.local" "$STATE_DIR/.npm" "
 mkdir -p "$STATE_DIR/.openclaw/workspace"
 
 cat > "$STATE_DIR/.openclaw/workspace/TOOLS.md" << 'TOOLSEOF'
-# TOOLS.md — Seu Ambiente Operacional
-
-## Arquitetura
-
-Voce roda dentro de um container Docker na plataforma **ClaWin1Click**.
-Seu processo e o OpenClaw Gateway — um servidor Node.js que recebe mensagens
-via Telegram e Web UI, processa com LLM, e executa comandos no container.
-
-## Caminhos
-
-| Caminho | O que e | Persistente? | Permissao |
-|---------|---------|:---:|:---:|
-| \`/opt/openclaw/\` | Seu home — tudo que importa fica aqui | SIM | rw |
-| \`/opt/openclaw/.openclaw/\` | Config do OpenClaw (openclaw.json, workspace/) | SIM | rw |
-| \`/opt/openclaw/.openclaw/workspace/\` | Seus arquivos de personalidade (SOUL, AGENTS, TOOLS, MEMORY, etc.) | SIM | rw |
-| \`/opt/openclaw/skills/\` | Skills instaladas via ClawHub | SIM | rw |
-| \`/opt/openclaw/.local/bin/\` | Binarios instalados (clawhub, gog, etc.) | SIM | rw |
-| \`/opt/openclaw/memory/\` | Notas diarias (YYYY-MM-DD.md) | SIM | rw |
-| \`/tmp/\` | Temporario (64MB, apagado no restart) | NAO | rw |
-| \`/app/\` | Codigo do OpenClaw e skills built-in | SIM | somente leitura |
-| \`/app/skills/\` | 52 skills built-in (somente leitura) | SIM | somente leitura |
-
-## Ferramentas Disponiveis
-
-| Ferramenta | Versao | Caminho | Para que serve |
-|------------|--------|---------|---------------|
-| Node.js | v22 | \`/usr/local/bin/node\` | Runtime JS, npx, npm |
-| Python | 3.11 | \`/usr/bin/python3\` | Scripts, pip3 install --user |
-| Git | 2.39 | \`/usr/bin/git\` | Controle de versao |
-| cURL | — | \`/usr/bin/curl\` | HTTP requests |
-| wget | — | \`/usr/bin/wget\` | Downloads |
-| ffmpeg | 5.1 | \`/usr/bin/ffmpeg\` | Audio/video processing |
-| jq | — | \`/usr/bin/jq\` | JSON no shell |
-| yt-dlp | — | \`/usr/local/bin/yt-dlp\` | Download de videos |
-| tesseract | — | \`/usr/bin/tesseract\` | OCR (texto em imagens) |
-| clawhub | 0.7 | \`/opt/openclaw/.local/bin/clawhub\` | Gerenciar skills |
-
-## Instalar Pacotes
-
-\`\`\`bash
-# Node.js (global para o user)
-npm install -g <pacote>
-
-# Python
-pip3 install --user <pacote>
-
-# Binarios estaticos (Go, Rust, etc.)
-curl -L <url> -o /opt/openclaw/.local/bin/<nome> && chmod +x /opt/openclaw/.local/bin/<nome>
-\`\`\`
-
-## Skills — 52 Built-in + ClawHub
-
-Skills built-in (em /app/skills/, sempre disponiveis):
-1password, apple-notes, apple-reminders, bear-notes, blogwatcher, blucli,
-bluebubbles, camsnap, canvas, clawhub, coding-agent, discord, eightctl,
-gemini, gh-issues, gifgrep, github, gog, goplaces, healthcheck, himalaya,
-imsg, mcporter, model-usage, nano-banana-pro, nano-pdf, notion,
-obsidian, openai-image-gen, openai-whisper, openai-whisper-api, openhue,
-oracle, ordercli, peekaboo, sag, session-logs, sherpa-onnx-tts,
-skill-creator, slack, songsee, sonoscli, spotify-player, summarize,
-things-mac, tmux, trello, video-frames, voice-call, wacli, weather, xurl
-
-### ClawHub — Instalar Skills Extras
-
-\`\`\`bash
-# Instalar
-clawhub install <slug> --workdir /opt/openclaw --dir skills --no-input
-
-# Listar instaladas
-clawhub list --workdir /opt/openclaw --dir skills
-
-# Buscar no catalogo
-clawhub search <query> --workdir /opt/openclaw --dir skills
-
-# Desinstalar
-clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
-\`\`\`
-
-Se uma skill precisa de env vars (ex: TAVILY_API_KEY), peca a chave ao user
-e exporte antes de usar: \`export TAVILY_API_KEY=xxx && <comando>\`.
-
-## Variaveis de Ambiente
-
-3 API keys injetadas pelo host (configuraveis pelo user no dashboard):
-- \`OPENAI_API_KEY\`
-- \`ANTHROPIC_API_KEY\`
-- \`GOOGLE_GENERATIVE_AI_API_KEY\`
-
-## Limites do Container
-
-| Recurso | Limite |
-|---------|--------|
-| RAM | 2 GB |
-| CPUs | 1.5 |
-| Processos | 512 (PID limit) |
-| /tmp | 64 MB (tmpfs) |
-| Disco (/opt/openclaw) | ~63 GB disponivel |
-| Rede | Outbound total, sem inbound direto |
-| Usuario | \`node\` (UID 1000), sem root/sudo |
-
-O filesystem fora de /opt/openclaw e /tmp e somente leitura.
-Nao ha sudo. Pacotes de sistema (apt/dpkg) requerem root que voce nao tem.
-Browsers (Playwright/Puppeteer) dependem de libs de sistema — nao funcionam aqui.
-
-## Plataforma ClaWin1Click
-
-- **Dashboard:** clawin1click.com/dashboard — user gerencia instancia, billing, skills, API keys
-- **Web UI:** {instanceId}.clawin1click.com — chat direto, config, logs
-- **Comunicacao:** Telegram (canal primario) + Web UI
-- **AI Keys:** Criptografadas AES-256, configuraveis pelo user no dashboard
+${getToolsMd(params.locale)}
 TOOLSEOF
 
 chown -R "$CONTAINER_UID:$CONTAINER_GID" "$STATE_DIR/.openclaw"

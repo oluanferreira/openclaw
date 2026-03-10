@@ -83,7 +83,7 @@ export const DeployInstanceForm = ({
   children,
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) => {
-  const { t } = useTranslation("dashboard");
+  const { t, i18n } = useTranslation("dashboard");
   const { data: dbModels } = useModels();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -152,7 +152,7 @@ export const DeployInstanceForm = ({
     url.searchParams.delete("checkout");
     window.history.replaceState(null, "", url.pathname);
 
-    deploy.mutate(data);
+    deploy.mutate({ ...data, locale: i18n.language });
   }, [isCheckoutReturn, subscriptionStatus, deploy]);
 
   return (
@@ -164,16 +164,16 @@ export const DeployInstanceForm = ({
         )}
         onSubmit={form.handleSubmit(async (data) => {
           if (!subscription.data || subscription.data.status !== "active") {
-            localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify(data));
+            localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify({ ...data, locale: i18n.language }));
             checkout.mutate();
             return;
           }
           try {
-            await deploy.mutateAsync(data);
+            await deploy.mutateAsync({ ...data, locale: i18n.language });
           } catch (error) {
             // Edge case: subscription expired between frontend check and API call
             if (error instanceof ApiError && error.code === "billing:subscription.required") {
-              localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify(data));
+              localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify({ ...data, locale: i18n.language }));
               checkout.mutate();
             }
             // Other errors are already handled by deploy's onError toast
