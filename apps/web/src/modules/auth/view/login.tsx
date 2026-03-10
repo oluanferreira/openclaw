@@ -4,7 +4,6 @@
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 
-
 import { SocialProvider } from "@workspace/auth";
 import { useTranslation } from "@workspace/i18n";
 import { Button } from "@workspace/ui-web/button";

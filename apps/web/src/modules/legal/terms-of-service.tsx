@@ -6,11 +6,15 @@ import { getTranslation } from "@workspace/i18n/server";
 export const TermsOfService = async () => {
   const { i18n } = await getTranslation({ ns: "common" });
   const locale = i18n.language;
-  const isPt = locale === "pt";
-
   return (
     <article className="prose prose-neutral dark:prose-invert mx-auto max-w-4xl px-6 py-12">
-      {isPt ? <TermsPT /> : <TermsEN />}
+      {locale === "pt" ? (
+        <TermsPT />
+      ) : locale === "es" ? (
+        <TermsES />
+      ) : (
+        <TermsEN />
+      )}
     </article>
   );
 };
@@ -163,9 +167,9 @@ const TermsEN = () => (
     <h2>14. Governing Law</h2>
     <p>
       These Terms shall be governed by and construed in accordance with the laws
-      of the State of Delaware, United States, without regard to its conflict of
+      of the State of Florida, United States, without regard to its conflict of
       law provisions. Any disputes arising under these Terms shall be resolved
-      in the courts of the State of Delaware.
+      in the courts of the State of Florida.
     </p>
 
     <h2>15. Changes to Terms</h2>
@@ -341,9 +345,9 @@ const TermsPT = () => (
     <h2>14. Lei Aplicável</h2>
     <p>
       Estes Termos serão regidos e interpretados de acordo com as leis do Estado
-      de Delaware, Estados Unidos, sem consideração a seus conflitos de
+      da Flórida, Estados Unidos, sem consideração a seus conflitos de
       disposições legais. Quaisquer disputas decorrentes destes Termos serão
-      resolvidas nos tribunais do Estado de Delaware. Para usuários brasileiros,
+      resolvidas nos tribunais do Estado da Flórida. Para usuários brasileiros,
       os direitos previstos no Código de Defesa do Consumidor (Lei 8.078/1990) e
       na LGPD (Lei 13.709/2018) permanecem aplicáveis.
     </p>
@@ -359,6 +363,186 @@ const TermsPT = () => (
     <h2>16. Contato</h2>
     <p>
       Para dúvidas sobre estes Termos, entre em contato conosco:{" "}
+      <a href="mailto:lpjservicesllc@gmail.com">lpjservicesllc@gmail.com</a>
+    </p>
+    <p>
+      LPJ SERVICES LLC
+      <br />
+      Estados Unidos
+    </p>
+  </>
+);
+
+const TermsES = () => (
+  <>
+    <h1>Términos de Servicio</h1>
+    <p className="text-muted-foreground text-sm">
+      Última actualización: 7 de marzo de 2026
+    </p>
+
+    <h2>1. Aceptación de los Términos</h2>
+    <p>
+      Al acceder o utilizar ClaWin1Click (&quot;Servicio&quot;), operado por LPJ
+      SERVICES LLC (&quot;Empresa&quot;, &quot;nosotros&quot;), aceptas quedar
+      vinculado por estos Términos de Servicio (&quot;Términos&quot;). Si no
+      estás de acuerdo con estos Términos, no utilices el Servicio.
+    </p>
+
+    <h2>2. Descripción del Servicio</h2>
+    <p>
+      ClaWin1Click ofrece despliegue y gestión con un clic de contenedores de IA
+      (instancias OpenClaw) en infraestructura en la nube. El Servicio incluye
+      aprovisionamiento de contenedores, monitoreo, gestión de configuraciones y
+      funcionalidades relacionadas accesibles a través de nuestro panel web.
+    </p>
+
+    <h2>3. Cuenta y Autenticación</h2>
+    <p>
+      Para utilizar el Servicio, debes autenticarte mediante Google o GitHub
+      OAuth. Eres responsable de mantener la seguridad de tu cuenta y de todas
+      las actividades que ocurran en ella. Debes tener al menos 18 años para
+      utilizar el Servicio.
+    </p>
+
+    <h2>4. Suscripción y Pago</h2>
+    <p>
+      El Servicio opera mediante suscripción procesada a través de Stripe. Los
+      precios se muestran en BRL (Real Brasileño) para usuarios en Brasil y USD
+      (Dólares Estadounidenses) para todas las demás regiones. Al suscribirte,
+      autorizas cargos recurrentes en tu método de pago. Todos los precios están
+      sujetos a cambios con 30 días de aviso previo.
+    </p>
+
+    <h2>5. Política de Cancelación</h2>
+    <p>
+      Puedes cancelar tu suscripción en cualquier momento desde tu panel o el
+      portal de cliente de Stripe. Al cancelar:
+    </p>
+    <ul>
+      <li>
+        Tu servicio continúa hasta el final del período de facturación actual.
+      </li>
+      <li>
+        Después del período de facturación, se aplica un período de gracia de 3
+        días para pagos fallidos.
+      </li>
+      <li>
+        Después del período de gracia, tu contenedor se destruye permanentemente
+        y todos los datos asociados se eliminan.
+      </li>
+    </ul>
+
+    <h2>6. Uso Aceptable</h2>
+    <p>Aceptas NO utilizar el Servicio para:</p>
+    <ul>
+      <li>Alojar, distribuir o generar contenido ilegal</li>
+      <li>
+        Realizar minería de criptomonedas u operaciones intensivas no
+        relacionadas con el Servicio
+      </li>
+      <li>Enviar spam, phishing o comunicaciones no solicitadas</li>
+      <li>
+        Intentar eludir medidas de seguridad o acceder a datos de otros usuarios
+      </li>
+      <li>Revender el Servicio sin autorización previa por escrito</li>
+      <li>Violar cualquier ley o regulación aplicable</li>
+    </ul>
+    <p>
+      La violación de estos términos puede resultar en la terminación inmediata
+      de tu cuenta sin reembolso.
+    </p>
+
+    <h2>7. Claves de API</h2>
+    <p>
+      El Servicio requiere que proporciones claves de API de terceros (ej.:
+      OpenAI, Anthropic, Google AI) para alimentar tu instancia de IA. Estas
+      claves se cifran con AES-256-GCM y se almacenan de forma segura. Eres el
+      único responsable de:
+    </p>
+    <ul>
+      <li>La seguridad y validez de tus claves de API</li>
+      <li>
+        Cualquier cargo de proveedores terceros generado por el uso de tus
+        claves
+      </li>
+      <li>
+        El cumplimiento de los términos de servicio de los respectivos
+        proveedores de API
+      </li>
+    </ul>
+
+    <h2>8. Propiedad Intelectual</h2>
+    <p>
+      El Servicio, incluyendo su diseño, código, marca y documentación, es
+      propiedad intelectual de LPJ SERVICES LLC. OpenClaw es software de código
+      abierto bajo su propia licencia. Tus datos y configuraciones siguen siendo
+      tu propiedad.
+    </p>
+
+    <h2>9. Disponibilidad del Servicio</h2>
+    <p>
+      Nos esforzamos por ofrecer un servicio confiable, pero no garantizamos
+      ningún porcentaje específico de disponibilidad. El Servicio se proporciona
+      en base de &quot;mejor esfuerzo&quot;. Podemos realizar mantenimientos,
+      actualizaciones o experimentar interrupciones que afecten temporalmente la
+      disponibilidad. Nos esforzaremos en notificar a los usuarios sobre
+      mantenimientos planificados con anticipación.
+    </p>
+
+    <h2>10. Limitación de Responsabilidad</h2>
+    <p>
+      EN LA MÁXIMA EXTENSIÓN PERMITIDA POR LA LEY, LPJ SERVICES LLC NO SERÁ
+      RESPONSABLE POR DAÑOS INDIRECTOS, INCIDENTALES, ESPECIALES,
+      CONSECUENCIALES O PUNITIVOS, INCLUYENDO, PERO NO LIMITÁNDOSE A, PÉRDIDA DE
+      GANANCIAS, DATOS, USO O REPUTACIÓN, DERIVADOS DEL USO DEL SERVICIO.
+    </p>
+    <p>
+      Nuestra responsabilidad total por cualquier reclamación derivada de o
+      relacionada con el Servicio no excederá el monto pagado por ti en los 12
+      meses anteriores a la reclamación.
+    </p>
+
+    <h2>11. Indemnización</h2>
+    <p>
+      Aceptas indemnizar y mantener indemne a LPJ SERVICES LLC, sus directores,
+      ejecutivos y empleados de cualquier reclamación, pérdida o daño derivado
+      de tu uso del Servicio, violación de estos Términos o infracción de
+      derechos de terceros.
+    </p>
+
+    <h2>12. Privacidad</h2>
+    <p>
+      Tu uso del Servicio también se rige por nuestra{" "}
+      <Link href="/es/privacy">Política de Privacidad</Link>, que describe cómo
+      recopilamos, usamos y protegemos tu información personal.
+    </p>
+
+    <h2>13. Restricción de Edad</h2>
+    <p>
+      El Servicio está destinado a usuarios de al menos 18 años de edad. Al
+      utilizar el Servicio, declaras y garantizas que tienes al menos 18 años.
+    </p>
+
+    <h2>14. Ley Aplicable</h2>
+    <p>
+      Estos Términos se regirán e interpretarán de acuerdo con las leyes del
+      Estado de Florida, Estados Unidos, sin considerar sus disposiciones sobre
+      conflictos de leyes. Cualquier disputa derivada de estos Términos será
+      resuelta en los tribunales del Estado de Florida.
+    </p>
+
+    <h2>15. Cambios en los Términos</h2>
+    <p>
+      Nos reservamos el derecho de modificar estos Términos en cualquier
+      momento. Los cambios significativos se comunicarán con al menos 30 días de
+      anticipación por correo electrónico o a través del Servicio. El uso
+      continuado del Servicio después de que los cambios entren en vigor
+      constituye aceptación de los nuevos Términos.
+    </p>
+
+    <h2>16. Contacto</h2>
+    <p>
+      Para preguntas sobre estos Términos, contáctanos en:{" "}
       <a href="mailto:lpjservicesllc@gmail.com">lpjservicesllc@gmail.com</a>
     </p>
     <p>

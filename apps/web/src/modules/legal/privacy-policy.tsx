@@ -4,11 +4,15 @@ import { getTranslation } from "@workspace/i18n/server";
 export const PrivacyPolicy = async () => {
   const { i18n } = await getTranslation({ ns: "common" });
   const locale = i18n.language;
-  const isPt = locale === "pt";
-
   return (
     <article className="prose prose-neutral dark:prose-invert mx-auto max-w-4xl px-6 py-12">
-      {isPt ? <PrivacyPT /> : <PrivacyEN />}
+      {locale === "pt" ? (
+        <PrivacyPT />
+      ) : locale === "es" ? (
+        <PrivacyES />
+      ) : (
+        <PrivacyEN />
+      )}
     </article>
   );
 };
@@ -546,6 +550,262 @@ const PrivacyPT = () => (
         www.gov.br/anpd
       </a>
       .
+    </p>
+  </>
+);
+
+const PrivacyES = () => (
+  <>
+    <h1>Política de Privacidad</h1>
+    <p className="text-muted-foreground text-sm">
+      Última actualización: 7 de marzo de 2026
+    </p>
+
+    <h2>1. Controlador de Datos</h2>
+    <p>El controlador de tus datos personales es:</p>
+    <p>
+      <strong>LPJ SERVICES LLC</strong>
+      <br />
+      Estados Unidos
+      <br />
+      Email:{" "}
+      <a href="mailto:lpjservicesllc@gmail.com">lpjservicesllc@gmail.com</a>
+    </p>
+
+    <h2>2. Datos que Recopilamos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Dato</th>
+          <th>Fuente</th>
+          <th>Cifrado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Nombre, email, avatar</td>
+          <td>Google/GitHub OAuth</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Dirección IP, User-Agent</td>
+          <td>Sesión (automático)</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Stripe Customer/Subscription ID</td>
+          <td>Webhooks Stripe</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Claves de API (OpenAI, Anthropic, Google AI)</td>
+          <td>Input del usuario</td>
+          <td>Sí (AES-256-GCM)</td>
+        </tr>
+        <tr>
+          <td>Tickets de soporte y archivos adjuntos</td>
+          <td>Input del usuario</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Datos de error y rendimiento</td>
+          <td>Sentry SDK</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Cookies (sesión, locale, consentimiento)</td>
+          <td>Automático</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Base Legal para el Procesamiento</h2>
+    <p>Procesamos tus datos en base a los siguientes fundamentos legales:</p>
+    <ul>
+      <li>
+        <strong>Consentimiento:</strong> Preferencias de cookies, comunicaciones
+        de marketing
+      </li>
+      <li>
+        <strong>Ejecución contractual:</strong> Creación de cuenta, prestación
+        del servicio, facturación
+      </li>
+      <li>
+        <strong>Interés legítimo:</strong> Mejora del servicio, seguridad,
+        prevención de fraude
+      </li>
+      <li>
+        <strong>Obligación legal:</strong> Retención de registros de
+        facturación, cumplimiento normativo
+      </li>
+    </ul>
+
+    <h2>4. Finalidad del Procesamiento</h2>
+    <ul>
+      <li>Proporcionar y mantener el Servicio</li>
+      <li>Procesar pagos y gestionar suscripciones</li>
+      <li>Ofrecer soporte al cliente</li>
+      <li>Monitorear y mejorar el rendimiento del servicio</li>
+      <li>Detectar y prevenir fraude y abuso</li>
+      <li>Cumplir obligaciones legales</li>
+    </ul>
+
+    <h2>5. Sub-procesadores</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Finalidad</th>
+          <th>País</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Stripe</td>
+          <td>Procesamiento de pagos</td>
+          <td>EE.UU.</td>
+        </tr>
+        <tr>
+          <td>Sentry</td>
+          <td>Rastreo de errores y session replay</td>
+          <td>EE.UU.</td>
+        </tr>
+        <tr>
+          <td>Google OAuth</td>
+          <td>Autenticación</td>
+          <td>EE.UU.</td>
+        </tr>
+        <tr>
+          <td>GitHub OAuth</td>
+          <td>Autenticación</td>
+          <td>EE.UU.</td>
+        </tr>
+        <tr>
+          <td>Hostinger</td>
+          <td>Alojamiento VPS</td>
+          <td>LT/EE.UU.</td>
+        </tr>
+        <tr>
+          <td>OpenAI / Anthropic / Google AI</td>
+          <td>Procesamiento de IA (mediante claves del usuario)</td>
+          <td>EE.UU.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>6. Transferencia Internacional de Datos</h2>
+    <p>
+      Tus datos pueden ser transferidos y procesados en Estados Unidos.
+      Garantizamos salvaguardas adecuadas, incluyendo Cláusulas Contractuales
+      Estándar (SCCs) cuando sea aplicable, para proteger tus datos de acuerdo
+      con las leyes de protección de datos aplicables.
+    </p>
+
+    <h2>7. Retención de Datos</h2>
+    <ul>
+      <li>
+        <strong>Datos de cuenta:</strong> Mantenidos mientras tu cuenta esté
+        activa, más 6 meses después de la eliminación
+      </li>
+      <li>
+        <strong>Registros de facturación:</strong> Mantenidos por 7 años
+        (requisito legal)
+      </li>
+      <li>
+        <strong>Logs del servidor:</strong> Mantenidos por 6 meses
+      </li>
+      <li>
+        <strong>Tickets de soporte:</strong> Mantenidos mientras tu cuenta esté
+        activa, eliminados con la cuenta
+      </li>
+    </ul>
+
+    <h2>8. Seguridad</h2>
+    <p>Implementamos las siguientes medidas de seguridad:</p>
+    <ul>
+      <li>Claves de API cifradas con AES-256-GCM</li>
+      <li>Cifrado TLS para todos los datos en tránsito</li>
+      <li>Sistema de archivos de solo lectura en contenedores</li>
+      <li>Autenticación basada en sesión con cookies seguras</li>
+      <li>Limitación de tasa en los endpoints de la API</li>
+      <li>Actualizaciones de seguridad y monitoreo regulares</li>
+    </ul>
+
+    <h2>9. Cookies</h2>
+    <p>Utilizamos las siguientes cookies:</p>
+    <ul>
+      <li>
+        <strong>Cookie de sesión</strong> (necesaria): Mantiene tu sesión
+        autenticada
+      </li>
+      <li>
+        <strong>Cookie de locale</strong> (necesaria): Almacena tu preferencia
+        de idioma
+      </li>
+      <li>
+        <strong>Consentimiento de cookies</strong> (necesaria): Almacena tus
+        preferencias de cookies
+      </li>
+      <li>
+        <strong>Sentry</strong> (analytics): Rastreo de errores y monitoreo de
+        rendimiento
+      </li>
+    </ul>
+
+    <h2>10. Tus Derechos</h2>
+    <p>Bajo las leyes de protección de datos aplicables, tienes derecho a:</p>
+    <ul>
+      <li>
+        <strong>Acceso:</strong> Solicitar una copia de tus datos personales
+      </li>
+      <li>
+        <strong>Corrección:</strong> Solicitar corrección de datos inexactos
+      </li>
+      <li>
+        <strong>Eliminación:</strong> Solicitar eliminación de tus datos
+        (disponible en la configuración de Cuenta)
+      </li>
+      <li>
+        <strong>Portabilidad:</strong> Solicitar tus datos en formato
+        estructurado
+      </li>
+      <li>
+        <strong>Oposición:</strong> Oponerse al procesamiento basado en interés
+        legítimo
+      </li>
+      <li>
+        <strong>Revocación del consentimiento:</strong> Revocar consentimiento
+        en cualquier momento
+      </li>
+    </ul>
+    <p>
+      Para ejercer tus derechos, contáctanos en{" "}
+      <a href="mailto:lpjservicesllc@gmail.com">lpjservicesllc@gmail.com</a>.
+      También puedes eliminar tu cuenta completamente desde la sección Cuenta de
+      tu panel.
+    </p>
+
+    <h2>11. Menores</h2>
+    <p>
+      El Servicio no está destinado a menores de 18 años. No recopilamos datos
+      de menores intencionalmente. Si nos enteramos de que un menor nos ha
+      proporcionado datos personales, tomaremos medidas para eliminarlos.
+    </p>
+
+    <h2>12. Cambios en esta Política</h2>
+    <p>
+      Podemos actualizar esta Política de Privacidad periódicamente. Los cambios
+      significativos se comunicarán con al menos 30 días de anticipación por
+      correo electrónico o a través del Servicio. La fecha de &quot;Última
+      actualización&quot; en la parte superior se revisará en consecuencia.
+    </p>
+
+    <h2>13. Contacto y Reclamaciones</h2>
+    <p>
+      Para preguntas o reclamaciones sobre esta Política de Privacidad,
+      contáctanos en:{" "}
+      <a href="mailto:lpjservicesllc@gmail.com">lpjservicesllc@gmail.com</a>
     </p>
   </>
 );
