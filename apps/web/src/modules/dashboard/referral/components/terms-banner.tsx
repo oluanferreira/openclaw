@@ -183,7 +183,7 @@ function TermsEN() {
 
       <h2>15. Governing Law</h2>
       <p>
-        These terms are governed by the laws of the State of Wyoming, USA, where
+        These terms are governed by the laws of the State of Florida, USA, where
         LPJ SERVICES LLC is incorporated. Any disputes shall be resolved through
         binding arbitration.
       </p>
@@ -362,7 +362,7 @@ function TermsPT() {
 
       <h2>15. Lei Aplicável</h2>
       <p>
-        Estes termos são regidos pelas leis do Estado de Wyoming, EUA, onde a
+        Estes termos são regidos pelas leis do Estado da Flórida, EUA, onde a
         LPJ SERVICES LLC é incorporada. Quaisquer disputas serão resolvidas por
         arbitragem vinculante.
       </p>
@@ -545,7 +545,7 @@ function TermsES() {
 
       <h2>15. Ley Aplicable</h2>
       <p>
-        Estos términos se rigen por las leyes del Estado de Wyoming, EE.UU.,
+        Estos términos se rigen por las leyes del Estado de Florida, EE.UU.,
         donde LPJ SERVICES LLC está incorporada. Cualquier disputa será resuelta
         mediante arbitraje vinculante.
       </p>
