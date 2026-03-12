@@ -1,7 +1,12 @@
 import { logger } from "@workspace/shared/logger";
 
 import { getGatewayConfig } from "../../../config/gateway";
-import { escapeShell, getGatewayToken, getInstanceId } from "../../utils";
+import {
+  escapeShell,
+  getGatewayToken,
+  getInstanceId,
+  toEscapedCommand,
+} from "../../utils";
 
 import { env as flyEnv } from "./env";
 import {
@@ -196,17 +201,25 @@ export const strategy = {
   cli: async (id, commandArgs) => {
     try {
       const machine = await getMachineOrThrow(id);
+      const cliCommand = toEscapedCommand([
+        "node",
+        "/app/dist/index.js",
+        ...commandArgs,
+      ]);
       const result = await execMachine(id, machine.id, {
         command: [
           "timeout",
           "-s",
           "9",
-          "15",
+          "45",
+          "su",
+          "-s",
+          "/bin/sh",
+          "-c",
+          cliCommand,
           "node",
-          "/app/dist/index.js",
-          ...commandArgs,
         ],
-        timeout: 20,
+        timeout: 45,
       });
 
       const exitCode = result.exit_code ?? 0;

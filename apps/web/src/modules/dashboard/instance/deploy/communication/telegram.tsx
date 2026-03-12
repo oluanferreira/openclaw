@@ -120,19 +120,14 @@ export const TelegramConfiguration = ({
                     {...field}
                     onChange={(event) => {
                       field.onChange(event);
-                      if (event.target.value.length > 0) {
-                        form.setValue(
-                          "communication.channel",
-                          CommunicatonChannel.TELEGRAM,
-                        );
-                      } else {
-                        form.reset({
-                          communication: {
-                            channel: undefined,
-                            token: "",
-                          },
-                        });
-                      }
+                      void form.register("communication.channel").onChange({
+                        target: {
+                          value:
+                            event.target.value.length > 0
+                              ? CommunicatonChannel.TELEGRAM
+                              : undefined,
+                        },
+                      });
                     }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {

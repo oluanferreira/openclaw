@@ -50,7 +50,7 @@ const queries = {
         },
       }),
     initialPageParam: undefined as string | undefined,
-    refetchInterval: 2000,
+    refetchInterval: 1000,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   }),
   pairing: {

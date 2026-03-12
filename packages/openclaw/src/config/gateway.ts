@@ -58,6 +58,9 @@ export const getGatewayConfig = ({
       enabled: config.communication.channel === CommunicatonChannel.TELEGRAM,
       botToken: config.communication.token,
       groupPolicy: "disabled",
+      network: {
+        autoSelectFamily: false,
+      },
     },
   },
 });
