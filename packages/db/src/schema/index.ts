@@ -5,3 +5,4 @@ export * from "./support";
 export * from "./vps-server";
 export * from "./ai-model";
 export * from "./referral";
+export * from "./bridge";

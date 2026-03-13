@@ -184,7 +184,7 @@ export const updateOpenclawJson = async (
   patch: Record<string, unknown>,
 ): Promise<void> => {
   const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
-  const configPath = `${stateDir}/openclaw.json`;
+  const _configPath = `${stateDir}/openclaw.json`;
   const patchB64 = Buffer.from(JSON.stringify(patch)).toString("base64");
 
   await execute(`python3 << 'PYEOF'
@@ -313,6 +313,47 @@ export GOG_DATA_DIR=${escapeShell(`${stateDir}/.gog`)}
 "$GOG_BIN" auth callback --url ${escapeShell(callbackUrl)} --data-dir "$GOG_DATA_DIR" 2>&1
 `.trim();
 
-  const { stdout } = await execute(script, { timeout: 60_000 });
+  const { stdout: _stdout } = await execute(script, { timeout: 60_000 });
   return { account: email };
+};
+
+export const updateToolsMd = async (
+  instanceId: string,
+  bridgeSection: string | null,
+): Promise<void> => {
+  const stateDir = `${env.VPS_DEPLOY_ROOT}/instances/${instanceId}`;
+  const toolsPath = `${stateDir}/.openclaw/workspace/TOOLS.md`;
+  const sectionB64 = bridgeSection
+    ? Buffer.from(bridgeSection).toString("base64")
+    : "";
+
+  await execute(
+    `python3 << 'PYEOF'
+import base64
+
+tools_path = "${toolsPath}"
+section_b64 = "${sectionB64}"
+
+START_MARKER = "<!-- BRIDGE-TOOLS-START -->"
+END_MARKER = "<!-- BRIDGE-TOOLS-END -->"
+
+with open(tools_path) as f:
+    content = f.read()
+
+start_idx = content.find(START_MARKER)
+end_idx = content.find(END_MARKER)
+if start_idx != -1 and end_idx != -1:
+    content = content[:start_idx].rstrip() + content[end_idx + len(END_MARKER):].lstrip()
+
+if section_b64:
+    section = base64.b64decode(section_b64).decode()
+    content = content.rstrip() + "\\n\\n" + START_MARKER + "\\n" + section + "\\n" + END_MARKER + "\\n"
+else:
+    content = content.rstrip() + "\\n"
+
+with open(tools_path, "w") as f:
+    f.write(content)
+PYEOF`,
+    { timeout: 15_000 },
+  );
 };

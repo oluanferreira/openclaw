@@ -100,6 +100,14 @@ import {
   CheckCircle,
   Globe,
   Info,
+  Cable,
+  AlertTriangle,
+  Wifi,
+  WifiOff,
+  Terminal,
+  RefreshCw,
+  FolderOpen,
+  ShieldAlert,
 } from "lucide-react";
 
 import { Icons as GlobalIcons } from "@workspace/ui/assets";
@@ -207,6 +215,14 @@ export const Icons = {
   CheckCircle,
   Globe,
   Info,
+  Cable,
+  AlertTriangle,
+  Wifi,
+  WifiOff,
+  Terminal,
+  RefreshCw,
+  FolderOpen,
+  ShieldAlert,
 };
 
 export type Icon = (typeof Icons)[keyof typeof Icons];

@@ -1,0 +1,476 @@
+/* eslint-disable i18next/no-literal-string */
+"use client";
+
+import { useState } from "react";
+
+import { Badge } from "@workspace/ui-web/badge";
+import { Button } from "@workspace/ui-web/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui-web/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui-web/dialog";
+import { Icons } from "@workspace/ui-web/icons";
+import { Input } from "@workspace/ui-web/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui-web/select";
+import { Spinner } from "@workspace/ui-web/spinner";
+
+import {
+  DashboardHeader,
+  DashboardHeaderTitle,
+  DashboardHeaderDescription,
+} from "~/modules/common/layout/dashboard/header";
+import {
+  useBridgeStatus,
+  useBridgeTerminal,
+  useUpdateTerminal,
+  useBridgeFiles,
+  useUpdateFiles,
+  useRotateToken,
+} from "~/modules/dashboard/bridge/hooks/use-bridge";
+
+const CAP_LABELS: Record<string, string> = {
+  browser: "Browser",
+  terminal: "Terminal",
+  clipboard: "Clipboard",
+  files: "Files",
+  notifications: "Notifications",
+};
+
+export const BridgeView = () => {
+  const status = useBridgeStatus();
+  const terminal = useBridgeTerminal();
+  const updateTerminal = useUpdateTerminal();
+  const rotateToken = useRotateToken();
+
+  const files = useBridgeFiles();
+  const updateFiles = useUpdateFiles();
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [allowlistText, setAllowlistText] = useState("");
+  const [timeout, setTimeout] = useState("30");
+
+  const [filesEditOpen, setFilesEditOpen] = useState(false);
+  const [dirs, setDirs] = useState<
+    { path: string; permission: "read" | "read-write" }[]
+  >([]);
+  const [blockedText, setBlockedText] = useState("");
+
+  const openEdit = () => {
+    if (terminal.data) {
+      setAllowlistText(terminal.data.allowlist.join("\n"));
+      setTimeout(String(terminal.data.timeoutSeconds));
+    }
+    setEditOpen(true);
+  };
+
+  const handleSave = () => {
+    const allowlist = allowlistText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const timeoutSeconds = Number(timeout);
+    updateTerminal.mutate(
+      { allowlist, timeoutSeconds },
+      { onSuccess: () => setEditOpen(false) },
+    );
+  };
+
+  const openFilesEdit = () => {
+    if (files.data) {
+      setDirs(files.data.allowedDirs.map((d) => ({ ...d })));
+      setBlockedText(files.data.blockedPatterns.join("\n"));
+    }
+    setFilesEditOpen(true);
+  };
+
+  const handleFilesSave = () => {
+    const blockedPatterns = blockedText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    updateFiles.mutate(
+      { allowedDirs: dirs, blockedPatterns },
+      { onSuccess: () => setFilesEditOpen(false) },
+    );
+  };
+
+  const addDir = () =>
+    setDirs((prev) => [...prev, { path: "", permission: "read" }]);
+  const removeDir = (i: number) =>
+    setDirs((prev) => prev.filter((_, idx) => idx !== i));
+  const updateDir = (i: number, field: "path" | "permission", value: string) =>
+    setDirs((prev) =>
+      prev.map((d, idx) => (idx === i ? { ...d, [field]: value } : d)),
+    );
+
+  const maskedToken = status.data?.token
+    ? `${status.data.token.slice(0, 8)}...${status.data.token.slice(-4)}`
+    : "—";
+
+  return (
+    <>
+      <DashboardHeader>
+        <div>
+          <DashboardHeaderTitle>Bridge</DashboardHeaderTitle>
+          <DashboardHeaderDescription>
+            Connect your desktop to your OpenClaw instance
+          </DashboardHeaderDescription>
+        </div>
+      </DashboardHeader>
+
+      {status.isLoading ? (
+        <div className="flex justify-center py-12">
+          <Spinner className="size-6" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          {/* Connection Status */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card>
+              <CardHeader className="p-5 pb-0!">
+                <CardTitle className="text-muted-foreground text-sm font-normal">
+                  Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-3">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`size-2.5 rounded-full ${status.data?.connected ? "bg-green-500" : "bg-gray-400"}`}
+                  />
+                  <span className="text-lg font-medium">
+                    {status.data?.connected ? "Connected" : "Disconnected"}
+                  </span>
+                </div>
+                {status.data?.deviceName && (
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    {status.data.deviceName}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="p-5 pb-0!">
+                <CardTitle className="text-muted-foreground text-sm font-normal">
+                  Gateway Token
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm">{maskedToken}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => rotateToken.mutate()}
+                    disabled={rotateToken.isPending}
+                  >
+                    {rotateToken.isPending ? (
+                      <Spinner className="size-4" />
+                    ) : (
+                      <Icons.RefreshCw className="size-4" />
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="p-5 pb-0!">
+                <CardTitle className="text-muted-foreground text-sm font-normal">
+                  Capabilities
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(status.data?.capabilities ?? {}).map(
+                    ([key, val]) => (
+                      <Badge
+                        key={key}
+                        variant={val ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {CAP_LABELS[key] ?? key}
+                      </Badge>
+                    ),
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Terminal Config */}
+          <section className="flex w-full flex-col gap-4">
+            <span className="text-muted-foreground ml-1 text-sm uppercase">
+              Terminal Settings
+            </span>
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Icons.Terminal className="text-muted-foreground size-4" />
+                      <span className="font-medium">Command Allowlist</span>
+                    </div>
+                    {terminal.isLoading ? (
+                      <Spinner className="size-4" />
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {(terminal.data?.allowlist ?? []).map((cmd) => (
+                          <Badge
+                            key={cmd}
+                            variant="secondary"
+                            className="font-mono text-xs"
+                          >
+                            {cmd}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-muted-foreground text-xs">
+                      Timeout: {terminal.data?.timeoutSeconds ?? 30}s
+                    </p>
+                  </div>
+                  <Dialog
+                    open={editOpen}
+                    onOpenChange={(v) => {
+                      if (!v) setEditOpen(false);
+                    }}
+                  >
+                    <DialogTrigger
+                      render={
+                        <Button variant="outline" size="sm" onClick={openEdit}>
+                          Edit
+                        </Button>
+                      }
+                    />
+                    <DialogContent className="sm:max-w-md">
+                      <DialogTitle>Terminal Configuration</DialogTitle>
+                      <DialogDescription>
+                        Commands matching the allowlist are auto-approved.
+                        Others require manual confirmation in the Bridge app.
+                      </DialogDescription>
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-muted-foreground text-sm">
+                            Allowed commands (one per line, glob patterns)
+                          </label>
+                          <textarea
+                            className="border-input bg-background min-h-[120px] rounded-md border px-3 py-2 font-mono text-sm"
+                            value={allowlistText}
+                            onChange={(e) => setAllowlistText(e.target.value)}
+                            placeholder={"git *\nnpm *\nls\npwd"}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-muted-foreground text-sm">
+                            Timeout (seconds)
+                          </label>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={300}
+                            value={timeout}
+                            onChange={(e) => setTimeout(e.target.value)}
+                          />
+                        </div>
+                        <Button
+                          onClick={handleSave}
+                          disabled={updateTerminal.isPending}
+                          className="w-full"
+                        >
+                          {updateTerminal.isPending ? (
+                            <Spinner className="size-4" />
+                          ) : (
+                            "Save"
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Files Config */}
+          <section className="flex w-full flex-col gap-4">
+            <span className="text-muted-foreground ml-1 text-sm uppercase">
+              File Access Settings
+            </span>
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Icons.FolderOpen className="text-muted-foreground size-4" />
+                      <span className="font-medium">Allowed Directories</span>
+                    </div>
+                    {files.isLoading ? (
+                      <Spinner className="size-4" />
+                    ) : (files.data?.allowedDirs ?? []).length === 0 ? (
+                      <p className="text-muted-foreground text-xs">
+                        No directories configured &mdash; file access is
+                        disabled
+                      </p>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        {(files.data?.allowedDirs ?? []).map((d, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <Badge
+                              variant="secondary"
+                              className="font-mono text-xs"
+                            >
+                              {d.path}
+                            </Badge>
+                            <Badge
+                              variant={
+                                d.permission === "read-write"
+                                  ? "default"
+                                  : "outline"
+                              }
+                              className="text-xs"
+                            >
+                              {d.permission}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-1 flex items-center gap-2">
+                      <Icons.ShieldAlert className="text-muted-foreground size-3.5" />
+                      <span className="text-muted-foreground text-xs">
+                        Blocked: {(files.data?.blockedPatterns ?? []).length}{" "}
+                        patterns
+                      </span>
+                    </div>
+                  </div>
+                  <Dialog
+                    open={filesEditOpen}
+                    onOpenChange={(v) => {
+                      if (!v) setFilesEditOpen(false);
+                    }}
+                  >
+                    <DialogTrigger
+                      render={
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={openFilesEdit}
+                        >
+                          Edit
+                        </Button>
+                      }
+                    />
+                    <DialogContent className="sm:max-w-lg">
+                      <DialogTitle>File Access Configuration</DialogTitle>
+                      <DialogDescription>
+                        Configure which directories the AI agent can access on
+                        your PC.
+                      </DialogDescription>
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-muted-foreground text-sm">
+                              Allowed Directories
+                            </label>
+                            <Button variant="ghost" size="sm" onClick={addDir}>
+                              <Icons.Plus className="mr-1 size-3" /> Add
+                            </Button>
+                          </div>
+                          {dirs.length === 0 ? (
+                            <p className="text-muted-foreground py-2 text-xs">
+                              No directories &mdash; click Add to allow file
+                              access.
+                            </p>
+                          ) : (
+                            <div className="flex flex-col gap-2">
+                              {dirs.map((d, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Input
+                                    className="flex-1 font-mono text-sm"
+                                    placeholder="C:\Users\you\Projects"
+                                    value={d.path}
+                                    onChange={(e) =>
+                                      updateDir(i, "path", e.target.value)
+                                    }
+                                  />
+                                  <Select
+                                    value={d.permission}
+                                    onValueChange={(v) =>
+                                      v && updateDir(i, "permission", v)
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[130px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="read">Read</SelectItem>
+                                      <SelectItem value="read-write">
+                                        Read-Write
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeDir(i)}
+                                  >
+                                    <Icons.X className="size-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-muted-foreground text-sm">
+                            Blocked Patterns (one per line, glob patterns)
+                          </label>
+                          <textarea
+                            className="border-input bg-background min-h-[100px] rounded-md border px-3 py-2 font-mono text-sm"
+                            value={blockedText}
+                            onChange={(e) => setBlockedText(e.target.value)}
+                            placeholder={".env*\n*.pem\n*.key\n.ssh/"}
+                          />
+                        </div>
+                        <Button
+                          onClick={handleFilesSave}
+                          disabled={updateFiles.isPending}
+                          className="w-full"
+                        >
+                          {updateFiles.isPending ? (
+                            <Spinner className="size-4" />
+                          ) : (
+                            "Save"
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        </div>
+      )}
+    </>
+  );
+};

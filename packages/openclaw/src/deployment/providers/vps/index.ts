@@ -272,5 +272,6 @@ export {
   restartContainer,
   gogSetupStep1,
   gogSetupStep2,
+  updateToolsMd,
 } from "./sdk";
 export { clawhubExec } from "./clawhub";

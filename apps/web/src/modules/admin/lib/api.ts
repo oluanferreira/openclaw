@@ -73,6 +73,23 @@ const queries = {
         }),
       enabled: !!affiliateId,
     }),
+  bridge: queryOptions({
+    queryKey: [KEY, "bridge"],
+    queryFn: () => handle((api.admin as any).bridge.$get)(),
+  }),
+  bridgeStats: queryOptions({
+    queryKey: [KEY, "bridge", "stats"],
+    queryFn: () => handle((api.admin as any).bridge.stats.$get)(),
+  }),
+  bridgeAudit: (instanceId: string) =>
+    queryOptions({
+      queryKey: [KEY, "bridge", instanceId, "audit"],
+      queryFn: () =>
+        handle((api.admin as any).bridge[":instanceId"].audit.$get)({
+          param: { instanceId },
+        }),
+      enabled: !!instanceId,
+    }),
 };
 
 const mutations = {
@@ -187,6 +204,13 @@ const mutations = {
       handle((api.admin as any).referrals[":id"].status.$put)({
         param: { id },
         json: { status },
+      }),
+  }),
+  disconnectBridge: mutationOptions({
+    mutationKey: [KEY, "disconnect-bridge"],
+    mutationFn: (instanceId: string) =>
+      handle((api.admin as any).bridge[":instanceId"].disconnect.$post)({
+        param: { instanceId },
       }),
   }),
 };

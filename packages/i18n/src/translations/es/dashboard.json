@@ -389,5 +389,75 @@
       "checkbox": "He leído y acepto los términos del programa de referidos",
       "confirm": "Confirmar"
     }
+  },
+  "bridge": {
+    "title": "Bridge",
+    "description": "Conecta tu PC a tu agente OpenClaw.",
+    "status": {
+      "title": "Estado de Conexión",
+      "connected": "Bridge Conectado",
+      "connectedDesc": "Tu PC está conectado a tu agente OpenClaw. Todas las capacidades habilitadas están activas.",
+      "disconnected": "Bridge Desconectado",
+      "disconnectedDesc": "Tu PC no está conectado. Descarga la app Bridge y sigue las instrucciones de configuración.",
+      "lastSeen": "Última vez: {{time}}",
+      "device": "Dispositivo: {{name}}",
+      "latency": "Latencia: {{ms}}ms"
+    },
+    "token": {
+      "title": "Token de Emparejamiento",
+      "description": "Usa este token para conectar la app Bridge a tu instancia OpenClaw.",
+      "copied": "¡Token copiado!",
+      "rotate": "Rotar Token",
+      "rotateConfirm": "¿Estás seguro? La conexión actual del Bridge se desconectará y necesitarás reconfigurar la app con el nuevo token.",
+      "rotateSuccess": "Token rotado. Actualiza la app Bridge con el nuevo token.",
+      "show": "Mostrar token",
+      "hide": "Ocultar token"
+    },
+    "download": {
+      "title": "Descargar Bridge App",
+      "description": "Descarga la app Bridge para tu plataforma para conectar tu PC a tu agente OpenClaw.",
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux",
+      "comingSoon": "Próximamente",
+      "version": "v{{version}}"
+    },
+    "capabilities": {
+      "title": "Capacidades",
+      "description": "Controla lo que tu agente OpenClaw puede hacer en tu PC.",
+      "browser": "Control del Navegador",
+      "browserDesc": "Navegar, hacer clic, escribir y capturar pantalla en tu navegador.",
+      "terminal": "Acceso al Terminal",
+      "terminalDesc": "Ejecutar comandos en el terminal del sistema (requiere aprobación).",
+      "clipboard": "Portapapeles",
+      "clipboardDesc": "Leer y escribir en el portapapeles del sistema.",
+      "notifications": "Notificaciones",
+      "notificationsDesc": "Mostrar notificaciones y alertas en el escritorio.",
+      "requiresApproval": "Requiere aprobación para cada acción",
+      "enabled": "Activado",
+      "disabled": "Desactivado"
+    },
+    "setup": {
+      "title": "Instrucciones de Configuración",
+      "steps": {
+        "1": "Descarga la app Bridge para tu plataforma arriba.",
+        "2": "Copia tu token de emparejamiento de la sección de arriba.",
+        "3": "Abre la app Bridge y pega tu token.",
+        "4": "La app se conectará automáticamente. Verás el estado cambiar a conectado."
+      }
+    },
+    "extension": {
+      "title": "Extensión Chrome",
+      "description": "Instala la extensión de relay del navegador para habilitar las capacidades de control del browser.",
+      "step1": "Abre una terminal y ejecuta:",
+      "step1Cmd": "openclaw browser extension install",
+      "step2": "Abre Chrome y ve a:",
+      "step2Url": "chrome://extensions",
+      "step3": "Activa el \"Modo desarrollador\" y haz clic en \"Cargar descomprimida\". Selecciona el directorio mostrado por:",
+      "step3Cmd": "openclaw browser extension path",
+      "step4": "Fija la extensión. Haz clic en ella en cualquier pestaña para permitir que el agente controle esa pestaña.",
+      "tokenNote": "En las opciones de la extensión, configura tu token de emparejamiento (mismo token de arriba).",
+      "learnMore": "Saber más"
+    }
   }
 }

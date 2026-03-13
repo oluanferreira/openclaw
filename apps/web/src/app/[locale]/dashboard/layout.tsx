@@ -59,6 +59,11 @@ const menu = [
         href: pathsConfig.dashboard.referral,
         icon: <Icons.Gift />,
       },
+      {
+        title: "bridge",
+        href: pathsConfig.dashboard.bridge,
+        icon: <Icons.MonitorSmartphone />,
+      },
     ],
   },
 ];

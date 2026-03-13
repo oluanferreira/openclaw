@@ -13,6 +13,7 @@ import { adminRouter } from "./modules/admin/router";
 import { seedVpsServers } from "./modules/admin/vps-config";
 import { authRouter } from "./modules/auth/router";
 import { billingRouter } from "./modules/billing/router";
+import { bridgeRouter } from "./modules/bridge/router";
 import { openclawRouter } from "./modules/openclaw/router";
 import { referralRouter } from "./modules/referral/router";
 import { supportRouter } from "./modules/support/router";
@@ -59,6 +60,7 @@ const appRouter = new Hono()
   .route("/admin", adminRouter)
   .route("/support", supportRouter)
   .route("/referral", referralRouter)
+  .route("/bridge", bridgeRouter)
   .onError(onError);
 
 type AppRouter = typeof appRouter;

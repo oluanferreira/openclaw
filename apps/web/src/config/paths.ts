@@ -14,6 +14,7 @@ const pathsConfig = {
     apiKeys: `${DASHBOARD_PREFIX}/api-keys`,
     skills: `${DASHBOARD_PREFIX}/skills`,
     referral: `${DASHBOARD_PREFIX}/referral`,
+    bridge: `${DASHBOARD_PREFIX}/bridge`,
   },
   admin: {
     index: ADMIN_PREFIX,
@@ -23,6 +24,7 @@ const pathsConfig = {
     subscriptions: `${ADMIN_PREFIX}/subscriptions`,
     models: `${ADMIN_PREFIX}/models`,
     referrals: `${ADMIN_PREFIX}/referrals`,
+    bridge: `${ADMIN_PREFIX}/bridge`,
   },
   legal: {
     terms: "/terms",

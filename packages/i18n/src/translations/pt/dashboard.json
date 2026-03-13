@@ -389,5 +389,75 @@
       "checkbox": "Li e aceito os termos do programa de indicação",
       "confirm": "Confirmar"
     }
+  },
+  "bridge": {
+    "title": "Bridge",
+    "description": "Conecte seu PC ao seu agente OpenClaw.",
+    "status": {
+      "title": "Status da Conexão",
+      "connected": "Bridge Conectado",
+      "connectedDesc": "Seu PC está conectado ao seu agente OpenClaw. Todas as capacidades habilitadas estão ativas.",
+      "disconnected": "Bridge Desconectado",
+      "disconnectedDesc": "Seu PC não está conectado. Baixe o app Bridge e siga as instruções de configuração.",
+      "lastSeen": "Última vez: {{time}}",
+      "device": "Dispositivo: {{name}}",
+      "latency": "Latência: {{ms}}ms"
+    },
+    "token": {
+      "title": "Token de Pareamento",
+      "description": "Use este token para conectar o app Bridge à sua instância OpenClaw.",
+      "copied": "Token copiado!",
+      "rotate": "Rotacionar Token",
+      "rotateConfirm": "Tem certeza? A conexão atual do Bridge será desconectada e você precisará reconfigurar o app com o novo token.",
+      "rotateSuccess": "Token rotacionado. Atualize o app Bridge com o novo token.",
+      "show": "Mostrar token",
+      "hide": "Ocultar token"
+    },
+    "download": {
+      "title": "Baixar Bridge App",
+      "description": "Baixe o app Bridge para sua plataforma para conectar seu PC ao seu agente OpenClaw.",
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux",
+      "comingSoon": "Em breve",
+      "version": "v{{version}}"
+    },
+    "capabilities": {
+      "title": "Capacidades",
+      "description": "Controle o que seu agente OpenClaw pode fazer no seu PC.",
+      "browser": "Controle do Navegador",
+      "browserDesc": "Navegar, clicar, digitar e capturar tela no seu navegador.",
+      "terminal": "Acesso ao Terminal",
+      "terminalDesc": "Executar comandos no terminal do sistema (requer aprovação).",
+      "clipboard": "Área de Transferência",
+      "clipboardDesc": "Ler e escrever na área de transferência do sistema.",
+      "notifications": "Notificações",
+      "notificationsDesc": "Exibir notificações e alertas no desktop.",
+      "requiresApproval": "Requer aprovação para cada ação",
+      "enabled": "Ativado",
+      "disabled": "Desativado"
+    },
+    "setup": {
+      "title": "Instruções de Configuração",
+      "steps": {
+        "1": "Baixe o app Bridge para sua plataforma acima.",
+        "2": "Copie seu token de pareamento da seção acima.",
+        "3": "Abra o app Bridge e cole seu token.",
+        "4": "O app conectará automaticamente. Você verá o status mudar para conectado."
+      }
+    },
+    "extension": {
+      "title": "Extensão Chrome",
+      "description": "Instale a extensão de relay do navegador para habilitar as capacidades de controle do browser.",
+      "step1": "Abra um terminal e execute:",
+      "step1Cmd": "openclaw browser extension install",
+      "step2": "Abra o Chrome e acesse:",
+      "step2Url": "chrome://extensions",
+      "step3": "Ative o \"Modo desenvolvedor\" e clique em \"Carregar sem compactação\". Selecione o diretório mostrado por:",
+      "step3Cmd": "openclaw browser extension path",
+      "step4": "Fixe a extensão. Clique nela em qualquer aba para permitir que o agente controle essa aba.",
+      "tokenNote": "Nas opções da extensão, configure seu token de pareamento (mesmo token acima).",
+      "learnMore": "Saiba mais"
+    }
   }
 }

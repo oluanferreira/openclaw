@@ -52,6 +52,11 @@ const menu: Menu = [
         href: pathsConfig.admin.referrals,
         icon: <Icons.Gift />,
       },
+      {
+        title: "Bridge",
+        href: pathsConfig.admin.bridge,
+        icon: <Icons.Cable />,
+      },
     ],
   },
 ];

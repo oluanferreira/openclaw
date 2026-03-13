@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormContext } from "react-hook-form";
 
@@ -16,7 +17,6 @@ import { pathsConfig } from "~/config/paths";
 import { auth } from "~/modules/auth/lib/api";
 import { SocialProviders } from "~/modules/auth/social-providers";
 import { TurboLink } from "~/modules/common/turbo-link";
-import Link from "next/link";
 import {
   DeployInstanceForm,
   DeployInstanceFormNote,

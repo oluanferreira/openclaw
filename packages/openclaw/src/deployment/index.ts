@@ -14,6 +14,7 @@ export {
   restartContainer,
   readOpenclawJson,
   updateOpenclawJson,
+  updateToolsMd,
   downloadSkillBinary,
   gogSetupStep1,
   gogSetupStep2,

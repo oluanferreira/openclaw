@@ -84,6 +84,12 @@ export const getGatewayConfig = ({
       },
     },
   },
+  commands: {
+    native: "auto",
+    nativeSkills: "auto",
+    restart: true,
+    ownerDisplay: "raw",
+  },
   channels: {
     telegram: {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -94,12 +100,6 @@ export const getGatewayConfig = ({
       streaming: "partial",
     },
   },
-  commands: {
-    native: "auto",
-    nativeSkills: "auto",
-    restart: true,
-    ownerDisplay: "raw",
-  },
   skills: getSkillsConfig(skills),
   hooks: {
     enabled: true,
@@ -109,7 +109,7 @@ export const getGatewayConfig = ({
     exec: {
       host: "gateway",
       security: "full",
-      ask: "off",
+      ask: "always",
     },
   },
 });

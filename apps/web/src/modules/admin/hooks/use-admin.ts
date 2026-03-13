@@ -213,3 +213,33 @@ export const useAdminUpdateReferralStatus = () => {
     },
   });
 };
+
+// ─── Bridge ─────────────────────────────────────────────────
+
+export const useAdminBridge = () => {
+  return useQuery(adminApi.queries.bridge);
+};
+
+export const useAdminBridgeStats = () => {
+  return useQuery(adminApi.queries.bridgeStats);
+};
+
+export const useAdminBridgeAudit = (instanceId: string) => {
+  return useQuery(adminApi.queries.bridgeAudit(instanceId));
+};
+
+export const useAdminDisconnectBridge = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...adminApi.mutations.disconnectBridge,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(adminApi.queries.bridge);
+      await queryClient.invalidateQueries(adminApi.queries.bridgeStats);
+      toast.success("Bridge desconectado");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Erro ao desconectar bridge");
+    },
+  });
+};

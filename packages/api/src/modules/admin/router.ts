@@ -3,7 +3,7 @@ import { createMiddleware } from "hono/factory";
 import Stripe from "stripe";
 import * as z from "zod";
 
-import { asc, desc, eq, sql, count } from "@workspace/db";
+import { asc, desc, eq, sql, count, gte, and } from "@workspace/db";
 import {
   user,
   instance,
@@ -13,6 +13,8 @@ import {
   affiliate,
   commission,
   affiliatePayout,
+  bridgeConnection,
+  bridgeAuditLog,
 } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
 import {
@@ -978,4 +980,110 @@ export const adminRouter = new Hono()
       .returning();
 
     return c.json(updated);
+  })
+
+  // ─── BRIDGE ───────────────────────────────────────────────────────────
+
+  .get("/bridge", async (c) => {
+    const HEARTBEAT_TIMEOUT_MS = 90_000;
+
+    const bridges = await db
+      .select({
+        id: bridgeConnection.id,
+        instanceId: bridgeConnection.instanceId,
+        lastSeen: bridgeConnection.lastSeen,
+        deviceName: bridgeConnection.deviceName,
+        appVersion: bridgeConnection.appVersion,
+        capabilities: bridgeConnection.capabilities,
+        createdAt: bridgeConnection.createdAt,
+        userName: user.name,
+        userEmail: user.email,
+      })
+      .from(bridgeConnection)
+      .leftJoin(instance, eq(bridgeConnection.instanceId, instance.id))
+      .leftJoin(user, eq(instance.userId, user.id))
+      .orderBy(desc(bridgeConnection.updatedAt));
+
+    const now = Date.now();
+    const result = bridges.map((b) => ({
+      ...b,
+      connected:
+        b.lastSeen !== null &&
+        now - new Date(b.lastSeen).getTime() < HEARTBEAT_TIMEOUT_MS,
+    }));
+
+    return c.json(result);
+  })
+
+  .get("/bridge/stats", async (c) => {
+    const HEARTBEAT_TIMEOUT_MS = 90_000;
+    const now = new Date();
+    const threshold = new Date(now.getTime() - HEARTBEAT_TIMEOUT_MS);
+    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const allBridges = await db.select().from(bridgeConnection);
+
+    const total = allBridges.length;
+    const connectedNow = allBridges.filter(
+      (b) => b.lastSeen && b.lastSeen >= threshold,
+    ).length;
+
+    const capCounts = {
+      browser: 0,
+      terminal: 0,
+      clipboard: 0,
+      notifications: 0,
+    };
+    for (const b of allBridges) {
+      if (b.capabilities.browser) capCounts.browser++;
+      if (b.capabilities.terminal) capCounts.terminal++;
+      if (b.capabilities.clipboard) capCounts.clipboard++;
+      if (b.capabilities.notifications) capCounts.notifications++;
+    }
+
+    const popularCapability =
+      Object.entries(capCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
+      "browser";
+
+    const [errorStats] = await db
+      .select({ count: count() })
+      .from(bridgeAuditLog)
+      .where(
+        and(
+          eq(bridgeAuditLog.result, "blocked"),
+          gte(bridgeAuditLog.createdAt, last24h),
+        ),
+      );
+
+    return c.json({
+      total,
+      connectedNow,
+      popularCapability,
+      errors24h: errorStats?.count ?? 0,
+    });
+  })
+
+  .get("/bridge/:instanceId/audit", async (c) => {
+    const instanceId = c.req.param("instanceId");
+    const limit = Math.min(Number(c.req.query("limit") ?? 50), 200);
+
+    const logs = await db
+      .select()
+      .from(bridgeAuditLog)
+      .where(eq(bridgeAuditLog.instanceId, instanceId))
+      .orderBy(desc(bridgeAuditLog.createdAt))
+      .limit(limit);
+
+    return c.json(logs);
+  })
+
+  .post("/bridge/:instanceId/disconnect", async (c) => {
+    const instanceId = c.req.param("instanceId");
+
+    await db
+      .update(bridgeConnection)
+      .set({ lastSeen: null, updatedAt: new Date() })
+      .where(eq(bridgeConnection.instanceId, instanceId));
+
+    return c.json({ success: true });
   });

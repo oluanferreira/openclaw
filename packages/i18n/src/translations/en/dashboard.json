@@ -389,5 +389,75 @@
       "checkbox": "I have read and accept the referral program terms",
       "confirm": "Confirm"
     }
+  },
+  "bridge": {
+    "title": "Bridge",
+    "description": "Connect your PC to your OpenClaw agent.",
+    "status": {
+      "title": "Connection Status",
+      "connected": "Bridge Connected",
+      "connectedDesc": "Your PC is connected to your OpenClaw agent. All enabled capabilities are active.",
+      "disconnected": "Bridge Disconnected",
+      "disconnectedDesc": "Your PC is not connected. Download the Bridge app and follow the setup instructions.",
+      "lastSeen": "Last seen: {{time}}",
+      "device": "Device: {{name}}",
+      "latency": "Latency: {{ms}}ms"
+    },
+    "token": {
+      "title": "Pairing Token",
+      "description": "Use this token to connect the Bridge app to your OpenClaw instance.",
+      "copied": "Token copied!",
+      "rotate": "Rotate Token",
+      "rotateConfirm": "Are you sure? The current Bridge connection will be disconnected and you will need to reconfigure the app with the new token.",
+      "rotateSuccess": "Token rotated. Please update the Bridge app with the new token.",
+      "show": "Show token",
+      "hide": "Hide token"
+    },
+    "download": {
+      "title": "Download Bridge App",
+      "description": "Download the Bridge app for your platform to connect your PC to your OpenClaw agent.",
+      "windows": "Windows",
+      "mac": "macOS",
+      "linux": "Linux",
+      "comingSoon": "Coming soon",
+      "version": "v{{version}}"
+    },
+    "capabilities": {
+      "title": "Capabilities",
+      "description": "Control what your OpenClaw agent can do on your PC.",
+      "browser": "Browser Control",
+      "browserDesc": "Navigate, click, type, and take screenshots in your browser.",
+      "terminal": "Terminal Access",
+      "terminalDesc": "Execute commands in your system terminal (requires approval).",
+      "clipboard": "Clipboard",
+      "clipboardDesc": "Read and write to your system clipboard.",
+      "notifications": "Notifications",
+      "notificationsDesc": "Show desktop notifications and alerts.",
+      "requiresApproval": "Requires approval for each action",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "setup": {
+      "title": "Setup Instructions",
+      "steps": {
+        "1": "Download the Bridge app for your platform above.",
+        "2": "Copy your pairing token from the section above.",
+        "3": "Open the Bridge app and paste your token.",
+        "4": "The app will connect automatically. You will see the status change to connected."
+      }
+    },
+    "extension": {
+      "title": "Chrome Extension",
+      "description": "Install the browser relay extension to enable browser control capabilities.",
+      "step1": "Open a terminal and run:",
+      "step1Cmd": "openclaw browser extension install",
+      "step2": "Open Chrome and go to:",
+      "step2Url": "chrome://extensions",
+      "step3": "Enable \"Developer mode\" and click \"Load unpacked\". Select the directory shown by:",
+      "step3Cmd": "openclaw browser extension path",
+      "step4": "Pin the extension. Click it on any tab to let the agent control that tab.",
+      "tokenNote": "In the extension Options, set your pairing token (same token as above).",
+      "learnMore": "Learn more"
+    }
   }
 }

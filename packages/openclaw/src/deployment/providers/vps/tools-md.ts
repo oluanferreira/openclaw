@@ -82,12 +82,58 @@ clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
 Se uma skill precisa de env vars (ex: TAVILY_API_KEY), peca a chave ao user
 e exporte antes de usar: \`export TAVILY_API_KEY=xxx && <comando>\`.
 
+## Acesso Web e Navegacao
+
+### O que voce PODE fazer
+- **HTTP requests:** \`curl\`, \`wget\`, \`fetch()\` (Node.js) para acessar APIs e paginas
+- **Web scraping basico:** Baixar HTML e parsear com Node.js (\`npm install -g cheerio-cli\`, etc.)
+- **APIs de servicos:** Usar skills para X/Twitter (xurl), GitHub (gh-issues), Slack, Discord, Notion, Trello
+- **Busca web:** Brave Search ou Perplexity (requer API key — ver secao "Configurar API Keys")
+- **Downloads:** \`curl\`, \`wget\`, \`yt-dlp\` para baixar arquivos, videos, etc.
+
+### O que voce NAO pode fazer
+- **Navegar em browser:** Playwright, Puppeteer e Selenium NAO funcionam neste container
+  - Faltam libs de sistema (libX11, libgbm, libnss3, etc.) e nao ha display
+  - Usuario \`node\` nao tem sudo para instalar pacotes de sistema
+- **Logar em sites via browser:** Sem browser, nao ha como fazer login visual
+- **Capturar screenshots de paginas:** Sem browser headless disponivel
+
+### Alternativas para tarefas web
+1. **APIs diretas** — A maioria dos servicos tem APIs. Use skills ou \`curl\` com tokens
+2. **Busca web** — Configure Brave Search ou Perplexity para pesquisar na web
+3. **Scraping simples** — \`curl <URL>\` + parsear HTML com Node.js para dados publicos
+4. **Automacao de redes sociais** — Use \`xurl\` para X/Twitter (ver skill xurl)
+
 ## Variaveis de Ambiente
 
 3 API keys injetadas pelo host (configuraveis pelo user no dashboard):
 - \`OPENAI_API_KEY\`
 - \`ANTHROPIC_API_KEY\`
 - \`GOOGLE_GENERATIVE_AI_API_KEY\`
+
+## Configurar API Keys de Servicos (via CLI)
+
+Para registrar qualquer API key de servico, use o padrao:
+
+\`\`\`bash
+openclaw config set <caminho> <KEY>
+\`\`\`
+
+### Caminhos conhecidos
+
+| Servico | Caminho no config |
+|---------|-------------------|
+| Brave Search | \`tools.web.search.apiKey\` |
+| Perplexity | \`tools.web.search.perplexity.apiKey\` |
+
+### IMPORTANTE — Restart dentro do container
+
+**NAO use \`openclaw gateway restart\`** — esse comando usa systemd que nao
+existe no container Docker. Ele VAI falhar.
+
+Apos registrar uma key com \`openclaw config set\`, faca UMA das opcoes:
+1. Peca ao usuario para clicar **"Reiniciar"** no dashboard ClaWin
+2. Informe que a mudanca sera aplicada no proximo restart do container
 
 ## Limites do Container
 
@@ -103,7 +149,7 @@ e exporte antes de usar: \`export TAVILY_API_KEY=xxx && <comando>\`.
 
 O filesystem fora de /opt/openclaw e /tmp e somente leitura.
 Nao ha sudo. Pacotes de sistema (apt/dpkg) requerem root que voce nao tem.
-Browsers (Playwright/Puppeteer) dependem de libs de sistema — nao funcionam aqui.
+Browsers (Playwright/Puppeteer) NAO funcionam — ver secao "Acesso Web e Navegacao".
 
 ## Plataforma ClaWin1Click
 
@@ -193,12 +239,58 @@ clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
 If a skill requires env vars (e.g. TAVILY_API_KEY), ask the user for the key
 and export before using: \`export TAVILY_API_KEY=xxx && <command>\`.
 
+## Web Access and Browsing
+
+### What you CAN do
+- **HTTP requests:** \`curl\`, \`wget\`, \`fetch()\` (Node.js) to access APIs and pages
+- **Basic web scraping:** Download HTML and parse with Node.js (\`npm install -g cheerio-cli\`, etc.)
+- **Service APIs:** Use skills for X/Twitter (xurl), GitHub (gh-issues), Slack, Discord, Notion, Trello
+- **Web search:** Brave Search or Perplexity (requires API key — see "Configure Service API Keys")
+- **Downloads:** \`curl\`, \`wget\`, \`yt-dlp\` to download files, videos, etc.
+
+### What you CANNOT do
+- **Browse with a browser:** Playwright, Puppeteer and Selenium DO NOT work in this container
+  - Missing system libraries (libX11, libgbm, libnss3, etc.) and no display available
+  - User \`node\` has no sudo to install system packages
+- **Log into websites via browser:** Without a browser, visual login is not possible
+- **Capture page screenshots:** No headless browser available
+
+### Alternatives for web tasks
+1. **Direct APIs** — Most services have APIs. Use skills or \`curl\` with tokens
+2. **Web search** — Configure Brave Search or Perplexity to search the web
+3. **Simple scraping** — \`curl <URL>\` + parse HTML with Node.js for public data
+4. **Social media automation** — Use \`xurl\` for X/Twitter (see xurl skill)
+
 ## Environment Variables
 
 3 API keys injected by the host (configurable by the user in the dashboard):
 - \`OPENAI_API_KEY\`
 - \`ANTHROPIC_API_KEY\`
 - \`GOOGLE_GENERATIVE_AI_API_KEY\`
+
+## Configure Service API Keys (via CLI)
+
+To register any service API key, use the pattern:
+
+\`\`\`bash
+openclaw config set <path> <KEY>
+\`\`\`
+
+### Known paths
+
+| Service | Config path |
+|---------|-------------|
+| Brave Search | \`tools.web.search.apiKey\` |
+| Perplexity | \`tools.web.search.perplexity.apiKey\` |
+
+### IMPORTANT — Restart inside the container
+
+**DO NOT use \`openclaw gateway restart\`** — this command uses systemd which
+does not exist in the Docker container. It WILL fail.
+
+After registering a key with \`openclaw config set\`, do ONE of the following:
+1. Ask the user to click **"Restart"** on the ClaWin dashboard
+2. Inform them the change will be applied on the next container restart
 
 ## Container Limits
 
@@ -214,7 +306,7 @@ and export before using: \`export TAVILY_API_KEY=xxx && <command>\`.
 
 The filesystem outside /opt/openclaw and /tmp is read-only.
 No sudo. System packages (apt/dpkg) require root which you don't have.
-Browsers (Playwright/Puppeteer) depend on system libraries — they won't work here.
+Browsers (Playwright/Puppeteer) DO NOT work — see "Web Access and Browsing" section.
 
 ## ClaWin1Click Platform
 
@@ -304,12 +396,58 @@ clawhub uninstall <slug> --yes --workdir /opt/openclaw --dir skills --no-input
 Si una skill necesita variables de entorno (ej: TAVILY_API_KEY), pide la clave al usuario
 y exportala antes de usar: \`export TAVILY_API_KEY=xxx && <comando>\`.
 
+## Acceso Web y Navegacion
+
+### Lo que PUEDES hacer
+- **Solicitudes HTTP:** \`curl\`, \`wget\`, \`fetch()\` (Node.js) para acceder a APIs y paginas
+- **Web scraping basico:** Descargar HTML y parsear con Node.js (\`npm install -g cheerio-cli\`, etc.)
+- **APIs de servicios:** Usar skills para X/Twitter (xurl), GitHub (gh-issues), Slack, Discord, Notion, Trello
+- **Busqueda web:** Brave Search o Perplexity (requiere API key — ver seccion "Configurar API Keys")
+- **Descargas:** \`curl\`, \`wget\`, \`yt-dlp\` para descargar archivos, videos, etc.
+
+### Lo que NO puedes hacer
+- **Navegar con browser:** Playwright, Puppeteer y Selenium NO funcionan en este container
+  - Faltan librerias de sistema (libX11, libgbm, libnss3, etc.) y no hay display
+  - Usuario \`node\` no tiene sudo para instalar paquetes de sistema
+- **Iniciar sesion en sitios via browser:** Sin browser, no es posible login visual
+- **Capturar screenshots de paginas:** Sin browser headless disponible
+
+### Alternativas para tareas web
+1. **APIs directas** — La mayoria de servicios tiene APIs. Usa skills o \`curl\` con tokens
+2. **Busqueda web** — Configura Brave Search o Perplexity para buscar en la web
+3. **Scraping simple** — \`curl <URL>\` + parsear HTML con Node.js para datos publicos
+4. **Automatizacion de redes sociales** — Usa \`xurl\` para X/Twitter (ver skill xurl)
+
 ## Variables de Entorno
 
 3 API keys inyectadas por el host (configurables por el usuario en el dashboard):
 - \`OPENAI_API_KEY\`
 - \`ANTHROPIC_API_KEY\`
 - \`GOOGLE_GENERATIVE_AI_API_KEY\`
+
+## Configurar API Keys de Servicios (via CLI)
+
+Para registrar cualquier API key de servicio, usa el patron:
+
+\`\`\`bash
+openclaw config set <camino> <KEY>
+\`\`\`
+
+### Caminos conocidos
+
+| Servicio | Camino en config |
+|----------|------------------|
+| Brave Search | \`tools.web.search.apiKey\` |
+| Perplexity | \`tools.web.search.perplexity.apiKey\` |
+
+### IMPORTANTE — Restart dentro del contenedor
+
+**NO uses \`openclaw gateway restart\`** — ese comando usa systemd que no
+existe en el contenedor Docker. VA a fallar.
+
+Despues de registrar una key con \`openclaw config set\`, haz UNA de las opciones:
+1. Pide al usuario que haga clic en **"Reiniciar"** en el dashboard ClaWin
+2. Informa que el cambio se aplicara en el proximo restart del contenedor
 
 ## Limites del Contenedor
 
@@ -325,7 +463,7 @@ y exportala antes de usar: \`export TAVILY_API_KEY=xxx && <comando>\`.
 
 El filesystem fuera de /opt/openclaw y /tmp es solo lectura.
 No hay sudo. Paquetes de sistema (apt/dpkg) requieren root que no tienes.
-Navegadores (Playwright/Puppeteer) dependen de librerias de sistema — no funcionan aqui.
+Navegadores (Playwright/Puppeteer) NO funcionan — ver seccion "Acceso Web y Navegacion".
 
 ## Plataforma ClaWin1Click
 

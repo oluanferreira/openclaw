@@ -253,5 +253,6 @@
   "login": {
     "consentPrefix": "By continuing, you agree to our",
     "consentAnd": "and"
-  }
+  },
+  "bridge": "Bridge"
 }
