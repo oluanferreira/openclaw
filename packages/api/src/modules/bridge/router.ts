@@ -114,7 +114,7 @@ O Bridge permite enviar notificações nativas para o desktop do usuário.
 
 | Tool | Descricao | Parametros |
 |------|-----------|-----------|
-| \`notifications.send\` | Envia notificacao desktop | \`title: string, body: string, type?: "info" \| "alert" \| "action"\` |
+| \`notifications.send\` | Envia notificacao desktop | \`title: string, body: string, type?: "info" | "alert" | "action"\` |
 
 ### Tipos de Notificacao
 
@@ -760,4 +760,25 @@ export const bridgeRouter = new Hono()
       fileConfig: bridge.fileConfig,
       notificationConfig: bridge.notificationConfig,
     });
+  })
+
+  // --- Auto-Update Check ---
+
+  .get("/updates/latest", (c) => {
+    // Returns the latest Bridge app release info.
+    // The client compares versions locally.
+    // Update this when building new Bridge releases.
+    const LATEST_RELEASE = {
+      version: "0.1.0",
+      notes: "",
+      critical: false,
+      platforms: {
+        "windows-x86_64": {
+          url: "",
+        },
+      },
+      pubDate: "2026-03-13T00:00:00Z",
+    };
+
+    return c.json(LATEST_RELEASE);
   });
