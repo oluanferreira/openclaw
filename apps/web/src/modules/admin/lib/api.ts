@@ -90,6 +90,14 @@ const queries = {
         }),
       enabled: !!instanceId,
     }),
+  bridgeAnalytics: (days = 30) =>
+    queryOptions({
+      queryKey: [KEY, "bridge", "analytics", days],
+      queryFn: () =>
+        handle((api.admin as any).bridge.analytics.$get)({
+          query: { days: String(days) },
+        }),
+    }),
 };
 
 const mutations = {

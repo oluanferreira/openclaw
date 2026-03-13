@@ -57,6 +57,11 @@ const menu: Menu = [
         href: pathsConfig.admin.bridge,
         icon: <Icons.Cable />,
       },
+      {
+        title: "Bridge Analytics",
+        href: pathsConfig.admin.bridgeAnalytics,
+        icon: <Icons.BarChart3 />,
+      },
     ],
   },
 ];

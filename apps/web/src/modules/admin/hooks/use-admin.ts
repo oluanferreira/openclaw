@@ -228,6 +228,10 @@ export const useAdminBridgeAudit = (instanceId: string) => {
   return useQuery(adminApi.queries.bridgeAudit(instanceId));
 };
 
+export const useAdminBridgeAnalytics = (days = 30) => {
+  return useQuery(adminApi.queries.bridgeAnalytics(days));
+};
+
 export const useAdminDisconnectBridge = () => {
   const queryClient = useQueryClient();
 

@@ -25,6 +25,7 @@ const pathsConfig = {
     models: `${ADMIN_PREFIX}/models`,
     referrals: `${ADMIN_PREFIX}/referrals`,
     bridge: `${ADMIN_PREFIX}/bridge`,
+    bridgeAnalytics: `${ADMIN_PREFIX}/bridge/analytics`,
   },
   legal: {
     terms: "/terms",

@@ -1086,4 +1086,141 @@ export const adminRouter = new Hono()
       .where(eq(bridgeConnection.instanceId, instanceId));
 
     return c.json({ success: true });
+  })
+
+  .get("/bridge/analytics", async (c) => {
+    const range = Number(c.req.query("days") ?? 30);
+    const now = new Date();
+    const startDate = new Date(now.getTime() - range * 24 * 60 * 60 * 1000);
+
+    // 1. Connections over time (from audit log connect events)
+    const dailyConnections = await db
+      .select({
+        date: sql<string>`DATE(${bridgeAuditLog.createdAt})`.as("date"),
+        connections: count(),
+      })
+      .from(bridgeAuditLog)
+      .where(
+        and(
+          eq(bridgeAuditLog.action, "connect"),
+          gte(bridgeAuditLog.createdAt, startDate),
+        ),
+      )
+      .groupBy(sql`DATE(${bridgeAuditLog.createdAt})`)
+      .orderBy(sql`DATE(${bridgeAuditLog.createdAt})`);
+
+    // 2. Errors over time
+    const dailyErrors = await db
+      .select({
+        date: sql<string>`DATE(${bridgeAuditLog.createdAt})`.as("date"),
+        errors: count(),
+      })
+      .from(bridgeAuditLog)
+      .where(
+        and(
+          eq(bridgeAuditLog.result, "blocked"),
+          gte(bridgeAuditLog.createdAt, startDate),
+        ),
+      )
+      .groupBy(sql`DATE(${bridgeAuditLog.createdAt})`)
+      .orderBy(sql`DATE(${bridgeAuditLog.createdAt})`);
+
+    // 3. Capability distribution
+    const allBridges = await db.select().from(bridgeConnection);
+    const capCounts: Record<string, number> = {};
+    for (const b of allBridges) {
+      for (const [key, enabled] of Object.entries(b.capabilities)) {
+        if (enabled) capCounts[key] = (capCounts[key] ?? 0) + 1;
+      }
+    }
+
+    // 4. Actions breakdown (top actions)
+    const actionBreakdown = await db
+      .select({
+        action: bridgeAuditLog.action,
+        total: count(),
+      })
+      .from(bridgeAuditLog)
+      .where(gte(bridgeAuditLog.createdAt, startDate))
+      .groupBy(bridgeAuditLog.action)
+      .orderBy(desc(count()));
+
+    // 5. Error breakdown by type
+    const errorBreakdown = await db
+      .select({
+        action: bridgeAuditLog.action,
+        errors: count(),
+      })
+      .from(bridgeAuditLog)
+      .where(
+        and(
+          eq(bridgeAuditLog.result, "blocked"),
+          gte(bridgeAuditLog.createdAt, startDate),
+        ),
+      )
+      .groupBy(bridgeAuditLog.action)
+      .orderBy(desc(count()));
+
+    // 6. Average heartbeat latency
+    const [durationStats] = await db
+      .select({
+        avg: sql<number>`COALESCE(AVG(${bridgeAuditLog.durationMs}), 0)`,
+      })
+      .from(bridgeAuditLog)
+      .where(
+        and(
+          eq(bridgeAuditLog.action, "heartbeat"),
+          gte(bridgeAuditLog.createdAt, startDate),
+        ),
+      );
+
+    // 7. Adoption funnel
+    const [subscriberCount] = await db
+      .select({ count: count() })
+      .from(instance);
+
+    const installedCount = allBridges.length;
+    const HEARTBEAT_TIMEOUT = 90_000;
+    const threshold = new Date(now.getTime() - HEARTBEAT_TIMEOUT);
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const activeNow = allBridges.filter(
+      (b) => b.lastSeen && b.lastSeen >= threshold,
+    ).length;
+
+    const weeklyActive = allBridges.filter(
+      (b) => b.lastSeen && b.lastSeen >= weekAgo,
+    ).length;
+
+    return c.json({
+      dailyConnections: dailyConnections.map((d) => ({
+        date: d.date,
+        connections: Number(d.connections),
+      })),
+      dailyErrors: dailyErrors.map((d) => ({
+        date: d.date,
+        errors: Number(d.errors),
+      })),
+      capabilityDistribution: Object.entries(capCounts).map(
+        ([name, value]) => ({
+          name,
+          value,
+        }),
+      ),
+      actionBreakdown: actionBreakdown.map((a) => ({
+        action: a.action,
+        total: Number(a.total),
+      })),
+      errorBreakdown: errorBreakdown.map((e) => ({
+        action: e.action,
+        errors: Number(e.errors),
+      })),
+      avgHeartbeatMs: Math.round(Number(durationStats?.avg ?? 0)),
+      funnel: {
+        subscribers: subscriberCount?.count ?? 0,
+        installed: installedCount,
+        activeNow,
+        weeklyActive,
+      },
+    });
   });
