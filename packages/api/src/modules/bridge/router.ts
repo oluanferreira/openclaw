@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import crypto from "node:crypto";
 
-import { and, eq, gt, lt } from "@workspace/db";
+import { and, eq, lt } from "@workspace/db";
 import {
   bridgeAuditLog,
   bridgeConnection,
@@ -1024,7 +1024,7 @@ export const bridgeRouter = new Hono()
           lt(bridgeMobileRequest.expiresAt, new Date()),
         ),
       )
-      .catch(() => {});
+      .catch(() => undefined);
 
     const pending = await db.query.bridgeMobileRequest.findMany({
       where: and(
@@ -1161,7 +1161,7 @@ export const bridgeRouter = new Hono()
       .update(bridgeMobileRequest)
       .set({
         status: "error",
-        error: (body as { reason?: string })?.reason ?? "User denied",
+        error: (body as { reason?: string }).reason ?? "User denied",
         completedAt: new Date(),
       })
       .where(

@@ -43,7 +43,7 @@ interface BridgeMobileStatus {
 
 const KEY = "bridge";
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const bridgeApi = api.bridge as any;
 
 const queries = {
