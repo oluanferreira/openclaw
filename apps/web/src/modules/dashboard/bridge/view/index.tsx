@@ -45,6 +45,7 @@ import {
   useUpdateNotifications,
   useRotateToken,
 } from "~/modules/dashboard/bridge/hooks/use-bridge";
+import { OnboardingWizard } from "~/modules/dashboard/bridge/view/onboarding-wizard";
 
 const CAP_LABELS: Record<string, string> = {
   browser: "Browser",
@@ -166,9 +167,37 @@ export const BridgeView = () => {
       prev.map((d, idx) => (idx === i ? { ...d, [field]: value } : d)),
     );
 
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const saved = localStorage.getItem("bridge-onboarding-step");
+    return saved !== "done";
+  });
+
   const maskedToken = status.data?.token
     ? `${status.data.token.slice(0, 8)}...${status.data.token.slice(-4)}`
     : "—";
+
+  if (showOnboarding && !status.isLoading) {
+    return (
+      <>
+        <DashboardHeader>
+          <div>
+            <DashboardHeaderTitle>Bridge</DashboardHeaderTitle>
+            <DashboardHeaderDescription>
+              Connect your desktop to your OpenClaw instance
+            </DashboardHeaderDescription>
+          </div>
+        </DashboardHeader>
+        <OnboardingWizard
+          onComplete={() => setShowOnboarding(false)}
+          onSkip={() => {
+            localStorage.setItem("bridge-onboarding-step", "done");
+            setShowOnboarding(false);
+          }}
+        />
+      </>
+    );
+  }
 
   return (
     <>
