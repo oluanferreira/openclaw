@@ -35,6 +35,12 @@ interface BridgeNotificationConfig {
   quietHoursEnd: number | null;
 }
 
+interface BridgeMobileStatus {
+  connected: boolean;
+  lastSeen: string | null;
+  deviceName: string | null;
+}
+
 const KEY = "bridge";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
@@ -73,6 +79,15 @@ const queries = {
       if (!res.ok) throw new Error("Failed to fetch notification config");
       return res.json();
     },
+  }),
+  mobileStatus: queryOptions<BridgeMobileStatus>({
+    queryKey: [KEY, "mobileStatus"],
+    queryFn: async () => {
+      const res = await bridgeApi["mobile-status"].$get();
+      if (!res.ok) throw new Error("Failed to fetch mobile status");
+      return res.json();
+    },
+    refetchInterval: 30_000,
   }),
 };
 

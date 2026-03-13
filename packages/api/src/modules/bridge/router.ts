@@ -324,6 +324,24 @@ export const bridgeRouter = new Hono()
     });
   })
 
+  .get("/mobile-status", enforceAuth, enforceInstance, async (c) => {
+    const instanceId = c.var.instanceId;
+    const mobileBridge = await db.query.bridgeConnection.findFirst({
+      where: and(
+        eq(bridgeConnection.instanceId, instanceId),
+        eq(bridgeConnection.deviceType, "mobile"),
+      ),
+    });
+
+    const connected = mobileBridge ? isConnected(mobileBridge.lastSeen) : false;
+
+    return c.json({
+      connected,
+      lastSeen: mobileBridge?.lastSeen?.toISOString() ?? null,
+      deviceName: mobileBridge?.deviceName ?? null,
+    });
+  })
+
   // POST /api/bridge/token/rotate
   .post("/token/rotate", enforceAuth, enforceInstance, async (c) => {
     const start = Date.now();

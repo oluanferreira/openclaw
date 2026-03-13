@@ -15,6 +15,10 @@ export const useBridgeFiles = () => {
   return useQuery(bridge.queries.files);
 };
 
+export const useBridgeMobileStatus = () => {
+  return useQuery(bridge.queries.mobileStatus);
+};
+
 export const useBridgeNotifications = () => {
   return useQuery(bridge.queries.notifications);
 };

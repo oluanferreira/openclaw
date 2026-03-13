@@ -41,6 +41,7 @@ import {
   useUpdateTerminal,
   useBridgeFiles,
   useUpdateFiles,
+  useBridgeMobileStatus,
   useBridgeNotifications,
   useUpdateNotifications,
   useRotateToken,
@@ -66,6 +67,8 @@ export const BridgeView = () => {
 
   const notifications = useBridgeNotifications();
   const updateNotifications = useUpdateNotifications();
+
+  const mobileStatus = useBridgeMobileStatus();
 
   const [editOpen, setEditOpen] = useState(false);
   const [allowlistText, setAllowlistText] = useState("");
@@ -700,6 +703,60 @@ export const BridgeView = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+          {/* Mobile Companion */}
+          <section className="flex w-full flex-col gap-4">
+            <span className="text-muted-foreground ml-1 text-sm uppercase">
+              Mobile Companion
+            </span>
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                      <Icons.MonitorSmartphone className="text-muted-foreground size-4" />
+                      <span className="font-medium">ClaWin Companion App</span>
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                      Connect your phone to give the AI agent access to your
+                      camera, contacts, location, and calendar.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`size-2.5 rounded-full ${mobileStatus.data?.connected ? "bg-green-500" : "bg-gray-400"}`}
+                        />
+                        <span className="text-sm">
+                          {mobileStatus.data?.connected
+                            ? "Connected"
+                            : "Not connected"}
+                        </span>
+                      </div>
+                      {mobileStatus.data?.deviceName && (
+                        <span className="text-muted-foreground text-xs">
+                          {mobileStatus.data.deviceName}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 rounded-lg border border-dashed p-4">
+                  <p className="text-muted-foreground mb-2 text-sm font-medium">
+                    Setup
+                  </p>
+                  <ol className="text-muted-foreground list-inside list-decimal space-y-1 text-sm">
+                    <li>Install the ClaWin Companion app on your phone</li>
+                    <li>
+                      Open the app and paste your Gateway Token shown above
+                    </li>
+                    <li>
+                      Approve permissions for camera, contacts, location, and
+                      calendar
+                    </li>
+                  </ol>
                 </div>
               </CardContent>
             </Card>
