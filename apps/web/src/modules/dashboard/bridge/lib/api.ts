@@ -28,6 +28,13 @@ interface BridgeFileConfig {
   blockedPatterns: string[];
 }
 
+interface BridgeNotificationConfig {
+  allowedTypes: ("info" | "alert" | "action")[];
+  soundEnabled: boolean;
+  quietHoursStart: number | null;
+  quietHoursEnd: number | null;
+}
+
 const KEY = "bridge";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
@@ -59,6 +66,14 @@ const queries = {
       return res.json();
     },
   }),
+  notifications: queryOptions<BridgeNotificationConfig>({
+    queryKey: [KEY, "notifications"],
+    queryFn: async () => {
+      const res = await bridgeApi.notifications.$get();
+      if (!res.ok) throw new Error("Failed to fetch notification config");
+      return res.json();
+    },
+  }),
 };
 
 const mutations = {
@@ -71,6 +86,17 @@ const mutations = {
         throw new Error((data as { error?: string }).error ?? "Update failed");
       }
       return data as BridgeTerminalConfig;
+    },
+  }),
+  updateNotifications: mutationOptions({
+    mutationKey: [KEY, "updateNotifications"],
+    mutationFn: async (json: Partial<BridgeNotificationConfig>) => {
+      const res = await bridgeApi.notifications.$put({ json });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error((data as { error?: string }).error ?? "Update failed");
+      }
+      return data as BridgeNotificationConfig;
     },
   }),
   updateFiles: mutationOptions({

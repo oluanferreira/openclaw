@@ -34,6 +34,13 @@ export interface BridgeTerminalConfig {
   timeoutSeconds: number;
 }
 
+export interface BridgeNotificationConfig {
+  allowedTypes: ("info" | "alert" | "action")[];
+  soundEnabled: boolean;
+  quietHoursStart: number | null;
+  quietHoursEnd: number | null;
+}
+
 const defaultTerminalConfig: BridgeTerminalConfig = {
   allowlist: [
     "git *",
@@ -60,6 +67,13 @@ const defaultFileConfig: BridgeFileConfig = {
     "*.p12",
     "*.pfx",
   ],
+};
+
+const defaultNotificationConfig: BridgeNotificationConfig = {
+  allowedTypes: ["info", "alert", "action"],
+  soundEnabled: true,
+  quietHoursStart: null,
+  quietHoursEnd: null,
 };
 
 const defaultCapabilities: BridgeCapabilities = {
@@ -92,6 +106,10 @@ export const bridgeConnection = pgTable("bridge_connection", {
   fileConfig: jsonb("file_config")
     .$type<BridgeFileConfig>()
     .default(defaultFileConfig)
+    .notNull(),
+  notificationConfig: jsonb("notification_config")
+    .$type<BridgeNotificationConfig>()
+    .default(defaultNotificationConfig)
     .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

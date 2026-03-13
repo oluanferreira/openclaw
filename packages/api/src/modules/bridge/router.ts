@@ -20,6 +20,7 @@ import { enforceAuth, enforceInstance, rateLimit } from "../../middleware";
 import type {
   BridgeCapabilities,
   BridgeFileConfig,
+  BridgeNotificationConfig,
   BridgeTerminalConfig,
 } from "@workspace/db/schema";
 
@@ -104,6 +105,28 @@ O Bridge permite ler e escrever arquivos no PC do usuario dentro de diretorios p
 - Funciona apenas enquanto o Bridge estiver conectado
 - Arquivos > 10MB nao sao suportados
 - Padroes sensiveis sao bloqueados independente da allowlist`);
+  }
+
+  if (capabilities.notifications) {
+    sections.push(`## Bridge — Notificações Desktop
+
+O Bridge permite enviar notificações nativas para o desktop do usuário.
+
+| Tool | Descricao | Parametros |
+|------|-----------|-----------|
+| \`notifications.send\` | Envia notificacao desktop | \`title: string, body: string, type?: "info" \| "alert" \| "action"\` |
+
+### Tipos de Notificacao
+
+- **info** — Informativo (tarefa concluida, update de status)
+- **alert** — Alerta (erro, atencao necessaria)
+- **action** — Acao concluida (deploy, build, test)
+
+### Regras
+
+- O usuario pode desabilitar tipos especificos no dashboard
+- Notificacoes durante "horario silencioso" sao enfileiradas e entregues depois
+- Use com moderacao — notificacoes excessivas podem ser desabilitadas pelo usuario`);
   }
 
   if (sections.length === 0) return null;
@@ -500,6 +523,109 @@ export const bridgeRouter = new Hono()
     return c.json({ ok: true });
   })
 
+  // GET /api/bridge/notifications -- return notification config
+  .get("/notifications", enforceAuth, enforceInstance, async (c) => {
+    const instanceId = c.var.instanceId;
+    const bridge = await getOrCreateBridge(instanceId);
+    return c.json(bridge.notificationConfig);
+  })
+
+  // PUT /api/bridge/notifications -- update notification config
+  .put("/notifications", enforceAuth, enforceInstance, async (c) => {
+    const start = Date.now();
+    const instanceId = c.var.instanceId;
+    const ip = getClientIp(c);
+    const body = await c.req.json<Partial<BridgeNotificationConfig>>();
+
+    const bridge = await getOrCreateBridge(instanceId);
+
+    const updated: BridgeNotificationConfig = {
+      ...bridge.notificationConfig,
+      ...body,
+    };
+
+    // Validate allowed types
+    const validTypes = ["info", "alert", "action"];
+    if (updated.allowedTypes.some((t) => !validTypes.includes(t))) {
+      return c.json({ error: "Invalid notification type" }, 400);
+    }
+
+    // Validate quiet hours (0-23 or null)
+    if (
+      updated.quietHoursStart !== null &&
+      (updated.quietHoursStart < 0 || updated.quietHoursStart > 23)
+    ) {
+      return c.json({ error: "quietHoursStart must be 0-23 or null" }, 400);
+    }
+    if (
+      updated.quietHoursEnd !== null &&
+      (updated.quietHoursEnd < 0 || updated.quietHoursEnd > 23)
+    ) {
+      return c.json({ error: "quietHoursEnd must be 0-23 or null" }, 400);
+    }
+
+    await db
+      .update(bridgeConnection)
+      .set({ notificationConfig: updated, updatedAt: new Date() })
+      .where(eq(bridgeConnection.instanceId, instanceId));
+
+    audit(
+      instanceId,
+      "notification_config_change",
+      "success",
+      {
+        before: bridge.notificationConfig,
+        after: updated,
+      },
+      Date.now() - start,
+      ip,
+    );
+
+    return c.json(updated);
+  })
+
+  // POST /api/bridge/notifications/audit (token auth, rate limited)
+  .post("/notifications/audit", rateLimit(30, 60_000), async (c) => {
+    const ip = getClientIp(c);
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    const body = await c.req.json<{
+      title: string;
+      body: string;
+      type: "info" | "alert" | "action";
+      result: "delivered" | "queued" | "blocked" | "quiet_hours";
+    }>();
+
+    audit(
+      inst.id,
+      "notification_send",
+      body.result,
+      {
+        title: body.title,
+        body: body.body,
+        type: body.type,
+      },
+      undefined,
+      ip,
+    );
+
+    return c.json({ ok: true });
+  })
+
   // POST /api/bridge/terminal/audit (token auth, rate limited)
   .post("/terminal/audit", rateLimit(30, 60_000), async (c) => {
     const ip = getClientIp(c);
@@ -632,5 +758,6 @@ export const bridgeRouter = new Hono()
       gatewayHost: `${inst.id}.clawin1click.com`,
       terminalConfig: bridge.terminalConfig,
       fileConfig: bridge.fileConfig,
+      notificationConfig: bridge.notificationConfig,
     });
   });

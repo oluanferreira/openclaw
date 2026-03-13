@@ -15,6 +15,10 @@ export const useBridgeFiles = () => {
   return useQuery(bridge.queries.files);
 };
 
+export const useBridgeNotifications = () => {
+  return useQuery(bridge.queries.notifications);
+};
+
 export const useUpdateTerminal = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -36,6 +40,20 @@ export const useUpdateFiles = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries(bridge.queries.files);
       toast.success("File config updated");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+};
+
+export const useUpdateNotifications = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...bridge.mutations.updateNotifications,
+    onSuccess: () => {
+      void queryClient.invalidateQueries(bridge.queries.notifications);
+      toast.success("Notification preferences updated");
     },
     onError: (error: Error) => {
       toast.error(error.message);

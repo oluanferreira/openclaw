@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui-web/card";
+import { Checkbox } from "@workspace/ui-web/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +41,8 @@ import {
   useUpdateTerminal,
   useBridgeFiles,
   useUpdateFiles,
+  useBridgeNotifications,
+  useUpdateNotifications,
   useRotateToken,
 } from "~/modules/dashboard/bridge/hooks/use-bridge";
 
@@ -60,6 +63,9 @@ export const BridgeView = () => {
   const files = useBridgeFiles();
   const updateFiles = useUpdateFiles();
 
+  const notifications = useBridgeNotifications();
+  const updateNotifications = useUpdateNotifications();
+
   const [editOpen, setEditOpen] = useState(false);
   const [allowlistText, setAllowlistText] = useState("");
   const [timeout, setTimeout] = useState("30");
@@ -69,6 +75,48 @@ export const BridgeView = () => {
     { path: string; permission: "read" | "read-write" }[]
   >([]);
   const [blockedText, setBlockedText] = useState("");
+
+  const [notifEditOpen, setNotifEditOpen] = useState(false);
+  const [notifTypes, setNotifTypes] = useState<string[]>([]);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [quietStart, setQuietStart] = useState("");
+  const [quietEnd, setQuietEnd] = useState("");
+
+  const openNotifEdit = () => {
+    if (notifications.data) {
+      setNotifTypes([...notifications.data.allowedTypes]);
+      setSoundEnabled(notifications.data.soundEnabled);
+      setQuietStart(
+        notifications.data.quietHoursStart != null
+          ? String(notifications.data.quietHoursStart)
+          : "",
+      );
+      setQuietEnd(
+        notifications.data.quietHoursEnd != null
+          ? String(notifications.data.quietHoursEnd)
+          : "",
+      );
+    }
+    setNotifEditOpen(true);
+  };
+
+  const handleNotifSave = () => {
+    updateNotifications.mutate(
+      {
+        allowedTypes: notifTypes as ("info" | "alert" | "action")[],
+        soundEnabled,
+        quietHoursStart: quietStart ? Number(quietStart) : null,
+        quietHoursEnd: quietEnd ? Number(quietEnd) : null,
+      },
+      { onSuccess: () => setNotifEditOpen(false) },
+    );
+  };
+
+  const toggleNotifType = (type: string) => {
+    setNotifTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
+    );
+  };
 
   const openEdit = () => {
     if (terminal.data) {
@@ -457,6 +505,164 @@ export const BridgeView = () => {
                           className="w-full"
                         >
                           {updateFiles.isPending ? (
+                            <Spinner className="size-4" />
+                          ) : (
+                            "Save"
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Notification Settings */}
+          <section className="flex w-full flex-col gap-4">
+            <span className="text-muted-foreground ml-1 text-sm uppercase">
+              Notification Settings
+            </span>
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Icons.Bell className="text-muted-foreground size-4" />
+                      <span className="font-medium">Desktop Notifications</span>
+                    </div>
+                    {notifications.isLoading ? (
+                      <Spinner className="size-4" />
+                    ) : (
+                      <>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(notifications.data?.allowedTypes ?? []).map((t) => (
+                            <Badge
+                              key={t}
+                              variant="secondary"
+                              className="text-xs capitalize"
+                            >
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-muted-foreground text-xs">
+                            Sound:{" "}
+                            {notifications.data?.soundEnabled ? "On" : "Off"}
+                          </span>
+                          {notifications.data?.quietHoursStart != null && (
+                            <div className="flex items-center gap-1">
+                              <Icons.Moon className="text-muted-foreground size-3" />
+                              <span className="text-muted-foreground text-xs">
+                                Quiet: {notifications.data.quietHoursStart}
+                                h&ndash;
+                                {notifications.data.quietHoursEnd}h
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <Dialog
+                    open={notifEditOpen}
+                    onOpenChange={(v) => {
+                      if (!v) setNotifEditOpen(false);
+                    }}
+                  >
+                    <DialogTrigger
+                      render={
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={openNotifEdit}
+                        >
+                          Edit
+                        </Button>
+                      }
+                    />
+                    <DialogContent className="sm:max-w-md">
+                      <DialogTitle>Notification Preferences</DialogTitle>
+                      <DialogDescription>
+                        Configure which notifications the AI agent can send to
+                        your desktop.
+                      </DialogDescription>
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-muted-foreground text-sm">
+                            Allowed Types
+                          </label>
+                          <div className="flex flex-col gap-2">
+                            {["info", "alert", "action"].map((type) => (
+                              <label
+                                key={type}
+                                className="flex cursor-pointer items-center gap-2"
+                              >
+                                <Checkbox
+                                  checked={notifTypes.includes(type)}
+                                  onCheckedChange={() => toggleNotifType(type)}
+                                />
+                                <span className="text-sm capitalize">
+                                  {type}
+                                </span>
+                                <span className="text-muted-foreground text-xs">
+                                  {type === "info" &&
+                                    "\u2014 Status updates, progress info"}
+                                  {type === "alert" &&
+                                    "\u2014 Errors, attention needed"}
+                                  {type === "action" &&
+                                    "\u2014 Task completed, deploy done"}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm">Sound</label>
+                          <Checkbox
+                            checked={soundEnabled}
+                            onCheckedChange={() => setSoundEnabled((v) => !v)}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                            <Icons.Moon className="size-3.5" />
+                            Quiet Hours (optional)
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              min={0}
+                              max={23}
+                              placeholder="22"
+                              value={quietStart}
+                              onChange={(e) => setQuietStart(e.target.value)}
+                              className="w-20"
+                            />
+                            <span className="text-muted-foreground text-sm">
+                              to
+                            </span>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={23}
+                              placeholder="7"
+                              value={quietEnd}
+                              onChange={(e) => setQuietEnd(e.target.value)}
+                              className="w-20"
+                            />
+                            <span className="text-muted-foreground text-xs">
+                              (0-23h)
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleNotifSave}
+                          disabled={updateNotifications.isPending}
+                          className="w-full"
+                        >
+                          {updateNotifications.isPending ? (
                             <Spinner className="size-4" />
                           ) : (
                             "Save"
