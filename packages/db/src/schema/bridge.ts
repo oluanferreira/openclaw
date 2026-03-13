@@ -90,7 +90,6 @@ export const bridgeConnection = pgTable("bridge_connection", {
     .$defaultFn(() => crypto.randomUUID()),
   instanceId: text("instance_id")
     .notNull()
-    .unique()
     .references(() => instance.id, { onDelete: "cascade" }),
   lastSeen: timestamp("last_seen"),
   deviceName: text("device_name"),
@@ -111,6 +110,7 @@ export const bridgeConnection = pgTable("bridge_connection", {
     .$type<BridgeNotificationConfig>()
     .default(defaultNotificationConfig)
     .notNull(),
+  deviceType: text("device_type").default("desktop").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -146,3 +146,39 @@ export const bridgeAuditLog = pgTable("bridge_audit_log", {
 
 export const insertBridgeAuditLogSchema = createInsertSchema(bridgeAuditLog);
 export type InsertBridgeAuditLog = z.infer<typeof insertBridgeAuditLogSchema>;
+
+// --- Mobile Request Queue (CB-3.4) ---
+
+export interface MobileRequestArgs {
+  description?: string;
+  query?: string;
+  days?: number;
+  [key: string]: unknown;
+}
+
+export const bridgeMobileRequest = pgTable("bridge_mobile_request", {
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  instanceId: text("instance_id").notNull(),
+  tool: text().notNull(),
+  args: jsonb().$type<MobileRequestArgs>().default({}),
+  status: text().notNull().default("pending"),
+  result: jsonb(),
+  error: text(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+});
+
+export const insertBridgeMobileRequestSchema =
+  createInsertSchema(bridgeMobileRequest);
+export type InsertBridgeMobileRequest = z.infer<
+  typeof insertBridgeMobileRequestSchema
+>;
+export const selectBridgeMobileRequestSchema =
+  createSelectSchema(bridgeMobileRequest);
+export type SelectBridgeMobileRequest = z.infer<
+  typeof selectBridgeMobileRequestSchema
+>;

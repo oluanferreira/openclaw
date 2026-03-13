@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import crypto from "node:crypto";
 
-import { eq } from "@workspace/db";
+import { and, eq, gt, lt } from "@workspace/db";
 import {
   bridgeAuditLog,
   bridgeConnection,
+  bridgeMobileRequest,
   instance,
 } from "@workspace/db/schema";
 import { db } from "@workspace/db/server";
@@ -133,18 +134,73 @@ O Bridge permite enviar notificações nativas para o desktop do usuário.
   return sections.join("\n\n");
 }
 
+// --- Mobile Tools Section Generator ---
+
+const MOBILE_TOOLS = [
+  "camera.capture",
+  "contacts.search",
+  "location.get",
+  "calendar.events",
+];
+
+function generateMobileToolsSection(): string {
+  return `## Mobile Companion
+
+O usuario tem o ClaWin Companion conectado no celular. Voce pode solicitar acoes no telefone dele.
+
+**IMPORTANTE:** Requests mobile requerem aprovacao do usuario. Ele vera um prompt no celular.
+Resultados podem levar 10-60 segundos pois o usuario precisa interagir fisicamente com o dispositivo.
+
+### Como usar
+
+1. Crie um request: POST https://clawin1click.com/api/bridge/mobile/request
+   Headers: Authorization: Bearer {gateway_token}
+   Body: {"tool": "<tool_name>", "args": {<args>}}
+   Response: {"requestId": "..."}
+
+2. Poll o resultado: GET https://clawin1click.com/api/bridge/mobile/result/{requestId}
+   Headers: Authorization: Bearer {gateway_token}
+   Response quando pendente: {"status": "pending"} ou {"status": "claimed"}
+   Response quando pronto: {"status": "completed", "result": {...}}
+   Response quando expirado: {"status": "expired"} (HTTP 410)
+   Response quando erro: {"status": "error", "error": "..."}
+
+### Tools Disponiveis
+
+| Tool | Descricao | Args |
+|------|-----------|------|
+| \`camera.capture\` | Tira uma foto com a camera do celular | \`description?: string\` (o que fotografar) |
+| \`contacts.search\` | Busca contatos por nome ou email | \`query: string\` (nome ou email) |
+| \`location.get\` | Obtem localizacao GPS atual (~100m) | — |
+| \`calendar.events\` | Lista eventos do calendario | \`days?: number\` (padrao: 7) |
+
+### Limites
+
+- Requests expiram em 3 minutos se nao forem atendidos
+- Fotos: max 2MP, JPEG
+- Contatos: max 10 resultados por busca (nome, telefone, email)
+- Calendario: max 20 eventos
+- Localizacao: precisao ~100m`;
+}
+
 // --- Helpers ---
 
-async function getOrCreateBridge(instanceId: string) {
+async function getOrCreateBridge(
+  instanceId: string,
+  deviceType: "desktop" | "mobile" = "desktop",
+) {
   const existing = await db.query.bridgeConnection.findFirst({
-    where: eq(bridgeConnection.instanceId, instanceId),
+    where: and(
+      eq(bridgeConnection.instanceId, instanceId),
+      eq(bridgeConnection.deviceType, deviceType),
+    ),
   });
 
   if (existing) return existing;
 
   const [created] = await db
     .insert(bridgeConnection)
-    .values({ instanceId })
+    .values({ instanceId, deviceType })
     .returning();
 
   return created!;
@@ -160,8 +216,15 @@ function syncToolsMd(
   instanceId: string,
   capabilities: BridgeCapabilities,
   connected: boolean,
+  hasMobile?: boolean,
 ): void {
-  const section = connected ? generateBridgeToolsSection(capabilities) : null;
+  const desktopSection = connected
+    ? generateBridgeToolsSection(capabilities)
+    : null;
+  const mobileSection = hasMobile ? generateMobileToolsSection() : null;
+
+  const parts = [desktopSection, mobileSection].filter(Boolean);
+  const section = parts.length > 0 ? parts.join("\n\n") : null;
 
   updateToolsMd(instanceId, section).catch(() => {
     /* noop */
@@ -708,10 +771,22 @@ export const bridgeRouter = new Hono()
     }
 
     const body = await c.req
-      .json<{ deviceName?: string; appVersion?: string }>()
-      .catch((): { deviceName?: string; appVersion?: string } => ({}));
+      .json<{
+        deviceName?: string;
+        appVersion?: string;
+        deviceType?: "desktop" | "mobile";
+      }>()
+      .catch(
+        (): {
+          deviceName?: string;
+          appVersion?: string;
+          deviceType?: "desktop" | "mobile";
+        } => ({}),
+      );
 
-    const bridge = await getOrCreateBridge(inst.id);
+    const deviceType = body.deviceType === "mobile" ? "mobile" : "desktop";
+
+    const bridge = await getOrCreateBridge(inst.id, deviceType);
     const wasDisconnected = !isConnected(bridge.lastSeen);
 
     const now = new Date();
@@ -722,10 +797,11 @@ export const bridgeRouter = new Hono()
         lastSeen: now,
         deviceName: body.deviceName ?? null,
         appVersion: body.appVersion ?? null,
+        deviceType,
         updatedAt: now,
       })
       .onConflictDoUpdate({
-        target: bridgeConnection.instanceId,
+        target: [bridgeConnection.instanceId, bridgeConnection.deviceType],
         set: {
           lastSeen: now,
           ...(body.deviceName ? { deviceName: body.deviceName } : {}),
@@ -734,8 +810,22 @@ export const bridgeRouter = new Hono()
         },
       });
 
+    // Check if a mobile bridge is also connected
+    const mobileBridge =
+      deviceType === "desktop"
+        ? await db.query.bridgeConnection.findFirst({
+            where: and(
+              eq(bridgeConnection.instanceId, inst.id),
+              eq(bridgeConnection.deviceType, "mobile"),
+            ),
+          })
+        : null;
+    const hasMobile =
+      deviceType === "mobile" ||
+      (mobileBridge ? isConnected(mobileBridge.lastSeen) : false);
+
     if (wasDisconnected) {
-      syncToolsMd(inst.id, bridge.capabilities, true);
+      syncToolsMd(inst.id, bridge.capabilities, true, hasMobile);
       notifyBridgeState(inst.id, true);
 
       audit(
@@ -760,6 +850,324 @@ export const bridgeRouter = new Hono()
       fileConfig: bridge.fileConfig,
       notificationConfig: bridge.notificationConfig,
     });
+  })
+
+  // ─── Mobile Companion (CB-3.4) ─────────────────────────────────────
+
+  // POST /api/bridge/mobile/request — Agent creates a mobile tool request
+  .post("/mobile/request", rateLimit(10, 60_000), async (c) => {
+    const start = Date.now();
+    const ip = getClientIp(c);
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    const body = await c.req
+      .json<{ tool: string; args?: Record<string, unknown> }>()
+      .catch(() => null);
+
+    if (!body?.tool || !MOBILE_TOOLS.includes(body.tool)) {
+      return c.json(
+        {
+          error: `Invalid tool. Must be one of: ${MOBILE_TOOLS.join(", ")}`,
+        },
+        400,
+      );
+    }
+
+    // Check mobile bridge is connected
+    const mobileBridge = await db.query.bridgeConnection.findFirst({
+      where: and(
+        eq(bridgeConnection.instanceId, inst.id),
+        eq(bridgeConnection.deviceType, "mobile"),
+      ),
+    });
+
+    if (!mobileBridge || !isConnected(mobileBridge.lastSeen)) {
+      return c.json({ error: "No mobile companion connected" }, 404);
+    }
+
+    const expiresAt = new Date(Date.now() + 3 * 60 * 1000);
+    const [request] = await db
+      .insert(bridgeMobileRequest)
+      .values({
+        instanceId: inst.id,
+        tool: body.tool,
+        args: body.args ?? {},
+        status: "pending",
+        expiresAt,
+      })
+      .returning();
+
+    audit(
+      inst.id,
+      "mobile_request",
+      "created",
+      { tool: body.tool, requestId: request!.id },
+      Date.now() - start,
+      ip,
+    );
+
+    return c.json({ requestId: request!.id });
+  })
+
+  // GET /api/bridge/mobile/result/:id — Agent polls for result
+  .get("/mobile/result/:id", rateLimit(20, 60_000), async (c) => {
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    const id = c.req.param("id");
+    const request = await db.query.bridgeMobileRequest.findFirst({
+      where: and(
+        eq(bridgeMobileRequest.id, id),
+        eq(bridgeMobileRequest.instanceId, inst.id),
+      ),
+    });
+
+    if (!request) {
+      return c.json({ error: "Request not found" }, 404);
+    }
+
+    // Check expiration
+    if (
+      request.status === "pending" &&
+      request.expiresAt &&
+      new Date(request.expiresAt) < new Date()
+    ) {
+      await db
+        .update(bridgeMobileRequest)
+        .set({ status: "expired" })
+        .where(eq(bridgeMobileRequest.id, id));
+      return c.json({ status: "expired" }, 410);
+    }
+
+    if (request.status === "completed") {
+      return c.json({ status: "completed", result: request.result });
+    }
+    if (request.status === "error") {
+      return c.json({ status: "error", error: request.error });
+    }
+    if (request.status === "expired") {
+      return c.json({ status: "expired" }, 410);
+    }
+
+    return c.json({ status: request.status });
+  })
+
+  // GET /api/bridge/mobile/poll — Mobile app polls for pending requests
+  .get("/mobile/poll", rateLimit(20, 60_000), async (c) => {
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    // Expire old requests lazily
+    await db
+      .update(bridgeMobileRequest)
+      .set({ status: "expired" })
+      .where(
+        and(
+          eq(bridgeMobileRequest.instanceId, inst.id),
+          eq(bridgeMobileRequest.status, "pending"),
+          lt(bridgeMobileRequest.expiresAt, new Date()),
+        ),
+      )
+      .catch(() => {});
+
+    const pending = await db.query.bridgeMobileRequest.findMany({
+      where: and(
+        eq(bridgeMobileRequest.instanceId, inst.id),
+        eq(bridgeMobileRequest.status, "pending"),
+      ),
+      orderBy: bridgeMobileRequest.createdAt,
+      limit: 5,
+    });
+
+    return c.json({ requests: pending });
+  })
+
+  // POST /api/bridge/mobile/claim/:id — Mobile claims a request
+  .post("/mobile/claim/:id", rateLimit(20, 60_000), async (c) => {
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    const id = c.req.param("id");
+    const [updated] = await db
+      .update(bridgeMobileRequest)
+      .set({ status: "claimed", claimedAt: new Date() })
+      .where(
+        and(
+          eq(bridgeMobileRequest.id, id),
+          eq(bridgeMobileRequest.instanceId, inst.id),
+          eq(bridgeMobileRequest.status, "pending"),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      return c.json({ error: "Request not found or already claimed" }, 404);
+    }
+
+    return c.json({ ok: true });
+  })
+
+  // POST /api/bridge/mobile/complete/:id — Mobile submits result
+  .post("/mobile/complete/:id", rateLimit(10, 60_000), async (c) => {
+    const start = Date.now();
+    const ip = getClientIp(c);
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    const id = c.req.param("id");
+    const body = await c.req.json<{ result: unknown }>().catch(() => null);
+
+    if (!body?.result) {
+      return c.json({ error: "Missing result" }, 400);
+    }
+
+    const [updated] = await db
+      .update(bridgeMobileRequest)
+      .set({
+        status: "completed",
+        result: body.result as Record<string, unknown>,
+        completedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(bridgeMobileRequest.id, id),
+          eq(bridgeMobileRequest.instanceId, inst.id),
+          eq(bridgeMobileRequest.status, "claimed"),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      return c.json({ error: "Request not found or not claimed" }, 404);
+    }
+
+    audit(
+      inst.id,
+      "mobile_complete",
+      "success",
+      { tool: updated.tool, requestId: id },
+      Date.now() - start,
+      ip,
+    );
+
+    return c.json({ ok: true });
+  })
+
+  // POST /api/bridge/mobile/reject/:id — Mobile rejects a request
+  .post("/mobile/reject/:id", rateLimit(10, 60_000), async (c) => {
+    const start = Date.now();
+    const ip = getClientIp(c);
+    const authHeader = c.req.header("Authorization");
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return c.json({ error: "Missing or invalid token" }, 401);
+    }
+
+    const token = authHeader.slice(7);
+    const inst = await db.query.instance.findFirst({
+      where: eq(instance.token, token),
+      columns: { id: true },
+    });
+
+    if (!inst) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+
+    const id = c.req.param("id");
+    const body = await c.req.json<{ reason?: string }>().catch(() => ({}));
+
+    const [updated] = await db
+      .update(bridgeMobileRequest)
+      .set({
+        status: "error",
+        error: (body as { reason?: string })?.reason ?? "User denied",
+        completedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(bridgeMobileRequest.id, id),
+          eq(bridgeMobileRequest.instanceId, inst.id),
+        ),
+      )
+      .returning();
+
+    if (!updated) {
+      return c.json({ error: "Request not found" }, 404);
+    }
+
+    audit(
+      inst.id,
+      "mobile_reject",
+      "denied",
+      { tool: updated.tool, requestId: id },
+      Date.now() - start,
+      ip,
+    );
+
+    return c.json({ ok: true });
   })
 
   // --- Auto-Update Check ---
