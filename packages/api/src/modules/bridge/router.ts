@@ -1200,11 +1200,17 @@ export const bridgeRouter = new Hono()
       critical: false,
       platforms: {
         "windows-x86_64": {
-          url: "",
+          url: "https://clawin1click.com/releases/bridge/0.1.0/ClaWin-Bridge_0.1.0_x64-setup.exe",
         },
       },
       pubDate: "2026-03-13T00:00:00Z",
     };
 
     return c.json(LATEST_RELEASE);
+  })
+
+  .get("/updates/download", (c) => {
+    return c.redirect(
+      "https://clawin1click.com/releases/bridge/0.1.0/ClaWin-Bridge_0.1.0_x64-setup.exe",
+    );
   });

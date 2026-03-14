@@ -234,7 +234,14 @@ function StepDownload({ onNext }: { onNext: () => void }) {
         description="A lightweight desktop app (~3MB) that connects your PC to your AI agent."
       />
       <div className="flex flex-col gap-2">
-        <Button className="w-full gap-2" size="lg" onClick={onNext}>
+        <Button
+          className="w-full gap-2"
+          size="lg"
+          onClick={() => {
+            window.open("/api/bridge/updates/download", "_blank");
+            onNext();
+          }}
+        >
           <Icons.Download className="size-4" />
           Download for Windows
         </Button>
