@@ -251,61 +251,25 @@
   },
   "skills": {
     "title": "Skills",
-    "description": "Manage your OpenClaw agent skills.",
-    "error": "Failed to load skills. Please try again.",
-    "configure": "Configure",
-    "saveCredentials": "Save",
-    "categories": {
-      "auto": "Auto-enabled",
-      "autoDescription": "These skills work automatically with no configuration needed.",
-      "config": "Requires Configuration",
-      "configDescription": "These skills need credentials to work.",
-      "install": "Requires Installation",
-      "installDescription": "These skills need an external binary and credentials."
-    },
-    "status": {
-      "active": "Active",
-      "pending": "Pending",
-      "disabled": "Disabled",
-      "error": "Error"
-    },
-    "notifications": {
-      "enabled": "{{name}} enabled successfully",
-      "disabled": "{{name}} disabled"
-    },
-    "gog": {
-      "setup": {
-        "title": "Configure Google Workspace (GoG)",
-        "step1Title": "Step 1: Google Cloud Credentials",
-        "step2Title": "Step 2: Authorize Access",
-        "step3Title": "Google Workspace Connected!",
-        "invalidJson": "Invalid JSON file",
-        "emailLabel": "Your Google email",
-        "uploadLabel": "Upload client_secret.json",
-        "fileLoaded": "File loaded successfully",
-        "processing": "Processing...",
-        "continue": "Continue",
-        "step2Desc": "Click the button below to authorize with Google. After authorizing, copy the full URL from the return page (which will show a connection error - this is normal).",
-        "openAuth": "Open Google Authorization",
-        "callbackLabel": "Return URL",
-        "callbackHint": "Paste the full URL from the address bar after authorizing",
-        "verify": "Verify and Complete",
-        "connectedAs": "Account {{account}} connected successfully!",
-        "done": "Done",
-        "instructions": {
-          "1": "Go to console.cloud.google.com",
-          "2": "Create a new project (or use an existing one)",
-          "3": "Go to APIs & Services > Credentials",
-          "4": "Create an OAuth 2.0 Client ID of type Desktop app",
-          "5": "Download the JSON and upload below"
-        }
+    "description": "Skills are extensions that add new capabilities to your OpenClaw agent — like browsing the web, generating images, accessing Notion, Slack and more.",
+    "exploreTitle": "Skill Store",
+    "exploreDescription": "Browse the full skill catalog on ClawHub. Your agent can install any skill directly via chat.",
+    "exploreCta": "Open ClawHub",
+    "tutorialTitle": "How to install a skill",
+    "steps": {
+      "1": {
+        "title": "Visit the store",
+        "description": "Open ClawHub (clawhub.ai) and browse the catalog of available skills."
       },
-      "configure": "Configure OAuth"
-    },
-    "getCredential": "Get key",
-    "exploreTitle": "Explore Skills",
-    "exploreDescription": "Your agent can install skills directly via chat. Browse the full catalog on ClawHub to discover new capabilities.",
-    "exploreCta": "Browse on ClawHub"
+      "2": {
+        "title": "Choose a skill",
+        "description": "Find the skill you need and copy its name."
+      },
+      "3": {
+        "title": "Tell your agent",
+        "description": "In your OpenClaw chat, ask it to install the skill. It will handle the entire process automatically."
+      }
+    }
   },
   "referral": {
     "home": {

@@ -5,59 +5,8 @@ import { Button } from "@workspace/ui-web/button";
 import { Card, CardContent } from "@workspace/ui-web/card";
 import { Icons } from "@workspace/ui-web/icons";
 
-import { SkillCard } from "../components/skill-card";
-import { useSkills } from "../hooks/use-skills";
-
 export function SkillsView() {
   const { t } = useTranslation("dashboard");
-  const { skills, toggleSkill } = useSkills();
-
-  const handleToggle = (skillName: string, enabled: boolean) => {
-    toggleSkill.mutate({ skillName, enabled });
-  };
-
-  const handleSaveCredentials = (
-    skillName: string,
-    credentials: Record<string, string>,
-  ) => {
-    toggleSkill.mutate({ skillName, enabled: true, credentials });
-  };
-
-  if (skills.isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
-            <p className="text-muted-foreground mt-1">
-              {t("skills.description")}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="border-primary size-6 animate-spin rounded-full border-2 border-t-transparent" />
-        </div>
-      </div>
-    );
-  }
-
-  if (skills.isError) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
-          <p className="text-muted-foreground mt-1">
-            {t("skills.description")}
-          </p>
-        </div>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
-          {t("skills.error")}
-        </div>
-      </div>
-    );
-  }
-
-  const categories = skills.data?.categories;
 
   return (
     <div className="space-y-8">
@@ -90,69 +39,41 @@ export function SkillsView() {
         </CardContent>
       </Card>
 
-      {categories && (
-        <>
-          <section>
-            <h2 className="mb-3 text-lg font-semibold">
-              {t("skills.categories.auto")}
-            </h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              {t("skills.categories.autoDescription")}
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {categories.auto.map((skill) => (
-                <SkillCard
-                  key={skill.name}
-                  skill={skill}
-                  onToggle={handleToggle}
-                  onSaveCredentials={handleSaveCredentials}
-                  isLoading={toggleSkill.isPending}
-                />
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-lg font-semibold">
-              {t("skills.categories.config")}
-            </h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              {t("skills.categories.configDescription")}
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {categories.config.map((skill) => (
-                <SkillCard
-                  key={skill.name}
-                  skill={skill}
-                  onToggle={handleToggle}
-                  onSaveCredentials={handleSaveCredentials}
-                  isLoading={toggleSkill.isPending}
-                />
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-lg font-semibold">
-              {t("skills.categories.install")}
-            </h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              {t("skills.categories.installDescription")}
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {categories.install.map((skill) => (
-                <SkillCard
-                  key={skill.name}
-                  skill={skill}
-                  onToggle={handleToggle}
-                  onSaveCredentials={handleSaveCredentials}
-                  isLoading={toggleSkill.isPending}
-                />
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold">
+          {t("skills.tutorialTitle")}
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {(
+            [
+              {
+                title: t("skills.steps.1.title"),
+                description: t("skills.steps.1.description"),
+              },
+              {
+                title: t("skills.steps.2.title"),
+                description: t("skills.steps.2.description"),
+              },
+              {
+                title: t("skills.steps.3.title"),
+                description: t("skills.steps.3.description"),
+              },
+            ] as const
+          ).map((step, i) => (
+            <Card key={i}>
+              <CardContent className="p-5">
+                <div className="bg-primary/10 text-primary mb-3 flex size-8 items-center justify-center rounded-full text-sm font-bold">
+                  {i + 1}
+                </div>
+                <h3 className="mb-1 font-medium">{step.title}</h3>
+                <p className="text-muted-foreground text-sm">
+                  {step.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
