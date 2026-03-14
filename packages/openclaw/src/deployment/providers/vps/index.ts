@@ -29,7 +29,7 @@ const toStateDir = (instanceId: string) =>
 const getUrl = (id: string, token?: string) =>
   `https://${id}.${vpsEnv.VPS_INSTANCE_DOMAIN_SUFFIX}${token ? `/#token=${encodeURIComponent(token)}` : ""}`;
 
-const getGatewayToken = () => randomBytes(32).toString("base64");
+const getGatewayToken = () => randomBytes(32).toString("hex");
 
 const toEscapedCommand = (args: readonly string[]) =>
   args.map((arg) => escapeShell(arg)).join(" ");
@@ -41,6 +41,7 @@ const getDockerRunCommand = (params: {
   id: string;
   port: number | string;
   aiKeys?: AiKeysInput;
+  gatewayToken?: string;
 }) => {
   const stateDir = toStateDir(params.id);
   return `docker run -d \
@@ -62,6 +63,7 @@ const getDockerRunCommand = (params: {
   -e OPENCLAW_HOME="/opt/openclaw" \
   -e OPENCLAW_STATE_DIR="/opt/openclaw" \
   -e HOME="/opt/openclaw" \
+  -e OPENCLAW_GATEWAY_TOKEN=${escapeShell(params.gatewayToken ?? "")} \
   -e OPENAI_API_KEY=${escapeShell(params.aiKeys?.openaiApiKey ?? "")} \
   -e ANTHROPIC_API_KEY=${escapeShell(params.aiKeys?.anthropicApiKey ?? "")} \
   -e GOOGLE_GENERATIVE_AI_API_KEY=${escapeShell(params.aiKeys?.googleApiKey ?? "")} \
@@ -145,7 +147,7 @@ done
 
 docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
 
-CONTAINER_ID=$(${getDockerRunCommand({ id: params.id, port: "$PORT", aiKeys: params.aiKeys })})
+CONTAINER_ID=$(${getDockerRunCommand({ id: params.id, port: "$PORT", aiKeys: params.aiKeys, gatewayToken: params.token })})
 ${getProvisionRouteScript(params.id, params.token)}
 
 echo "container_id=$CONTAINER_ID"
@@ -205,7 +207,7 @@ docker stop ${escapeShell(id)}
 docker rm ${escapeShell(id)}
 
 # Recreate with new env vars (Caddy route and state dir stay intact)
-CONTAINER_ID=$(${getDockerRunCommand({ id, port: "$PORT", aiKeys })})
+CONTAINER_ID=$(${getDockerRunCommand({ id, port: "$PORT", aiKeys, gatewayToken: token })})
 
 echo "container_id=$CONTAINER_ID"
 `;

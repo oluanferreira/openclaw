@@ -155,7 +155,23 @@ rm -rf ${escapeShell(stateDir)}
   await execute(script, { timeout: 60_000 });
 };
 
-export const restartContainer = async (instanceId: string): Promise<void> => {
+/**
+ * Restarts a container, optionally re-injecting the gateway token first.
+ *
+ * OpenClaw may redact the gateway token from openclaw.json after startup.
+ * If the container restarts after redaction, the token is lost and all
+ * webchat connections fail with "token_mismatch". Always pass the token
+ * to guarantee it survives restarts.
+ */
+export const restartContainer = async (
+  instanceId: string,
+  opts?: { gatewayToken?: string },
+): Promise<void> => {
+  if (opts?.gatewayToken) {
+    await updateOpenclawJson(instanceId, {
+      gateway: { auth: { token: opts.gatewayToken, mode: "token" } },
+    });
+  }
   await execute(`docker restart ${escapeShell(instanceId)}`);
 };
 

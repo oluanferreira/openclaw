@@ -518,7 +518,9 @@ export const openclawRouter = new Hono()
             },
           },
         });
-        await restartContainer(instanceId);
+        await restartContainer(instanceId, {
+          gatewayToken: c.var.instanceToken,
+        });
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
         return c.json(
@@ -575,7 +577,9 @@ export const openclawRouter = new Hono()
           },
         },
       });
-      await restartContainer(instanceId);
+      await restartContainer(instanceId, {
+        gatewayToken: c.var.instanceToken,
+      });
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       return c.json(
@@ -829,7 +833,9 @@ export const openclawRouter = new Hono()
       await updateOpenclawJson(instanceId, {
         skills: { entries: skillsEntries },
       });
-      await restartContainer(instanceId);
+      await restartContainer(instanceId, {
+        gatewayToken: c.var.instanceToken,
+      });
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       await upsertSkill(instanceId, skillName, { lastError: errMsg });
@@ -966,7 +972,9 @@ export const openclawRouter = new Hono()
           skills: { entries: skillsEntries },
         });
 
-        await restartContainer(instanceId);
+        await restartContainer(instanceId, {
+          gatewayToken: c.var.instanceToken,
+        });
 
         return c.json({ success: true, account: result.account });
       } catch (error) {

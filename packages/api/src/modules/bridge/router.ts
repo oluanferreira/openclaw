@@ -348,7 +348,7 @@ export const bridgeRouter = new Hono()
     const instanceId = c.var.instanceId;
     const ip = getClientIp(c);
 
-    const newToken = crypto.randomBytes(32).toString("base64");
+    const newToken = crypto.randomBytes(32).toString("hex");
 
     await db
       .update(instance)
@@ -356,10 +356,10 @@ export const bridgeRouter = new Hono()
       .where(eq(instance.id, instanceId));
 
     await updateOpenclawJson(instanceId, {
-      gateway: { auth: { token: newToken } },
+      gateway: { auth: { token: newToken, mode: "token" } },
     });
 
-    await restartContainer(instanceId);
+    await restartContainer(instanceId, { gatewayToken: newToken });
 
     await db
       .update(bridgeConnection)

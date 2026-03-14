@@ -108,6 +108,7 @@ export const enforceInstance = createMiddleware<{
   Variables: {
     user: User;
     instanceId: string;
+    instanceToken: string;
     vpsId: string;
   };
 }>(async (c, next) => {
@@ -120,6 +121,7 @@ export const enforceInstance = createMiddleware<{
   }
 
   c.set("instanceId", instance.id);
+  c.set("instanceToken", instance.token);
   c.set("vpsId", instance.vpsId);
   await next();
 });
