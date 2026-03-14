@@ -26,7 +26,7 @@ export const preset = {
       .number()
       .int()
       .positive()
-      .default(1024),
+      .default(2048),
     VPS_GOGCLI_VERSION: z.string().min(1).default("0.11.0"),
     VPS_GH_CLI_VERSION: z.string().min(1).default("2.67.0"),
   },

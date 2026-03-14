@@ -27,7 +27,7 @@ via Telegram e Web UI, processa com LLM, e executa comandos no container.
 
 | Ferramenta | Versao | Caminho | Para que serve |
 |------------|--------|---------|---------------|
-| Node.js | v22 | \`/usr/local/bin/node\` | Runtime JS, npx, npm |
+| Node.js | v24 | \`/usr/local/bin/node\` | Runtime JS, npx, npm |
 | Python | 3.11 | \`/usr/bin/python3\` | Scripts, pip3 install --user |
 | Git | 2.39 | \`/usr/bin/git\` | Controle de versao |
 | cURL | — | \`/usr/bin/curl\` | HTTP requests |
@@ -341,7 +341,7 @@ via Telegram y Web UI, los procesa con un LLM y ejecuta comandos en el contenedo
 
 | Herramienta | Version | Ruta | Para que sirve |
 |-------------|---------|------|---------------|
-| Node.js | v22 | \`/usr/local/bin/node\` | Runtime JS, npx, npm |
+| Node.js | v24 | \`/usr/local/bin/node\` | Runtime JS, npx, npm |
 | Python | 3.11 | \`/usr/bin/python3\` | Scripts, pip3 install --user |
 | Git | 2.39 | \`/usr/bin/git\` | Control de versiones |
 | cURL | — | \`/usr/bin/curl\` | Peticiones HTTP |
