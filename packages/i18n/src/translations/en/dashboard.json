@@ -217,6 +217,11 @@
       "description": "Your account information provided by your sign-in provider.",
       "readOnly": "This information is managed by your OAuth provider and cannot be edited here."
     },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Receive product updates, new features and tips by email.",
+      "success": "Newsletter preference updated."
+    },
     "dangerZone": {
       "title": "Danger zone",
       "description": "Permanently delete your account and all associated data.",

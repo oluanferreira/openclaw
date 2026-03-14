@@ -250,6 +250,9 @@
     "allRightsReserved": "Todos los derechos reservados."
   },
   "referral": "Programa de Referidos",
+  "newsletter": {
+    "optIn": "Recibir novedades y consejos por email"
+  },
   "login": {
     "consentPrefix": "Al continuar, aceptas los",
     "consentAnd": "y la"

@@ -1,9 +1,11 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
+import { handle } from "@workspace/api/utils";
 import { useTranslation } from "@workspace/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui-web/avatar";
 import { Badge } from "@workspace/ui-web/badge";
@@ -22,6 +24,7 @@ import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
 import { pathsConfig } from "~/config/paths";
+import { api } from "~/lib/api/client";
 import { authClient } from "~/lib/auth/client";
 import {
   DashboardHeader,
@@ -46,11 +49,26 @@ interface AccountViewProps {
 export const AccountView = ({ user }: AccountViewProps) => {
   const { t } = useTranslation(["common", "dashboard"]);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");
 
   const confirmWord = t("dashboard:account.dangerZone.confirmWord");
   const isConfirmed = confirmation.toUpperCase() === confirmWord.toUpperCase();
+
+  const newsletter = useQuery({
+    queryKey: ["user", "newsletter"],
+    queryFn: () => handle(api.user.newsletter.$get)(),
+  });
+
+  const updateNewsletter = useMutation({
+    mutationFn: (optIn: boolean) =>
+      handle(api.user.newsletter.$put)({ json: { optIn } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["user", "newsletter"] });
+      toast.success(t("dashboard:account.newsletter.success"));
+    },
+  });
 
   const deleteAccount = useMutation({
     mutationFn: () => authClient.deleteUser(),
@@ -113,6 +131,29 @@ export const AccountView = ({ user }: AccountViewProps) => {
             <p className="text-muted-foreground text-sm">
               {t("dashboard:account.profile.readOnly")}
             </p>
+          </SettingsCardFooter>
+        </SettingsCard>
+
+        <SettingsCard>
+          <SettingsCardHeader>
+            <SettingsCardTitle>
+              {t("dashboard:account.newsletter.title")}
+            </SettingsCardTitle>
+            <SettingsCardDescription>
+              {t("dashboard:account.newsletter.description")}
+            </SettingsCardDescription>
+          </SettingsCardHeader>
+          <SettingsCardFooter>
+            <label className="flex cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                checked={newsletter.data?.optIn ?? false}
+                onChange={(e) => updateNewsletter.mutate(e.target.checked)}
+                disabled={newsletter.isLoading || updateNewsletter.isPending}
+                className="border-border accent-primary size-4 rounded"
+              />
+              <span className="text-sm">{t("common:newsletter.optIn")}</span>
+            </label>
           </SettingsCardFooter>
         </SettingsCard>
 

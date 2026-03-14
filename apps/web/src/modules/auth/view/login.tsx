@@ -3,6 +3,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
+import { useState } from "react";
 
 import { SocialProvider } from "@workspace/auth";
 import { useTranslation } from "@workspace/i18n";
@@ -19,6 +20,7 @@ import { Spinner } from "@workspace/ui-web/spinner";
 
 import { pathsConfig } from "~/config/paths";
 import { auth } from "~/modules/auth/lib/api";
+import { NEWSLETTER_OPTIN_KEY } from "~/modules/marketing/home/hero";
 
 const providers = [
   {
@@ -36,6 +38,19 @@ const providers = [
 export function UserLogin() {
   const signIn = useMutation(auth.mutations.signIn.social);
   const { t } = useTranslation("common");
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true);
+
+  const handleSignIn = (provider: SocialProvider) => {
+    try {
+      localStorage.setItem(NEWSLETTER_OPTIN_KEY, String(newsletterOptIn));
+    } catch {
+      // ignore
+    }
+    signIn.mutate({
+      provider,
+      callbackURL: pathsConfig.dashboard.index,
+    });
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -53,12 +68,7 @@ export function UserLogin() {
               key={id}
               variant={index === 0 ? "foreground" : "outline"}
               className="h-auto w-full px-4 py-2.5 text-base"
-              onClick={() =>
-                signIn.mutate({
-                  provider: id,
-                  callbackURL: pathsConfig.dashboard.index,
-                })
-              }
+              onClick={() => handleSignIn(id)}
               disabled={signIn.isPending && signIn.variables.provider === id}
             >
               {signIn.isPending && signIn.variables.provider === id ? (
@@ -69,6 +79,17 @@ export function UserLogin() {
               <span>{label}</span>
             </Button>
           ))}
+          <label className="mt-1 flex cursor-pointer items-center gap-2 self-center">
+            <input
+              type="checkbox"
+              checked={newsletterOptIn}
+              onChange={(e) => setNewsletterOptIn(e.target.checked)}
+              className="border-border accent-primary size-3.5 rounded"
+            />
+            <span className="text-muted-foreground text-xs">
+              {t("newsletter.optIn")}
+            </span>
+          </label>
         </CardContent>
         <CardFooter className="justify-center">
           <p className="text-muted-foreground text-center text-sm">

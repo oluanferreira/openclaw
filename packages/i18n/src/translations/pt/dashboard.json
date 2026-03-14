@@ -217,6 +217,11 @@
       "description": "Informacoes da sua conta de login.",
       "readOnly": "Suas informacoes sao gerenciadas pelo seu provedor de autenticacao."
     },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Receba novidades, novas funcionalidades e dicas por email.",
+      "success": "Preferência de newsletter atualizada."
+    },
     "dangerZone": {
       "title": "Zona de perigo",
       "description": "Exclua permanentemente sua conta.",

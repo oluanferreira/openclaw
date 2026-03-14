@@ -6,6 +6,7 @@ import { db } from "@workspace/db/server";
 import { NodeEnv } from "@workspace/shared/constants";
 import { logger } from "@workspace/shared/logger";
 
+import { sendWelcomeEmail } from "./email";
 import { env } from "./env";
 import { SocialProvider } from "./types";
 
@@ -34,6 +35,19 @@ export const auth = betterAuth({
     [SocialProvider.GITHUB]: {
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        after: async (user) => {
+          // Fire-and-forget: never block signup
+          void sendWelcomeEmail(user.email, user.name).catch((err) =>
+            logger.error("Welcome email failed", err),
+          );
+        },
+      },
     },
   },
   user: {

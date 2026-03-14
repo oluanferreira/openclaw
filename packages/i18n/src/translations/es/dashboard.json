@@ -217,6 +217,11 @@
       "description": "Información de tu cuenta proporcionada por tu proveedor de inicio de sesión.",
       "readOnly": "Esta información está gestionada por tu proveedor OAuth y no se puede editar aquí."
     },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Recibe novedades, nuevas funciones y consejos por email.",
+      "success": "Preferencia de newsletter actualizada."
+    },
     "dangerZone": {
       "title": "Zona peligrosa",
       "description": "Elimina permanentemente tu cuenta y todos los datos asociados.",

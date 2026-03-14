@@ -17,6 +17,7 @@ import { bridgeRouter } from "./modules/bridge/router";
 import { openclawRouter } from "./modules/openclaw/router";
 import { referralRouter } from "./modules/referral/router";
 import { supportRouter } from "./modules/support/router";
+import { userRouter } from "./modules/user/router";
 import { onError } from "./utils/on-error";
 
 const monitor = statusMonitor({
@@ -61,6 +62,7 @@ const appRouter = new Hono()
   .route("/support", supportRouter)
   .route("/referral", referralRouter)
   .route("/bridge", bridgeRouter)
+  .route("/user", userRouter)
   .onError(onError);
 
 type AppRouter = typeof appRouter;

@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { useTranslation } from "@workspace/i18n";
@@ -29,23 +30,40 @@ import { Section } from "~/modules/marketing/layout/section";
 import type { User } from "@workspace/auth";
 import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
 
+export const NEWSLETTER_OPTIN_KEY = "clawin_newsletter_optin";
+
 const HeroLoginButtons = ({ className }: { className?: string }) => {
+  const { t } = useTranslation("common");
   const form = useFormContext<DeployInstanceSchemaInput>();
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true);
 
   const handleBeforeSignIn = () => {
     try {
       localStorage.setItem(DEPLOY_DATA_KEY, JSON.stringify(form.getValues()));
+      localStorage.setItem(NEWSLETTER_OPTIN_KEY, String(newsletterOptIn));
     } catch {
       // ignore
     }
   };
 
   return (
-    <SocialProviders
-      className={className}
-      redirectTo={pathsConfig.index}
-      onBeforeSignIn={handleBeforeSignIn}
-    />
+    <div className={cn("flex flex-col gap-3", className)}>
+      <SocialProviders
+        redirectTo={pathsConfig.index}
+        onBeforeSignIn={handleBeforeSignIn}
+      />
+      <label className="flex cursor-pointer items-center gap-2 self-center">
+        <input
+          type="checkbox"
+          checked={newsletterOptIn}
+          onChange={(e) => setNewsletterOptIn(e.target.checked)}
+          className="border-border accent-primary size-3.5 rounded"
+        />
+        <span className="text-muted-foreground text-xs">
+          {t("newsletter.optIn")}
+        </span>
+      </label>
+    </div>
   );
 };
 

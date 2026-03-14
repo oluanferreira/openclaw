@@ -250,6 +250,9 @@
     "allRightsReserved": "All rights reserved."
   },
   "referral": "Referral Program",
+  "newsletter": {
+    "optIn": "Receive product updates and tips by email"
+  },
   "login": {
     "consentPrefix": "By continuing, you agree to our",
     "consentAnd": "and"

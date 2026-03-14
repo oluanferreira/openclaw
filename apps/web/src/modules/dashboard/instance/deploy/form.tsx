@@ -12,7 +12,7 @@ import {
   useWatch,
 } from "react-hook-form";
 
-import { ApiError } from "@workspace/api/utils";
+import { ApiError, handle } from "@workspace/api/utils";
 import { Trans, useTranslation } from "@workspace/i18n";
 import { deployInstanceSchema } from "@workspace/openclaw";
 import {
@@ -28,6 +28,7 @@ import { Icons } from "@workspace/ui-web/icons";
 import { Input } from "@workspace/ui-web/input";
 import { Spinner } from "@workspace/ui-web/spinner";
 
+import { api } from "~/lib/api/client";
 import { useBilling } from "~/modules/dashboard/billing/hooks/use-billing";
 import { billingApi } from "~/modules/dashboard/billing/lib/api";
 import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
@@ -173,6 +174,20 @@ export const DeployInstanceForm = ({
 
     deploy.mutate({ ...data, locale: i18n.language });
   }, [isCheckoutReturn, subscriptionStatus, deploy, i18n.language]);
+
+  // Sync newsletter opt-in preference after OAuth redirect
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("clawin_newsletter_optin");
+      if (raw === null) return;
+      localStorage.removeItem("clawin_newsletter_optin");
+      if (raw === "true") {
+        void handle(api.user.newsletter.$put)({ json: { optIn: true } });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   return (
     <FormProvider {...form}>
