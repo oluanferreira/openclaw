@@ -102,7 +102,7 @@ export function OnboardingWizard({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Setup ClaWin Bridge</h2>
+          <h2 className="text-lg font-semibold">Setup ClaWin1Click Desktop</h2>
           <p className="text-muted-foreground text-sm">
             Connect your desktop to your AI agent in ~3 minutes
           </p>
@@ -230,7 +230,7 @@ function StepDownload({ onNext }: { onNext: () => void }) {
     <div className="flex flex-col gap-4">
       <StepHeader
         icon="Download"
-        title="Download ClaWin Bridge"
+        title="Download ClaWin1Click Desktop"
         description="A lightweight desktop app (~3MB) that connects your PC to your AI agent."
       />
       <div className="flex flex-col gap-2">
@@ -259,20 +259,34 @@ function StepInstall() {
       <StepHeader
         icon="MonitorSmartphone"
         title="Install & Open"
-        description="Run the downloaded installer and launch ClaWin Bridge."
+        description="Run the downloaded installer and launch ClaWin1Click Desktop."
       />
+      <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+        <Icons.ShieldAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="text-sm">
+          <p className="font-medium text-amber-700 dark:text-amber-300">
+            Windows SmartScreen warning
+          </p>
+          <p className="text-muted-foreground mt-0.5">
+            Windows may show a &ldquo;protected your PC&rdquo; warning because
+            the app is new. Click{" "}
+            <strong>&ldquo;More info&rdquo;</strong> &rarr;{" "}
+            <strong>&ldquo;Run anyway&rdquo;</strong> to proceed safely.
+          </p>
+        </div>
+      </div>
       <div className="bg-muted/30 flex flex-col gap-3 rounded-lg p-4">
         <NumberedStep n={1}>
           Double-click{" "}
           <code className="bg-muted rounded px-1 text-xs">
-            ClaWin Bridge_x64-setup.exe
+            ClaWin1Click-Desktop_0.1.0_x64-setup.exe
           </code>
         </NumberedStep>
         <NumberedStep n={2}>
           Follow the installation wizard (~10 seconds)
         </NumberedStep>
         <NumberedStep n={3}>
-          ClaWin Bridge opens automatically &mdash; look for the tray icon in
+          ClaWin1Click Desktop opens automatically &mdash; look for the tray icon in
           your taskbar
         </NumberedStep>
       </div>

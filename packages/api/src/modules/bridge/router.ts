@@ -37,7 +37,7 @@ function generateBridgeToolsSection(
   if (capabilities.browser) {
     sections.push(`## Bridge — Browser Control
 
-O ClaWin Bridge esta conectado e voce tem acesso a browser tools no PC do usuario.
+O ClaWin1Click Desktop esta conectado e voce tem acesso a browser tools no PC do usuario.
 As acoes sao executadas via Chrome Extension no navegador real do usuario.
 
 ### Tools Disponiveis
@@ -234,8 +234,8 @@ function syncToolsMd(
 // Best-effort agent notification
 function notifyBridgeState(instanceId: string, connected: boolean): void {
   const message = connected
-    ? "ClaWin Bridge connected. Browser tools are now available. Check TOOLS.md for details."
-    : "ClaWin Bridge disconnected. Browser tools are no longer available.";
+    ? "ClaWin1Click Desktop connected. Browser tools are now available. Check TOOLS.md for details."
+    : "ClaWin1Click Desktop disconnected. Browser tools are no longer available.";
 
   notifyAgent(instanceId, message).catch(() => {
     /* noop */
@@ -1200,7 +1200,7 @@ export const bridgeRouter = new Hono()
       critical: false,
       platforms: {
         "windows-x86_64": {
-          url: "https://clawin1click.com/releases/bridge/0.1.0/ClaWin-Bridge_0.1.0_x64-setup.exe",
+          url: "https://clawin1click.com/releases/bridge/0.1.0/ClaWin1Click-Desktop_0.1.0_x64-setup.exe",
         },
       },
       pubDate: "2026-03-13T00:00:00Z",
@@ -1211,6 +1211,6 @@ export const bridgeRouter = new Hono()
 
   .get("/updates/download", (c) => {
     return c.redirect(
-      "https://clawin1click.com/releases/bridge/0.1.0/ClaWin-Bridge_0.1.0_x64-setup.exe",
+      "https://clawin1click.com/releases/bridge/0.1.0/ClaWin1Click-Desktop_0.1.0_x64-setup.exe",
     );
   });
