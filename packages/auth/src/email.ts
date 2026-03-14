@@ -66,7 +66,7 @@ function welcomeEmailHtml({
     en: {
       hi: `Hi ${name},`,
       welcome: "Welcome to ClaWin1Click!",
-      body: "Your account has been created successfully. You can now deploy your own OpenClaw instance in seconds — an AI assistant that works 24/7 for you.",
+      body: "Your account has been created successfully. Your personal AI assistant is on its way — it works 24/7, learns from you, and is always ready to help.",
       cta: "Go to Dashboard",
       footer:
         "If you have any questions, just reply to this email or open a support ticket in the dashboard.",
@@ -75,7 +75,7 @@ function welcomeEmailHtml({
     pt: {
       hi: `Olá ${name},`,
       welcome: "Bem-vindo ao ClaWin1Click!",
-      body: "Sua conta foi criada com sucesso. Agora você pode fazer deploy da sua própria instância OpenClaw em segundos — um assistente de IA que trabalha 24/7 para você.",
+      body: "Sua conta foi criada com sucesso. Seu assistente de IA pessoal está a caminho — ele trabalha 24/7, aprende com você e está sempre pronto para ajudar.",
       cta: "Ir para o Painel",
       footer:
         "Se tiver dúvidas, responda este e-mail ou abra um ticket de suporte no painel.",
@@ -84,7 +84,7 @@ function welcomeEmailHtml({
     es: {
       hi: `Hola ${name},`,
       welcome: "¡Bienvenido a ClaWin1Click!",
-      body: "Tu cuenta ha sido creada exitosamente. Ahora puedes desplegar tu propia instancia OpenClaw en segundos — un asistente de IA que trabaja 24/7 para ti.",
+      body: "Tu cuenta ha sido creada exitosamente. Tu asistente de IA personal está en camino — trabaja 24/7, aprende contigo y siempre está listo para ayudarte.",
       cta: "Ir al Panel",
       footer:
         "Si tienes preguntas, responde este correo o abre un ticket de soporte en el panel.",
