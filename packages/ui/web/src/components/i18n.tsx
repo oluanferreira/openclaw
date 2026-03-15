@@ -3,8 +3,6 @@
 import { config, Locale, LocaleLabel, useTranslation } from "@workspace/i18n";
 import { cn } from "@workspace/ui";
 
-import type { Icon } from "#components/icons";
-
 import { buttonVariants } from "#components/button";
 import { Icons } from "#components/icons";
 import {
@@ -14,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "#components/select";
+
+import type { Icon } from "#components/icons";
 
 export const LocaleIcon: Record<Locale, Icon> = {
   [Locale.EN]: Icons.UnitedKingdom,

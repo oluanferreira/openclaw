@@ -5,7 +5,7 @@ import { checkPendingMigrations } from "./migrations.mjs";
 function runGitCommand(command) {
   try {
     return execSync(command, { encoding: "utf8", stdio: "pipe" }).trim();
-  } catch (error) {
+  } catch {
     return null;
   }
 }

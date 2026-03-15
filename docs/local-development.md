@@ -4,7 +4,7 @@ Use this if you are customizing or operating your own fork of this product.
 
 ## Prerequisites
 
-- Node.js `>=22.17.0`
+- Node.js `>=24.0.0`
 - pnpm `10.30.0`
 - Docker (for local Postgres)
 

@@ -33,7 +33,6 @@ import { useInstance } from "~/modules/dashboard/instance/hooks/use-instance";
 
 import { ModelIcon } from "../icons";
 import { CommunicationChannelIcon } from "../icons";
-
 import { TelegramConfiguration } from "./communication/telegram";
 
 import type { DeployInstanceSchemaInput } from "@workspace/openclaw";
@@ -285,8 +284,7 @@ export const DeployInstanceSubmitButton = ({
   );
 };
 
-interface DeployInstanceFormNoteProps
-  extends React.HTMLAttributes<HTMLSpanElement> {
+interface DeployInstanceFormNoteProps extends React.HTMLAttributes<HTMLSpanElement> {
   note?: React.ReactNode;
 }
 

@@ -83,13 +83,11 @@ export const getMetadata =
         type,
         images,
       },
-      ...{
-        ...(canonical && {
-          alternates: {
-            canonical,
-          },
-        }),
-      },
+      ...(canonical && {
+        alternates: {
+          canonical,
+        },
+      }),
       twitter: {
         card: "summary_large_image" as const,
         images,

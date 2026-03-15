@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 
 // check requirements to run TurboStarter
-void checkRequirements();
+checkRequirements();
 
 function checkRequirements() {
   validateNodeInstalled();

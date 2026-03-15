@@ -5,11 +5,11 @@ import * as React from "react";
 
 import { cn } from "@workspace/ui";
 
-import type { VariantProps } from "class-variance-authority";
-
 import { Button } from "#components/button";
 import { Input } from "#components/input";
 import { Textarea } from "#components/textarea";
+
+import type { VariantProps } from "class-variance-authority";
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (

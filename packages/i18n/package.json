@@ -11,11 +11,8 @@
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
-  "prettier": "@workspace/prettier-config",
   "dependencies": {
     "@formatjs/intl-localematcher": "0.7.5",
     "@workspace/shared": "workspace:*",
@@ -28,11 +25,7 @@
   },
   "devDependencies": {
     "@types/negotiator": "0.6.4",
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/prettier-config": "workspace:*",
     "@workspace/tsconfig": "workspace:*",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
     "typescript": "catalog:"
   }
 }

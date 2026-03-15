@@ -1,5 +1,4 @@
 import "i18next";
-
 import type { config } from "../config";
 import type { translations } from "../translations";
 

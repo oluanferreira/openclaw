@@ -5,8 +5,6 @@ import * as React from "react";
 import { cn } from "@workspace/ui";
 import { useBreakpoint } from "@workspace/ui-web";
 
-import type { CommonProps } from "@workspace/shared/types";
-
 import {
   Dialog,
   DialogClose,
@@ -27,6 +25,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "#components/drawer";
+
+import type { CommonProps } from "@workspace/shared/types";
 
 type WithBaseProps<T> = T & {
   render?: React.ReactElement;

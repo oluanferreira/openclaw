@@ -18,11 +18,10 @@ export const auth = betterAuth({
       maxAge: 5 * 60, // 5 minutes
     },
   },
-  trustedOrigins: [
-    ...(env.NODE_ENV === NodeEnv.DEVELOPMENT
+  trustedOrigins:
+    env.NODE_ENV === NodeEnv.DEVELOPMENT
       ? ["http://localhost*", "https://localhost*"]
-      : []),
-  ],
+      : [],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,

@@ -7,7 +7,6 @@ import {
   getInstanceId,
   toEscapedCommand,
 } from "../../utils";
-
 import { env as flyEnv } from "./env";
 import {
   assignAppIp,
@@ -47,7 +46,7 @@ const getUrl = (id: string, token?: string) =>
 const toLatestMachine = (machines: Machine[]) => {
   return [...machines]
     .filter((machine) => machine.state !== "destroyed")
-    .sort((left, right) => {
+    .toSorted((left, right) => {
       const leftTime = left.updated_at ? Date.parse(left.updated_at) : 0;
       const rightTime = right.updated_at ? Date.parse(right.updated_at) : 0;
       return rightTime - leftTime;

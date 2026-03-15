@@ -1,10 +1,9 @@
 import dayjs from "dayjs";
 import * as z from "zod";
 
+import { getLocaleFromCookies, initializeServerI18n } from ".";
 import { env } from "../env";
 import { makeZodI18nMap } from "../utils";
-
-import { getLocaleFromCookies, initializeServerI18n } from ".";
 
 type LayoutOrPageComponent<Params> = React.ComponentType<Params>;
 

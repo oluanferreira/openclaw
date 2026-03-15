@@ -1,6 +1,5 @@
 import { getUrl } from "..";
 import { escapeShell } from "../../../utils";
-
 import { env } from "./env";
 
 export const getProvisionRouteScript = (instanceId: string) => {

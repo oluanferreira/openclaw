@@ -17,7 +17,7 @@ export const TurboLink = (props: TurboLinkProps) => {
 
   const conditionalPrefetch = () => {
     if (strHref) {
-      void router.prefetch(strHref);
+      router.prefetch(strHref);
     }
   };
 

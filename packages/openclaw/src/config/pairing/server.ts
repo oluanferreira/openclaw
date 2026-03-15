@@ -1,5 +1,4 @@
 import { cli } from "../../deployment";
-
 import {
   cliChannelPairingListSchema,
   cliDevicePairingListSchema,

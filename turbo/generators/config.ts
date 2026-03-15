@@ -1,6 +1,6 @@
-import type { PlopTypes } from "@turbo/gen";
-
 import { createPackageGenerator } from "./templates/package/generator";
+
+import type { PlopTypes } from "@turbo/gen";
 
 const generators = [createPackageGenerator];
 

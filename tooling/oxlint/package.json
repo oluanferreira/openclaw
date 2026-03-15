@@ -1,0 +1,21 @@
+{
+  "name": "@workspace/oxlint",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
+  "dependencies": {
+    "@tanstack/eslint-plugin-query": "5.91.2",
+    "eslint-plugin-expo": "1.0.0",
+    "eslint-plugin-i18next": "6.1.3",
+    "eslint-plugin-turbo": "catalog:turbo",
+    "eslint-plugin-unused-imports": "4.3.0",
+    "oxlint": "1.55.0",
+    "oxlint-tsgolint": "0.16.0"
+  }
+}

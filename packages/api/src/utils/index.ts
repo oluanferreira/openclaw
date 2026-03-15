@@ -63,6 +63,9 @@ export const handle = <
           e instanceof Error
             ? e.message
             : "Something went wrong. Please try again later.",
+          {
+            cause: e,
+          },
         );
       }
       return null as HandleReturn<TResponse, E, S>;

@@ -49,7 +49,7 @@ export function checkPendingMigrations() {
     } else {
       console.log("\x1b[32m%s\x1b[0m", "✅ All migrations are up to date.");
     }
-  } catch (error) {
+  } catch {
     console.log(
       "\x1b[33m%s\x1b[0m",
       "❌ Could not connect to the database. Please ensure your connection string is up to date and your database instance is running.\n",

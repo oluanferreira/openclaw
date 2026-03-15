@@ -43,7 +43,7 @@ export const InstanceLogs = () => {
   const entries =
     data?.pages
       .slice()
-      .reverse()
+      .toReversed()
       .flatMap((p) => p.entries) ?? [];
 
   const status = isLoading

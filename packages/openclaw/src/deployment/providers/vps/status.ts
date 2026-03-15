@@ -1,7 +1,6 @@
 import { logger } from "@workspace/shared/logger";
 
 import { escapeShell } from "../../utils";
-
 import { execute, parseOutput } from "./sdk";
 
 const getStatusScript = (instanceId: string) => `

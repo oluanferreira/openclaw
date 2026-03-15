@@ -6,7 +6,6 @@ import {
   getInstanceId,
   toEscapedCommand,
 } from "../../utils";
-
 import { getProvisionRouteScript } from "./caddy";
 import { env as vpsEnv } from "./env";
 import { execute, parseOutput } from "./sdk";

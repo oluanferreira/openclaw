@@ -6,7 +6,6 @@ import { useTranslation } from "@workspace/i18n";
 import { isInstanceReadyForPairing } from "~/modules/dashboard/instance/lib/status";
 
 import { instance as instanceApi } from "../lib/api";
-
 import { useInstance } from "./use-instance";
 
 const useGatewayReady = () => {

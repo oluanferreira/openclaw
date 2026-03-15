@@ -24,7 +24,6 @@ import {
   enforceNoInstance,
   enforceActiveSubscription,
 } from "../../middleware";
-
 import { pairingRouter } from "./pairing/router";
 
 export const openclawRouter = new Hono()

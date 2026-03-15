@@ -2,7 +2,6 @@ import { createFetch, createSchema } from "@better-fetch/fetch";
 import * as z from "zod";
 
 import { parseTextLogLine, stripAnsi } from "../../logs";
-
 import { env } from "./env";
 
 import type { LogEntry, LogsPageParams } from "../../schema";

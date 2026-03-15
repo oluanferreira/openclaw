@@ -1,33 +1,17 @@
 {
   "css.customData": [".vscode/tailwind.json"],
+  "oxc.fmt.configPath": "oxfmt.config.ts",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.oxc": "always"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-  "eslint.useFlatConfig": true,
-  "eslint.workingDirectories": [
-    { "pattern": "apps/*/" },
-    { "pattern": "packages/*/" },
-    { "pattern": "tooling/*/" }
-  ],
-  "prettier.ignorePath": ".gitignore",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.preferences.autoImportFileExcludePatterns": [
     "next/router.d.ts",
     "next/dist/client/router.d.ts"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "files.associations": {
     "*.css": "tailwindcss"
   },
@@ -35,35 +19,5 @@
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
-  "tailwindCSS.classAttributes": [
-    "class",
-    "className",
-    "headerClassName",
-    "contentContainerClassName",
-    "columnWrapperClassName",
-    "endFillColorClassName",
-    "imageClassName",
-    "tintColorClassName",
-    "ios_backgroundColorClassName",
-    "thumbColorClassName",
-    "trackColorOnClassName",
-    "trackColorOffClassName",
-    "selectionColorClassName",
-    "cursorColorClassName",
-    "underlineColorAndroidClassName",
-    "placeholderTextColorClassName",
-    "selectionHandleColorClassName",
-    "colorsClassName",
-    "progressBackgroundColorClassName",
-    "titleColorClassName",
-    "underlayColorClassName",
-    "colorClassName",
-    "drawerBackgroundColorClassName",
-    "statusBarBackgroundColorClassName",
-    "backdropColorClassName",
-    "backgroundColorClassName",
-    "ListFooterComponentClassName",
-    "ListHeaderComponentClassName"
-  ],
-  "tailwindCSS.classFunctions": ["useResolveClassNames"]
+  "tailwindCSS.classAttributes": ["class", "className"],
 }

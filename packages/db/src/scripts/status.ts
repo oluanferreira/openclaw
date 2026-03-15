@@ -30,7 +30,7 @@ function loadJournalEntries(): JournalEntry[] {
   const journalFile = fs.readFileSync(JOURNAL_PATH, "utf-8");
   const parsed = JSON.parse(journalFile) as JournalFile;
 
-  return [...(parsed.entries ?? [])].sort((a, b) => a.idx - b.idx);
+  return [...(parsed.entries ?? [])].toSorted((a, b) => a.idx - b.idx);
 }
 
 function toTimestamp(value: unknown): number | null {

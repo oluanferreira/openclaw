@@ -7,12 +7,9 @@
     "build": "next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "dev": "next dev",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
-  "prettier": "@workspace/prettier-config",
   "dependencies": {
     "@hookform/resolvers": "catalog:",
     "@tanstack/react-query": "catalog:",
@@ -44,15 +41,11 @@
   "devDependencies": {
     "@svgr/webpack": "8.1.0",
     "@tailwindcss/postcss": "4.1.18",
-    "@types/node": "catalog:node22",
+    "@types/node": "catalog:node24",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/prettier-config": "workspace:*",
     "@workspace/tsconfig": "workspace:*",
     "autoprefixer": "10.4.21",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
     "typescript": "catalog:"
   }
 }

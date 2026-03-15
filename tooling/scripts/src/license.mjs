@@ -7,7 +7,7 @@ function validateVisibility() {
     remoteUrl = execSync("git config --get remote.origin.url")
       .toString()
       .trim();
-  } catch (error) {
+  } catch {
     return Promise.resolve();
   }
 
@@ -49,6 +49,8 @@ function validateVisibility() {
 
         process.exit(1);
       }
+
+      return;
     });
 }
 
@@ -65,7 +67,7 @@ async function isOnline() {
         }
       });
     }).catch(() => false);
-  } catch (e) {
+  } catch {
     return false;
   }
 }

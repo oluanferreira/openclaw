@@ -24,13 +24,17 @@ catalog:
   zustand: 5.0.9
 
 catalogs:
-  node22:
-    "@types/node": 22.16.0
+  node24:
+    "@types/node": 24.0.0
   react19:
     "@types/react": 19.1.14
     "@types/react-dom": 19.1.9
     react: 19.1.0
     react-dom: 19.1.0
+  turbo:
+    "@turbo/gen": 2.8.17
+    turbo: 2.8.17
+    eslint-plugin-turbo: 2.8.17
 
 overrides:
   "@types/minimatch": 5.1.2

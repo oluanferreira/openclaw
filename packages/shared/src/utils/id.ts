@@ -21,7 +21,7 @@ export const createIdGenerator = ({
 } = {}) => {
   const generator = () => {
     const alphabetLength = alphabet.length;
-    const chars = new Array(size);
+    const chars = Array.from({ length: size });
     for (let i = 0; i < size; i++) {
       chars[i] = alphabet[(Math.random() * alphabetLength) | 0];
     }

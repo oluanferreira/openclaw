@@ -8,8 +8,6 @@ import * as React from "react";
 import { useTranslation } from "@workspace/i18n";
 import { cn } from "@workspace/ui";
 
-import type { VariantProps } from "class-variance-authority";
-
 import { Button } from "#components/button";
 import { Icons } from "#components/icons";
 import { Input } from "#components/input";
@@ -18,6 +16,8 @@ import { Sheet, SheetContent } from "#components/sheet";
 import { Skeleton } from "#components/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#components/tooltip";
 import { useBreakpoint } from "#hooks/use-media-query";
+
+import type { VariantProps } from "class-variance-authority";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

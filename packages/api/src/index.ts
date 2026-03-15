@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import { statusMonitor } from "hono-status-monitor";
 import { cors } from "hono/cors";
 import { logger as loggerMiddleware } from "hono/logger";
-import { statusMonitor } from "hono-status-monitor";
 
 import { db } from "@workspace/db/server";
 import { logger } from "@workspace/shared/logger";

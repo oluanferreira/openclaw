@@ -1,7 +1,6 @@
 import { getGatewayConfig } from "../../../config/gateway";
 import { mergeLogStreamsToEntries } from "../../logs";
 import { escapeShell, getGatewayToken, getInstanceId } from "../../utils";
-
 import { env as gcpEnv } from "./env";
 import { executeOnInstance, instancesClient } from "./sdk";
 

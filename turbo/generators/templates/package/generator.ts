@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+
 import type { PlopTypes } from "@turbo/gen";
 
 export function createPackageGenerator(plop: PlopTypes.NodePlopAPI): void {
@@ -19,18 +20,13 @@ export function createPackageGenerator(plop: PlopTypes.NodePlopAPI): void {
       },
     ],
     actions: [
-      (answers) => {
+      (answers: Record<string, unknown>) => {
         if ("name" in answers && typeof answers.name === "string") {
           if (answers.name.startsWith("@workspace/")) {
             answers.name = answers.name.replace("@workspace/", "");
           }
         }
         return "Config sanitized";
-      },
-      {
-        type: "add",
-        path: "packages/{{ name }}/eslint.config.js",
-        templateFile: "templates/package/eslint.config.js.hbs",
       },
       {
         type: "add",
@@ -50,15 +46,24 @@ export function createPackageGenerator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: "modify",
         path: "packages/{{ name }}/package.json",
-        async transform(content, answers) {
-          const pkg = JSON.parse(content);
+        async transform(content: string, answers: { deps: string }) {
+          const pkg = JSON.parse(content) as {
+            dependencies?: Record<string, string>;
+          };
 
           for (const dep of answers.deps.split(" ").filter(Boolean)) {
             const version = await fetch(
               `https://registry.npmjs.org/-/package/${dep}/dist-tags`,
             )
               .then((res) => res.json())
-              .then((json) => json.latest);
+              .then((json) =>
+                json &&
+                typeof json === "object" &&
+                "latest" in json &&
+                typeof json.latest === "string"
+                  ? json.latest
+                  : undefined,
+              );
 
             if (!pkg.dependencies) pkg.dependencies = {};
             pkg.dependencies[dep] = `^${version}`;
@@ -66,7 +71,7 @@ export function createPackageGenerator(plop: PlopTypes.NodePlopAPI): void {
           return JSON.stringify(pkg, null, 2);
         },
       },
-      async (answers) => {
+      async () => {
         /**
          * Install dependencies and format everything
          */
