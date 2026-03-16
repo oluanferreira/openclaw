@@ -170,6 +170,27 @@ export const BridgeView = () => {
       prev.map((d, idx) => (idx === i ? { ...d, [field]: value } : d)),
     );
 
+  const [tokenCopied, setTokenCopied] = useState(false);
+
+  const handleCopyToken = async () => {
+    const token = status.data?.token;
+    if (!token) return;
+    try {
+      await navigator.clipboard.writeText(token);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = token;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setTokenCopied(true);
+    globalThis.setTimeout(() => setTokenCopied(false), 3000);
+  };
+
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window === "undefined") return false;
     const saved = localStorage.getItem("bridge-onboarding-step");
@@ -253,18 +274,32 @@ export const BridgeView = () => {
               <CardContent className="p-5 pt-3">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-sm">{maskedToken}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => rotateToken.mutate()}
-                    disabled={rotateToken.isPending}
-                  >
-                    {rotateToken.isPending ? (
-                      <Spinner className="size-4" />
-                    ) : (
-                      <Icons.RefreshCw className="size-4" />
-                    )}
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopyToken}
+                      disabled={!status.data?.token}
+                    >
+                      {tokenCopied ? (
+                        <Icons.Check className="size-4 text-green-500" />
+                      ) : (
+                        <Icons.Copy className="size-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => rotateToken.mutate()}
+                      disabled={rotateToken.isPending}
+                    >
+                      {rotateToken.isPending ? (
+                        <Spinner className="size-4" />
+                      ) : (
+                        <Icons.RefreshCw className="size-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
