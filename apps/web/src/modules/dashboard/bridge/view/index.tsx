@@ -226,11 +226,38 @@ export const BridgeView = () => {
   return (
     <>
       <DashboardHeader>
-        <div>
-          <DashboardHeaderTitle>Bridge</DashboardHeaderTitle>
-          <DashboardHeaderDescription>
-            Connect your desktop to your OpenClaw instance
-          </DashboardHeaderDescription>
+        <div className="flex w-full items-center justify-between">
+          <div>
+            <DashboardHeaderTitle>Bridge</DashboardHeaderTitle>
+            <DashboardHeaderDescription>
+              Connect your desktop to your OpenClaw instance
+            </DashboardHeaderDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() =>
+                window.open("/api/bridge/updates/download", "_blank")
+              }
+            >
+              <Icons.Download className="size-4" />
+              Download App
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => {
+                localStorage.removeItem("bridge-onboarding-step");
+                setShowOnboarding(true);
+              }}
+            >
+              <Icons.RotateCcw className="size-4" />
+              Setup Guide
+            </Button>
+          </div>
         </div>
       </DashboardHeader>
 
