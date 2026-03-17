@@ -60,7 +60,7 @@ export const auth = betterAuth({
     cookies: {
       state: {
         attributes: {
-          sameSite: "none",
+          sameSite: "lax",
           secure: true,
         },
       },

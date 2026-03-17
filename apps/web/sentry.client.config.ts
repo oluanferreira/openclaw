@@ -10,7 +10,13 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
 
-  integrations: [Sentry.replayIntegration()],
+  integrations: [
+    Sentry.replayIntegration({
+      maskAllText: true,
+      maskAllInputs: true,
+      blockAllMedia: false,
+    }),
+  ],
 
   // Only enable in production when DSN is configured
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
