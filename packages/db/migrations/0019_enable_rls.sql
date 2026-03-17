@@ -36,25 +36,25 @@ CREATE POLICY user_isolation ON "user"
 
 -- Policies for tables with direct userId FK
 CREATE POLICY session_isolation ON "session"
-  USING ("userId" = current_setting('app.current_user_id', true));
+  USING (user_id = current_setting('app.current_user_id', true));
 
 CREATE POLICY subscription_isolation ON "subscription"
-  USING ("userId" = current_setting('app.current_user_id', true));
+  USING (user_id = current_setting('app.current_user_id', true));
 
 CREATE POLICY instance_isolation ON "instance"
-  USING ("userId" = current_setting('app.current_user_id', true));
+  USING (user_id = current_setting('app.current_user_id', true));
 
 CREATE POLICY affiliate_isolation ON "affiliate"
-  USING ("userId" = current_setting('app.current_user_id', true));
+  USING (user_id = current_setting('app.current_user_id', true));
 
 CREATE POLICY support_ticket_isolation ON "support_ticket"
-  USING ("userId" = current_setting('app.current_user_id', true));
+  USING (user_id = current_setting('app.current_user_id', true));
 
 CREATE POLICY ticket_reply_isolation ON "ticket_reply"
-  USING ("userId" = current_setting('app.current_user_id', true));
+  USING (user_id = current_setting('app.current_user_id', true));
 
 -- Policies for tables with indirect ownership (via instanceId FK)
 CREATE POLICY instance_skill_isolation ON "instance_skill"
-  USING ("instanceId" IN (
-    SELECT id FROM "instance" WHERE "userId" = current_setting('app.current_user_id', true)
+  USING (instance_id IN (
+    SELECT id FROM "instance" WHERE user_id = current_setting('app.current_user_id', true)
   ));
