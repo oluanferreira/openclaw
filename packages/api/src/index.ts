@@ -46,6 +46,14 @@ const appRouter = new Hono()
     }),
   )
   .use(loggerMiddleware((...args) => logger.info(...args)))
+  // Request size limit: reject payloads > 10MB to prevent DoS
+  .use(async (c, next) => {
+    const contentLength = parseInt(c.req.header("content-length") ?? "0", 10);
+    if (contentLength > 10 * 1024 * 1024) {
+      return c.json({ error: "Payload too large" }, 413);
+    }
+    await next();
+  })
   .use(delay)
   .use(localize)
   // Global rate limit: 120 req/min per IP

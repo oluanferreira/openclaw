@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+
 import { Client } from "ssh2";
 
 import { env } from "./env";
@@ -16,6 +18,30 @@ export interface RunRemoteScriptResult {
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
 
 const normalizePrivateKey = (value: string) => value.replaceAll("\\n", "\n");
+
+/**
+ * Resolve private key from file path (preferred) or env var (fallback).
+ * File-based keys avoid exposing the key in /proc/PID/environ.
+ */
+const resolvePrivateKey = (): string => {
+  if (env.VPS_PRIVATE_KEY_PATH) {
+    try {
+      return fs.readFileSync(env.VPS_PRIVATE_KEY_PATH, "utf8");
+    } catch (err) {
+      throw new Error(
+        `Failed to read SSH key from VPS_PRIVATE_KEY_PATH (${env.VPS_PRIVATE_KEY_PATH}): ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
+  if (env.VPS_PRIVATE_KEY) {
+    return normalizePrivateKey(env.VPS_PRIVATE_KEY);
+  }
+
+  throw new Error(
+    "SSH key not configured: set VPS_PRIVATE_KEY_PATH (recommended) or VPS_PRIVATE_KEY",
+  );
+};
 
 export const execute = async (
   script: string,
@@ -79,7 +105,7 @@ export const execute = async (
         host: env.VPS_HOST,
         port: env.VPS_SSH_PORT,
         username: env.VPS_USER,
-        privateKey: normalizePrivateKey(env.VPS_PRIVATE_KEY),
+        privateKey: resolvePrivateKey(),
         passphrase: env.VPS_PRIVATE_KEY_PASSPHRASE,
       });
   });
