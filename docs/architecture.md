@@ -52,7 +52,19 @@ packages/
 - `Docker`: runs one OpenClaw container per user instance
 - `Caddy`: TLS termination and host-based routing to instance containers
 
-## Current security posture
+## Security layers
 
-- Gateway access currently relies on tokenized URL usage (`#token=...`) and direct Caddy proxying.
-- If you need stricter gateway access controls, add an auth layer at the proxy and/or remove direct token exposure in URLs.
+| Layer | Protection |
+|-------|-----------|
+| Auth | Better Auth — OAuth, session cookies (`sameSite: lax`, `httpOnly`, `secure`) |
+| API | CORS whitelist, rate limiting (60 req/min/worker), 10MB payload limit |
+| Headers | HSTS, X-Frame-Options: DENY, nosniff, Referrer-Policy, Permissions-Policy |
+| Data at rest | API keys encrypted with AES-256-GCM, DB password required |
+| Row-Level Security | RLS with FORCE on 8 tables, per-request `app.current_user_id` |
+| Admin access | `ADMIN_EMAILS` env var (not hardcoded) |
+| SSH deployment | Key stored as file (`chmod 600`), not in env vars |
+| Docker | Images pinned to specific version, Python deps in isolated venv |
+| Error tracking | Sentry replay with text/input masking |
+| Gateway | Tokenized URL (`#token=...`) + Caddy proxying |
+
+For full security documentation, see [SECURITY.md](../SECURITY.md).
