@@ -19,7 +19,10 @@ import type { User } from "@workspace/auth";
 
 const UPLOAD_DIR = path.join(process.cwd(), "uploads", "tickets");
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim())
+  .filter(Boolean);
 
 const createTicketSchema = z.object({
   subject: z.string().min(1).max(200),

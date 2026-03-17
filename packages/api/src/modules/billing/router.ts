@@ -26,7 +26,10 @@ import {
   voidPendingCommissionsForUser,
 } from "../referral/service";
 
-const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim())
+  .filter(Boolean);
 let _stripe: Stripe | null = null;
 const getStripe = () => {
   _stripe ??= new Stripe(env.STRIPE_SECRET_KEY);

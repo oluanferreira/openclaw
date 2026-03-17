@@ -140,7 +140,10 @@ export const enforceNoInstance = createMiddleware<{
   await next();
 });
 
-const ADMIN_EMAILS = ["luanferreira.emp@gmail.com", "luizjuniorbjj@gmail.com"];
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim())
+  .filter(Boolean);
 
 export const enforceAdmin = createMiddleware<{
   Variables: {

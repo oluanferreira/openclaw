@@ -50,10 +50,10 @@ export const referralRouter = new Hono()
     const user = c.var.user;
 
     // Only admin accounts can activate without an active subscription
-    const ADMIN_EMAILS = [
-      "luanferreira.emp@gmail.com",
-      "luizjuniorbjj@gmail.com",
-    ];
+    const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean);
     if (!ADMIN_EMAILS.includes(user.email)) {
       const sub = await db.query.subscription.findFirst({
         where: (t, { eq: eqFn }) => eqFn(t.userId, user.id),

@@ -1,10 +1,20 @@
-FROM ghcr.io/openclaw/openclaw:latest
+# SECURITY: Pin to specific version — never use :latest in production
+# Update this tag periodically and test before deploying
+FROM ghcr.io/openclaw/openclaw:2026.2.24
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends     python3-pip     ffmpeg     jq     tesseract-ocr     && apt-get clean     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-venv \
+    ffmpeg \
+    jq \
+    tesseract-ocr \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# yt-dlp via pip (mais atualizado que apt)
-RUN pip3 install --break-system-packages yt-dlp
+# yt-dlp via isolated virtual environment (no --break-system-packages)
+RUN python3 -m venv /opt/yt-dlp \
+    && /opt/yt-dlp/bin/pip install --no-cache-dir yt-dlp
+ENV PATH="/opt/yt-dlp/bin:$PATH"
 
 USER node
