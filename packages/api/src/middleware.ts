@@ -73,6 +73,8 @@ export function rateLimit(
   });
 }
 
+import { sql } from "drizzle-orm";
+
 import { auth } from "@workspace/auth/server";
 import { db } from "@workspace/db/server";
 import { makeZodI18nMap } from "@workspace/i18n";
@@ -101,6 +103,12 @@ export const enforceAuth = createMiddleware<{
   }
 
   c.set("user", user);
+
+  // RLS: Set current user ID for Row-Level Security policies
+  await db.execute(
+    sql`SELECT set_config('app.current_user_id', ${user.id}, true)`,
+  );
+
   await next();
 });
 
